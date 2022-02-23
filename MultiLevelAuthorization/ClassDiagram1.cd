@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MultiLevelAuthorization.Models.AuthApp" Collapsed="true">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAgAAAAAAECAAAAQAAAA=</HashCode>
+      <FileName>Models\AuthApp.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.PermissionGroup" Collapsed="true">
+    <Position X="6.5" Y="3.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAABAAAAABAUAAAAAUgAAA=</HashCode>
+      <FileName>Models\PermissionGroup.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="App" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.Role" Collapsed="true">
+    <Position X="1.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIIAAIAAAAAAAAAAAAABAAAAAAAAAAAEAQgAAE=</HashCode>
+      <FileName>Models\Role.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="App" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.RoleUser" Collapsed="true">
+    <Position X="1.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAIAAAAAEAAAAAgAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\RoleUser.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Role" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.SecureObject" Collapsed="true">
+    <Position X="3.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAQAAACBAAAAABAAAAAACwAAAAAQAAAA=</HashCode>
+      <FileName>Models\SecureObject.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SecureObjectType" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.SecureObjectRolePermission" Collapsed="true">
+    <Position X="1.75" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAIAAAIAAAAAECAAEAAAAAEAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\SecureObjectRolePermission.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SecureObject" />
+      <Property Name="Role" />
+      <Property Name="PermissionGroup" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.SecureObjectType" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAAAAAAAAAAAAAAGgAAAAAQgAAA=</HashCode>
+      <FileName>Models\SecureObjectType.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="App" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.SecureObjectUserPermission" Collapsed="true">
+    <Position X="5.75" Y="5.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAIAAAAAACAAEAgAAAEAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\SecureObjectUserPermission.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SecureObject" />
+      <Property Name="PermissionGroup" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.PermissionGroupPermission" Collapsed="true">
+    <Position X="9" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAEEAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\PermissionGroupPermission.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="PermissionGroup" />
+      <Property Name="Permission" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MultiLevelAuthorization.Models.Permission" Collapsed="true">
+    <Position X="9" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAEAAAAAAAAAABAACAAAAQgAAA=</HashCode>
+      <FileName>Models\Permission.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="App" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

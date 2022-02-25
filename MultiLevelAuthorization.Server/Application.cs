@@ -1,5 +1,8 @@
 ﻿
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Server.Models;
 
@@ -41,6 +44,10 @@ public class Application
             var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await appDbContext.Database.EnsureDeletedAsync();
             await appDbContext.Database.EnsureCreatedAsync();
+
+            var appDbContext2 = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+            var databaseCreator = (RelationalDatabaseCreator)appDbContext2.Database.GetService<IDatabaseCreator>();
+            await databaseCreator.CreateTablesAsync();
             return;
         }
 

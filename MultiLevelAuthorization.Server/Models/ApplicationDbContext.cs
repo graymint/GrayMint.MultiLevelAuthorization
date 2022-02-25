@@ -1,13 +1,11 @@
 ﻿using System.Data;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MultiLevelAuthorization.Models;
 
 // ReSharper disable once PartialTypeWithSinglePart
 namespace MultiLevelAuthorization.Server.Models;
 
-public partial class ApplicationDbContext : AuthDbContext
+public partial class ApplicationDbContext : DbContext
 {
     public virtual DbSet<App> Apps { get; set; } = default!;
 
@@ -46,8 +44,7 @@ public partial class ApplicationDbContext : AuthDbContext
     {
     }
 
-    protected override void ConfigureConventions(
-        ModelConfigurationBuilder configurationBuilder)
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<DateTime>()
             .HavePrecision(0);
@@ -55,13 +52,10 @@ public partial class ApplicationDbContext : AuthDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_100_CI_AS_SC_UTF8");
 
         modelBuilder.Entity<App>(entity =>
         {
-            entity.Property(e => e.AppId);
             entity.HasIndex(e => e.AppName).IsUnique();
         });
 

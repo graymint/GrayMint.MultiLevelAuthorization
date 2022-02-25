@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Server.Models;
 
 namespace MultiLevelAuthorization.Server;
@@ -54,6 +55,7 @@ public class Program
         builder.Services.AddAppSwaggerGen(Application.Name);
         builder.Services.AddMemoryCache();
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+        builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
         builder.Services.AddSingleton<Application>();
 
         // Create TimedHostedService
@@ -72,7 +74,7 @@ public class Program
         webApp.UseAuthorization();
         webApp.MapControllers();
 
-        var app = webApp.Services.GetRequiredService<Application>();
-        await app.Run(webApp, args);
+        var application = webApp.Services.GetRequiredService<Application>();
+        await application.Run(webApp, args);
     }
 }

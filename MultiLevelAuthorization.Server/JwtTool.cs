@@ -12,7 +12,7 @@ public class JwtTool
         var claimsList = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, subject),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         
         if (claims != null) claimsList.AddRange(claims);

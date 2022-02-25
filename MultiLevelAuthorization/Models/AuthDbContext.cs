@@ -3,7 +3,8 @@
 
 namespace MultiLevelAuthorization.Models;
 
-public abstract class AuthDbContext : DbContext
+// ReSharper disable once PartialTypeWithSinglePart
+public partial class AuthDbContext : DbContext
 {
     public const string Schema = "auth";
 
@@ -16,15 +17,16 @@ public abstract class AuthDbContext : DbContext
     public virtual DbSet<SecureObject> SecureObjects { get; set; } = default!;
     public virtual DbSet<SecureObjectRolePermission> SecureObjectRolePermissions { get; set; } = default!;
     public virtual DbSet<SecureObjectUserPermission> SecureObjectUserPermissions { get; set; } = default!;
+    public virtual DbSet<App> Apps { get; set; } = default!;
 
     public IQueryable<SecureObject> SecureObjectHierarchy(Guid id)
         => FromExpression(() => SecureObjectHierarchy(id));
 
-    protected AuthDbContext()
+    public AuthDbContext()
     {
     }
 
-    protected AuthDbContext(DbContextOptions options)
+    public AuthDbContext(DbContextOptions options)
         : base(options)
     {
     }
@@ -32,110 +34,144 @@ public abstract class AuthDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AuthApp>(entity =>
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema(Schema);
+
+        modelBuilder.Entity<App>(_ =>
         {
-            entity.ToTable("Apps");
-            entity.HasKey(e => e.AppId);
         });
 
         modelBuilder.Entity<SecureObjectType>(entity =>
         {
-            entity.ToTable(nameof(SecureObjectTypes), Schema);
             entity.Property(e => e.SecureObjectTypeId)
                 .ValueGeneratedNever();
 
-            entity.HasIndex(e => e.SecureObjectTypeName)
+            entity.HasIndex(e => new {e.AppId, e.SecureObjectTypeName})
                 .IsUnique();
         });
 
         modelBuilder.Entity<Permission>(entity =>
-            {
-                entity.ToTable(nameof(Permissions), Schema);
+        {
+            entity.HasKey(x => new { x.AppId, x.PermissionId });
 
-                entity.Property(e => e.PermissionCode)
-                    .ValueGeneratedNever();
+            entity.Property(e => e.PermissionId)
+                .ValueGeneratedNever();
 
-                entity.HasIndex(e => new { e.AppId, e.PermissionName })
+            entity.HasIndex(e => new { e.AppId, e.PermissionName })
                 .IsUnique();
 
-                entity
-                    .HasMany(p => p.PermissionGroups)
-                    .WithMany(p => p.Permissions)
-                    .UsingEntity<PermissionGroupPermission>(
-                        j => j
-                            .HasOne(pt => pt.PermissionGroup)
-                            .WithMany(t => t.PermissionGroupPermissions)
-                            .HasForeignKey(pt => pt.PermissionGroupId)
-                            .OnDelete(DeleteBehavior.NoAction),
-                        j => j
-                            .HasOne(pt => pt.Permission)
-                            .WithMany(p => p.PermissionGroupPermissions)
-                            .HasForeignKey(pt => pt.PermissionCode)
-                    );
-            });
+            entity
+                .HasMany(p => p.PermissionGroups)
+                .WithMany(p => p.Permissions)
+                .UsingEntity<PermissionGroupPermission>(
+                    j => j
+                        .HasOne(pt => pt.PermissionGroup)
+                        .WithMany(t => t.PermissionGroupPermissions)
+                        .HasPrincipalKey(p => new { p.AppId, p.PermissionGroupId })
+                        .HasForeignKey(pt => new { pt.AppId, pt.PermissionGroupId })
+                        .OnDelete(DeleteBehavior.NoAction),
+                    j => j
+                        .HasOne(pt => pt.Permission)
+                        .WithMany(p => p.PermissionGroupPermissions)
+                        .HasPrincipalKey(p => new { p.AppId, p.PermissionId })
+                        .HasForeignKey(f => new { f.AppId, f.PermissionId })
+                );
+        });
 
         modelBuilder.Entity<PermissionGroup>(entity =>
         {
-            entity.ToTable(nameof(PermissionGroups), Schema);
-
             entity.Property(e => e.PermissionGroupId)
                 .ValueGeneratedNever();
 
-            entity.HasIndex(e => e.PermissionGroupName)
+            entity.HasIndex(e => new { e.AppId, e.PermissionGroupName })
                 .IsUnique();
         });
 
         modelBuilder.Entity<PermissionGroupPermission>(entity =>
         {
-            entity.ToTable(nameof(PermissionGroupPermissions), Schema);
-            entity.HasKey(e => new { e.PermissionGroupId, PermissionId = e.PermissionCode });
+            entity.HasKey(e => new { e.PermissionGroupId, e.PermissionId });
+
+            entity.HasOne(e => e.App)
+                .WithMany(d => d.GroupPermissions)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.ToTable(nameof(Roles), Schema);
+            entity.HasIndex(e => new { e.AppId, e.RoleName })
+                .IsUnique();
+
         });
 
         modelBuilder.Entity<RoleUser>(entity =>
         {
-            entity.ToTable(nameof(RoleUsers), Schema);
+            entity.HasKey(e => new { e.RoleId, e.UserId });
 
-            entity.HasKey(e => new { e.UserId, e.RoleId });
+            entity.HasOne(e => e.Role)
+                .WithMany(d => d.RoleUsers)
+                .HasForeignKey(e => new { e.AppId, e.RoleId })
+                .HasPrincipalKey(d => new { d.AppId, d.RoleId });
         });
 
         modelBuilder.Entity<SecureObject>(entity =>
         {
-            entity.ToTable(nameof(SecureObjects), Schema);
+            entity.HasOne(e => e.SecureObjectType)
+                .WithMany(d => d.SecureObjects)
+                .HasPrincipalKey(p => new { p.AppId, p.SecureObjectTypeId })
+                .HasForeignKey(f => new { f.AppId, f.SecureObjectTypeId });
+
         });
 
         modelBuilder.Entity<SecureObjectRolePermission>(entity =>
         {
-            entity.ToTable(nameof(SecureObjectRolePermissions), Schema);
             entity.HasKey(e => new { e.SecureObjectId, e.RoleId, e.PermissionGroupId });
 
             entity.HasOne(e => e.Role)
                 .WithMany(d => d.RolePermissions)
+                .HasForeignKey(e => new { e.AppId, e.RoleId })
+                .HasPrincipalKey(p => new { p.AppId, p.RoleId })
                 .OnDelete(DeleteBehavior.NoAction);
 
             entity.HasOne(e => e.PermissionGroup)
                 .WithMany(d => d.RolePermissions)
+                .HasForeignKey(e => new { e.AppId, e.PermissionGroupId })
+                .HasPrincipalKey(d => new { d.AppId, d.PermissionGroupId })
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(e => e.SecureObject)
+                .WithMany(d => d.RolePermissions)
+                .HasForeignKey(e => new { e.AppId, e.SecureObjectId })
+                .HasPrincipalKey(d => new { d.AppId, d.SecureObjectId })
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<SecureObjectUserPermission>(entity =>
         {
-            entity.ToTable(nameof(SecureObjectUserPermissions), Schema);
             entity.HasKey(e => new { e.SecureObjectId, UsedId = e.UserId, e.PermissionGroupId });
 
             entity.HasOne(e => e.PermissionGroup)
                 .WithMany(d => d.UserPermissions)
+                .HasForeignKey(e => new { e.AppId, e.PermissionGroupId })
+                .HasPrincipalKey(d => new { d.AppId, d.PermissionGroupId })
                 .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(e => e.SecureObject)
+                .WithMany(d => d.UserPermissions)
+                .HasForeignKey(e => new { e.AppId, e.SecureObjectId })
+                .HasPrincipalKey(d => new { d.AppId, d.SecureObjectId })
+                .OnDelete(DeleteBehavior.NoAction);
+
         });
 
         // functions
         modelBuilder
             .HasDbFunction(typeof(AuthDbContext).GetMethod(nameof(SecureObjectHierarchy), new[] { typeof(Guid) })!)
-            .HasSchema(Schema)
             .HasName(nameof(SecureObjectHierarchy));
+
+        // ReSharper disable once InvocationIsSkipped
+        OnModelCreatingPartial(modelBuilder);
     }
+
+    // ReSharper disable once PartialMethodWithSinglePart
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

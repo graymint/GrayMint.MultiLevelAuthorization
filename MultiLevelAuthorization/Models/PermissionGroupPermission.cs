@@ -2,11 +2,12 @@
 
 public class PermissionGroupPermission
 {
+    public short AppId { get; set; }
     public Guid PermissionGroupId { get; set; }
-    public int PermissionCode { get; set; }
+    public int PermissionId { get; set; }
 
     public virtual PermissionGroup? PermissionGroup { get; set; }
     public virtual Permission? Permission { get; set; }
-    public virtual AuthApp? App { get; set; }
+    public virtual App? App { get; set; }
 
 }

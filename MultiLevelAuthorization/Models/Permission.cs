@@ -4,21 +4,18 @@ namespace MultiLevelAuthorization.Models;
 
 public class Permission
 {
-    public Guid AppId { get; set; }
-    public Guid PermissionId { get; set; }
-    public int PermissionCode { get; set; }
+    public short AppId { get; set; }
+    public int PermissionId { get; set; }
     public string PermissionName { get; set; }
 
-    public Permission(Guid appId, Guid permissionId, int permissionCode, string permissionName)
+    public Permission(short appId, int permissionId, string permissionName)
     {
         AppId = appId;
         PermissionId = permissionId;
-        PermissionCode = permissionCode;
         PermissionName = permissionName;
     }
 
-    public AuthApp? App { get; set; }
-   
+    public App? App { get; set; }
     public ICollection<PermissionGroup>? PermissionGroups { get; set; }
     public ICollection<PermissionGroupPermission>? PermissionGroupPermissions { get; set; }
 }

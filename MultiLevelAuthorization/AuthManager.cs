@@ -8,9 +8,9 @@ namespace MultiLevelAuthorization;
 public class AuthManager
 {
     private readonly AuthDbContext _dbContext;
-    private readonly Guid _appId;
+    private readonly short _appId;
 
-    public AuthManager(AuthDbContext dbContext, Guid appId)
+    public AuthManager(AuthDbContext dbContext, short appId)
     {
         _dbContext = dbContext;
         _appId = appId;
@@ -70,17 +70,17 @@ public class AuthManager
         var dbValues = await _dbContext.Permissions.Where(x => x.AppId == _appId).ToListAsync();
 
         // add
-        foreach (var obValue in obValues.Where(x => dbValues.All(c => c.AppId == _appId && x.PermissionCode != c.PermissionCode)))
-            await _dbContext.Permissions.AddAsync(new Permission(_appId, Guid.NewGuid(), obValue.PermissionCode, obValue.PermissionName));
+        foreach (var obValue in obValues.Where(x => dbValues.All(c => c.AppId == _appId && x.PermissionCode != c.PermissionId)))
+            await _dbContext.Permissions.AddAsync(new Permission(_appId, obValue.PermissionCode, obValue.PermissionName));
 
         // delete
-        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == _appId && x.PermissionCode != c.PermissionCode)))
+        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == _appId && x.PermissionId != c.PermissionCode)))
             _dbContext.Permissions.Remove(dbValue);
 
         // update
         foreach (var dbValue in dbValues)
         {
-            var obValue = obValues.SingleOrDefault(x => x.PermissionCode == dbValue.PermissionCode);
+            var obValue = obValues.SingleOrDefault(x => x.PermissionCode == dbValue.PermissionId);
             if (obValue == null) continue;
             dbValue.PermissionName = obValue.PermissionName;
         }
@@ -89,11 +89,11 @@ public class AuthManager
     private void UpdatePermissionGroupPermissions(ICollection<PermissionGroupPermission> dbValues, PermissionGroupPermission[] obValues)
     {
         // add
-        foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionCode != c.PermissionCode)))
+        foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionId != c.PermissionId)))
             dbValues.Add(obValue);
 
         // delete
-        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionCode != c.PermissionCode)))
+        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionId != c.PermissionId)))
             dbValues.Remove(dbValue);
     }
 
@@ -108,7 +108,7 @@ public class AuthManager
         {
             var res = await _dbContext.PermissionGroups.AddAsync(new PermissionGroup(obValue.PermissionGroupId, obValue.PermissionGroupName));
             UpdatePermissionGroupPermissions(res.Entity.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = res.Entity.PermissionGroupId, PermissionCode = x.PermissionCode }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = res.Entity.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
         }
 
         // delete
@@ -123,7 +123,7 @@ public class AuthManager
             if (obValue == null) continue;
 
             UpdatePermissionGroupPermissions(dbValue.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = dbValue.PermissionGroupId, PermissionCode = x.PermissionCode }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
 
             dbValue.PermissionGroupName = obValue.PermissionGroupName;
         }
@@ -302,13 +302,13 @@ public class AuthManager
 
     public Task<bool> SecureObject_HasUserPermission(Guid secureObjectId, Guid userId, Permission permission)
     {
-        return SecureObject_HasUserPermission(secureObjectId, userId, permission.PermissionCode);
+        return SecureObject_HasUserPermission(secureObjectId, userId, permission.PermissionId);
     }
 
     public async Task<bool> SecureObject_HasUserPermission(Guid secureObjectId, Guid userId, int permissionId)
     {
         var permissions = await SecureObject_GetUserPermissions(secureObjectId, userId);
-        return permissions.Any(x => x.PermissionCode == permissionId);
+        return permissions.Any(x => x.PermissionId == permissionId);
     }
 
     public async Task SecureObject_VerifyUserPermission(Guid secureObjectId, Guid userId, Permission permission)
@@ -316,7 +316,7 @@ public class AuthManager
         if (secureObjectId == Guid.Empty)
             throw new SecurityException($"{nameof(secureObjectId)} can not be empty!");
 
-        if (!await SecureObject_HasUserPermission(secureObjectId, userId, permission.PermissionCode))
+        if (!await SecureObject_HasUserPermission(secureObjectId, userId, permission.PermissionId))
             throw new SecurityException($"You need to grant {permission.PermissionName} permission!");
     }
 }

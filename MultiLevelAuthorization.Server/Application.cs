@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MultiLevelAuthorization.Models;
+using MultiLevelAuthorization.Server.Controllers;
 using MultiLevelAuthorization.Server.Models;
 
 namespace MultiLevelAuthorization.Server;

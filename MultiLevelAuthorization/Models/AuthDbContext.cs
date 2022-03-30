@@ -37,8 +37,10 @@ public partial class AuthDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
 
-        modelBuilder.Entity<App>(_ =>
+        modelBuilder.Entity<App>(entity =>
         {
+            entity.Property(e => e.AppId)
+                .ValueGeneratedNever();
         });
 
         modelBuilder.Entity<SecureObjectType>(entity =>

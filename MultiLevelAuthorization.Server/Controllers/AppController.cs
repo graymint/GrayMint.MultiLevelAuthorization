@@ -29,14 +29,21 @@ public class AppController : ControllerBase
     [Authorize(AuthenticationSchemes = "Robot", Roles = "AppCreator")]
     public async Task<Guid> Create(AppCreateRequest request)
     {
+        // Create dbo.App
         var appEntity = (await _dbContext.Apps.AddAsync(new App()
         {
             AppName = request.AppName,
             AppGuid = Guid.NewGuid()
         })).Entity;
-
-        // Create 
         await _dbContext.SaveChangesAsync();
+
+        // Create auth.App
+        var appEntity2 = (await _authDbContext.Apps.AddAsync(new MultiLevelAuthorization.Models.App()
+        {
+            AppId = appEntity.AppId
+        })).Entity;
+        await _authDbContext.SaveChangesAsync();
+
         return appEntity.AppGuid;
     }
 

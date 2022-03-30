@@ -34,6 +34,8 @@ public class AuthManager
 
         // update types
         await UpdateSecureObjectTypes(secureObjectTypes);
+        await _dbContext.SaveChangesAsync(); //todo remove
+
         await UpdatePermissions(permissions);
         await UpdatePermissionGroups(permissionGroups, removeOtherPermissionGroups);
 

@@ -42,7 +42,7 @@ public class AuthorizationTest : BaseControllerTest
         // check: new permission group is inserted
         //-----------
         var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
-        var actualPermissionGroup = actualPermissionGroups.Single(x=>x.PermissionGroupId== newPermissionGroup1.PermissionGroupId && x.PermissionGroupName==newPermissionGroup1.PermissionGroupName);
+        var actualPermissionGroup = actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName);
     }
 }
 

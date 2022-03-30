@@ -35,7 +35,8 @@ public class AuthorizationTest : BaseControllerTest
         {
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
-            Permissions = permissions
+            Permissions = permissions, 
+            RemoveOtherPermissionGroups = true
         });
 
         //-----------

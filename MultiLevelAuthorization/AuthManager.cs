@@ -34,8 +34,6 @@ public class AuthManager
 
         // update types
         await UpdateSecureObjectTypes(secureObjectTypes);
-        await _dbContext.SaveChangesAsync(); //todo remove
-
         await UpdatePermissions(permissions);
         await UpdatePermissionGroups(permissionGroups, removeOtherPermissionGroups);
 
@@ -135,7 +133,7 @@ public class AuthManager
     public async Task<PermissionGroup[]> GetPermissionGroups()
     {
         return await _dbContext.PermissionGroups
-            .Where(x => x.AppId != _appId)
+            .Where(x => x.AppId == _appId)
             .Include(x => x.Permissions)
             .ToArrayAsync();
     }

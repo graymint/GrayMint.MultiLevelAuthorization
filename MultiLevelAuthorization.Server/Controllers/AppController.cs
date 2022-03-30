@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MultiLevelAuthorization.DTOs;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Server.DTOs;
 using MultiLevelAuthorization.Server.Models;
 using App = MultiLevelAuthorization.Server.Models.App;
+using AppDto = MultiLevelAuthorization.Server.DTOs.AppDto;
 
 namespace MultiLevelAuthorization.Server.Controllers;
 
@@ -61,14 +63,20 @@ public class AppController : ControllerBase
     }
 
     [HttpGet("{appId}/permission-groups")]
-    public async Task<PermissionGroup[]> PermissionGroups(Guid appId)
+    public async Task<PermissionGroupDto[]> PermissionGroups(Guid appId)
     {
         var app = await _dbContext.Apps.SingleAsync(x => x.AppGuid == appId);
         //todo: check permission
 
         var authManager = new AuthManager(_authDbContext, app.AppId);
-        var ret = await authManager.GetPermissionGroups();
-        return ret;
+        var res = await authManager.GetPermissionGroups();
+        var ret = res.Select(
+            x => new PermissionGroupDto(
+                x.PermissionGroupId,
+                x.PermissionGroupName,
+                x.Permissions.Select(y=>new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
+            );
+        return ret.ToArray();
     }
 
     [HttpGet("{appId}/authentication-token")]

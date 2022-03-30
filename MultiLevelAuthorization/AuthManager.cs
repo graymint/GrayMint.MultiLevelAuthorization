@@ -25,6 +25,7 @@ public class AuthManager
             var secureObjectType = (await _dbContext.SecureObjectTypes.AddAsync(new SecureObjectType(_appId, Guid.NewGuid(), "System"))).Entity;
             systemSecureObject = (await _dbContext.SecureObjects.AddAsync(new SecureObject
             {
+                AppId = _appId,
                 SecureObjectId = Guid.NewGuid(),
                 SecureObjectTypeId = secureObjectType.SecureObjectTypeId,
                 ParentSecureObjectId = null
@@ -106,9 +107,9 @@ public class AuthManager
         // add
         foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionGroupId != c.PermissionGroupId)))
         {
-            var res = await _dbContext.PermissionGroups.AddAsync(new PermissionGroup(obValue.PermissionGroupId, obValue.PermissionGroupName));
+            var res = await _dbContext.PermissionGroups.AddAsync(new PermissionGroup(_appId, obValue.PermissionGroupId, obValue.PermissionGroupName));
             UpdatePermissionGroupPermissions(res.Entity.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = res.Entity.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = _appId, PermissionGroupId = res.Entity.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
         }
 
         // delete
@@ -123,7 +124,7 @@ public class AuthManager
             if (obValue == null) continue;
 
             UpdatePermissionGroupPermissions(dbValue.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermission { PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = _appId, PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
 
             dbValue.PermissionGroupName = obValue.PermissionGroupName;
         }
@@ -149,6 +150,7 @@ public class AuthManager
 
         var secureObject = new SecureObject
         {
+            AppId = _appId,
             SecureObjectId = secureObjectId,
             SecureObjectTypeId = secureObjectTypeId,
             ParentSecureObjectId = parentSecureObjectId
@@ -183,6 +185,7 @@ public class AuthManager
 
         var roleUser = new RoleUser
         {
+            AppId = _appId,
             RoleId = roleId,
             UserId = userId,
             CreatedTime = DateTime.UtcNow,
@@ -197,6 +200,7 @@ public class AuthManager
 
         var secureObjectRolePermission = new SecureObjectRolePermission
         {
+            AppId = _appId,
             SecureObjectId = secureObjectId,
             RoleId = roleId,
             PermissionGroupId = permissionGroupId,
@@ -214,6 +218,7 @@ public class AuthManager
 
         var secureObjectUserPermission = new SecureObjectUserPermission
         {
+            AppId = _appId,
             SecureObjectId = secureObjectId,
             UserId = userId,
             PermissionGroupId = permissionGroupId,

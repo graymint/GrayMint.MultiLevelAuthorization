@@ -2,6 +2,8 @@ using System.Net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Server.Models;
@@ -25,20 +27,22 @@ public class Program
         }));
 
         // Add authentications
-        var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration.GetValue<string>("AuthenticationKey")));
+        var key = Convert.FromBase64String(builder.Configuration.GetValue<string>("App:AuthenticationKey"));
+        var securityKey = new SymmetricSecurityKey(key);
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer("Robot", options =>
+            .AddJwtBearer(AppOptions.AuthRobotScheme, options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "name",
                     RequireSignedTokens = true,
                     IssuerSigningKey = securityKey,
-                    ValidAudiences = new[] { Application.Issuer },
+                    ValidIssuer = AppOptions.AuthIssuer,
+                    ValidAudience = AppOptions.AuthIssuer,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromSeconds(TokenValidationParameters.DefaultClockSkew.TotalSeconds),
                 };
@@ -52,16 +56,20 @@ public class Program
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddAppSwaggerGen(Application.Name);
+        builder.Services.AddAppSwaggerGen(AppOptions.Name);
         builder.Services.AddMemoryCache();
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
         builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
-        builder.Services.AddSingleton<Application>();
-
-        // Create TimedHostedService
         builder.Services.AddHostedService<TimedHostedService>();
+        
+        builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 
+        //---------------------
+        // Create App
+        //---------------------
         var webApp = builder.Build();
+        var logger = webApp.Services.GetRequiredService<ILogger<Program>>();
+
 
         // Cors must configure before any Authorization to allow token request
         webApp.UseCors("CorsPolicy");
@@ -74,7 +82,31 @@ public class Program
         webApp.UseAuthorization();
         webApp.MapControllers();
 
-        var application = webApp.Services.GetRequiredService<Application>();
-        await application.Run(webApp, args);
+        //---------------------
+        // Initializing App
+        //---------------------
+        using var scope = webApp.Services.CreateScope();
+        var authDbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+        var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        if (args.Contains("/recreatedb"))
+        {
+            logger.LogInformation($"Recreating the {nameof(ApplicationDbContext)} database...");
+            await appDbContext.Database.EnsureDeletedAsync();
+            await appDbContext.Database.EnsureCreatedAsync();
+
+            logger.LogInformation($"Recreating the {nameof(AuthDbContext)} database...");
+            var appDbContext2 = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+            var databaseCreator = (RelationalDatabaseCreator)appDbContext2.Database.GetService<IDatabaseCreator>();
+            await databaseCreator.CreateTablesAsync();
+            return;
+        }
+
+        await webApp.RunAsync();
     }
+
+    public static string CreateAppCreatorToken(byte[] key)
+    {
+        return JwtTool.CreateSymmetricJwt(key, AppOptions.AuthIssuer, AppOptions.AuthIssuer, Guid.NewGuid().ToString(), null, new[] { "AppCreator" });
+    }
+
 }

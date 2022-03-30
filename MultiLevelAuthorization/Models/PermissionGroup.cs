@@ -15,8 +15,9 @@ public class PermissionGroup
     [JsonIgnore] public virtual ICollection<SecureObjectRolePermission>? RolePermissions { get; set; }
     [JsonIgnore] public virtual ICollection<SecureObjectUserPermission>? UserPermissions { get; set; }
 
-    public PermissionGroup(Guid permissionGroupId, string permissionGroupName)
+    public PermissionGroup(short appId, Guid permissionGroupId, string permissionGroupName)
     {
+        AppId = appId;
         PermissionGroupId = permissionGroupId;
         PermissionGroupName = permissionGroupName;
     }

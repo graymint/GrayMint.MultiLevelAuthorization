@@ -14,24 +14,24 @@ public class AuthorizationTest : BaseControllerTest
     public async Task Seeding()
     {
         // add new types
-        var newSecureObjectType1 = new SecureObjectType { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // add new permission
-        var newPermission = new Permission { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // add new permissionGroup
-        var newPermissionGroup1 = new PermissionGroup
+        var newPermissionGroup1 = new PermissionGroupDto()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
         var controller = new AppController(HttpClient);
-        await controller.InitAsync(App.AppId, new AppInitRequest
+        await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
@@ -41,7 +41,7 @@ public class AuthorizationTest : BaseControllerTest
         //-----------
         // check: new permission group is inserted
         //-----------
-        var actualPermissionGroups = await controller.PermissionGroupsAsync(App.AppId);
+        var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
         var actualPermissionGroup = actualPermissionGroups.Single(x=>x.PermissionGroupId== newPermissionGroup1.PermissionGroupId && x.PermissionGroupName==newPermissionGroup1.PermissionGroupName);
     }
 }

@@ -47,7 +47,7 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<App> AppsAsync(AppCreateRequest body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<System.Guid> AppsAsync(AppCreateRequest body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append("api/apps");
@@ -87,7 +87,7 @@ namespace MultiLevelAuthorization.Test.Apis
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<App>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Guid>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -117,7 +117,7 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AppData> InitAsync(System.Guid appId, AppInitRequest body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<AppDto> InitAsync(System.Guid appId, AppInitRequest body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -161,7 +161,7 @@ namespace MultiLevelAuthorization.Test.Apis
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<AppData>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<AppDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -432,10 +432,22 @@ namespace MultiLevelAuthorization.Test.Apis
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("appId")]
-        public System.Guid AppId { get; set; }
+        public int AppId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("appName")]
-        public string AppName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypes")]
+        public System.Collections.Generic.ICollection<SecureObjectType> SecureObjectTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroups")]
+        public System.Collections.Generic.ICollection<PermissionGroup> PermissionGroups { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupPermissions")]
+        public System.Collections.Generic.ICollection<PermissionGroupPermission> GroupPermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissions")]
+        public System.Collections.Generic.ICollection<Permission> Permissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roles")]
+        public System.Collections.Generic.ICollection<Role> Roles { get; set; }
 
     }
 
@@ -449,11 +461,17 @@ namespace MultiLevelAuthorization.Test.Apis
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class AppData
+    public partial class AppDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("systemSecureObjectId")]
         public System.Guid SystemSecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public System.Guid AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appName")]
+        public string AppName { get; set; }
 
     }
 
@@ -462,13 +480,13 @@ namespace MultiLevelAuthorization.Test.Apis
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypes")]
-        public System.Collections.Generic.ICollection<SecureObjectType> SecureObjectTypes { get; set; }
+        public System.Collections.Generic.ICollection<SecureObjectTypeDto> SecureObjectTypes { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissions")]
-        public System.Collections.Generic.ICollection<Permission> Permissions { get; set; }
+        public System.Collections.Generic.ICollection<PermissionDto> Permissions { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroups")]
-        public System.Collections.Generic.ICollection<PermissionGroup> PermissionGroups { get; set; }
+        public System.Collections.Generic.ICollection<PermissionGroupDto> PermissionGroups { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("removeOtherPermissionGroups")]
         public bool RemoveOtherPermissionGroups { get; set; }
@@ -479,8 +497,32 @@ namespace MultiLevelAuthorization.Test.Apis
     public partial class Permission
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
         public int PermissionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionName")]
+        public string PermissionName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroups")]
+        public System.Collections.Generic.ICollection<PermissionGroup> PermissionGroups { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupPermissions")]
+        public System.Collections.Generic.ICollection<PermissionGroupPermission> PermissionGroupPermissions { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PermissionDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionCode")]
+        public int PermissionCode { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionName")]
         public string PermissionName { get; set; }
@@ -491,6 +533,9 @@ namespace MultiLevelAuthorization.Test.Apis
     public partial class PermissionGroup
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
         public System.Guid PermissionGroupId { get; set; }
 
@@ -500,17 +545,224 @@ namespace MultiLevelAuthorization.Test.Apis
         [System.Text.Json.Serialization.JsonPropertyName("permissions")]
         public System.Collections.Generic.ICollection<Permission> Permissions { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PermissionGroupDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupName")]
+        public string PermissionGroupName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissions")]
+        public System.Collections.Generic.ICollection<PermissionDto> Permissions { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PermissionGroupPermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
+        public int PermissionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroup")]
+        public PermissionGroup PermissionGroup { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permission")]
+        public Permission Permission { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Role
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
+        public System.Guid OwnerId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleName")]
+        public string RoleName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rolePermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectRolePermission> RolePermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleUsers")]
+        public System.Collections.Generic.ICollection<RoleUser> RoleUsers { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RoleUser
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public System.Guid UserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("role")]
+        public Role Role { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObject
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public System.Guid SecureObjectTypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("parentSecureObjectId")]
+        public System.Guid? ParentSecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectType")]
+        public SecureObjectType SecureObjectType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rolePermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectRolePermission> RolePermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userPermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectUserPermission> UserPermissions { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectRolePermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObject")]
+        public SecureObject SecureObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("role")]
+        public Role Role { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroup")]
+        public PermissionGroup PermissionGroup { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectType
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
         public System.Guid SecureObjectTypeId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeName")]
         public string SecureObjectTypeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSystem")]
+        public bool IsSystem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjects")]
+        public System.Collections.Generic.ICollection<SecureObject> SecureObjects { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectTypeDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeName")]
+        public string SecureObjectTypeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public System.Guid SecureObjectTypeId { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectUserPermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public System.Guid UserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
 
     }
 

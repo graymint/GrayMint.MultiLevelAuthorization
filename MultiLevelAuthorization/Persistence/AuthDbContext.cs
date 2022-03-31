@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MultiLevelAuthorization.Models;
 
-
-namespace MultiLevelAuthorization.Models;
+namespace MultiLevelAuthorization.Persistence;
 
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class AuthDbContext : DbContext
@@ -41,6 +41,10 @@ public partial class AuthDbContext : DbContext
         {
             entity.Property(e => e.AppId)
                 .ValueGeneratedNever();
+            entity.HasIndex(e => new { e.AppName })
+            .IsUnique();
+            entity.HasIndex(e => new { e.AppGuid })
+            .IsUnique();
         });
 
         modelBuilder.Entity<SecureObjectType>(entity =>
@@ -48,7 +52,7 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.SecureObjectTypeId)
                 .ValueGeneratedNever();
 
-            entity.HasIndex(e => new {e.AppId, e.SecureObjectTypeName})
+            entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeName })
                 .IsUnique();
         });
 

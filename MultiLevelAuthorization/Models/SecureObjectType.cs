@@ -2,11 +2,11 @@
 
 public class SecureObjectType
 {
-    public short AppId { get; set; }
+    public int AppId { get; set; }
     public Guid SecureObjectTypeId { get; set; }
     public string SecureObjectTypeName { get; set; }
 
-    public SecureObjectType(short appId, Guid secureObjectTypeId, string secureObjectTypeName)
+    public SecureObjectType(int appId, Guid secureObjectTypeId, string secureObjectTypeName)
     {
         AppId = appId;
         SecureObjectTypeId = secureObjectTypeId;

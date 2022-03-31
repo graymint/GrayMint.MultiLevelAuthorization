@@ -4,11 +4,11 @@ namespace MultiLevelAuthorization.Models;
 
 public class Permission
 {
-    public short AppId { get; set; }
+    public int AppId { get; set; }
     public int PermissionId { get; set; }
     public string PermissionName { get; set; }
 
-    public Permission(short appId, int permissionId, string permissionName)
+    public Permission(int appId, int permissionId, string permissionName)
     {
         AppId = appId;
         PermissionId = permissionId;

@@ -2,7 +2,7 @@
 
 public class PermissionGroupPermission
 {
-    public short AppId { get; set; }
+    public int AppId { get; set; }
     public Guid PermissionGroupId { get; set; }
     public int PermissionId { get; set; }
 

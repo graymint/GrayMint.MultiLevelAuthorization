@@ -1,4 +1,5 @@
 using System.Net;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using MultiLevelAuthorization.Models;
-using MultiLevelAuthorization.Server.Models;
+using MultiLevelAuthorization.Persistence;
+using MultiLevelAuthorization.Server.Mapper;
+using MultiLevelAuthorization.ServiceRegistration;
 
 namespace MultiLevelAuthorization.Server;
 
@@ -15,6 +18,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        ConfigurationManager configuration = builder.Configuration;
 
         //enable cross-origin; MUST before anything
         builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", corsPolicyBuilder =>
@@ -58,12 +62,19 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddAppSwaggerGen(AppOptions.Name);
         builder.Services.AddMemoryCache();
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
-        builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+        builder.Host.ConfigureServices(services => ConfigureServices(configuration, services));
+
         builder.Services.AddHostedService<TimedHostedService>();
         
         builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 
+        var mapperConfig = new MapperConfiguration(mc =>
+        {
+            mc.AddProfile(new AppCreateRequestMapper());
+        });
+
+        IMapper mapper = mapperConfig.CreateMapper();
+        builder.Services.AddSingleton(mapper);
         //---------------------
         // Create App
         //---------------------
@@ -86,18 +97,12 @@ public class Program
         // Initializing App
         //---------------------
         using var scope = webApp.Services.CreateScope();
-        var authDbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-        var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         if (args.Contains("/recreatedb"))
         {
-            logger.LogInformation($"Recreating the {nameof(ApplicationDbContext)} database...");
-            await appDbContext.Database.EnsureDeletedAsync();
-            await appDbContext.Database.EnsureCreatedAsync();
-
             logger.LogInformation($"Recreating the {nameof(AuthDbContext)} database...");
             var appDbContext2 = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-            var databaseCreator = (RelationalDatabaseCreator)appDbContext2.Database.GetService<IDatabaseCreator>();
-            await databaseCreator.CreateTablesAsync();
+            await appDbContext2.Database.EnsureDeletedAsync();
+            await appDbContext2.Database.EnsureCreatedAsync();
             return;
         }
 
@@ -107,6 +112,12 @@ public class Program
     public static string CreateAppCreatorToken(byte[] key)
     {
         return JwtTool.CreateSymmetricJwt(key, AppOptions.AuthIssuer, AppOptions.AuthIssuer, Guid.NewGuid().ToString(), null, new[] { "AppCreator" });
+    }
+
+    static void ConfigureServices(IConfiguration configuration,
+   IServiceCollection services)
+    {
+        services.AddInfrastructureServices(configuration);
     }
 
 }

@@ -3,7 +3,7 @@ namespace MultiLevelAuthorization.Models;
 
 public class SecureObject
 {
-    public short AppId { get; set; }
+    public int AppId { get; set; }
     public Guid SecureObjectId { get; set; }
     public Guid SecureObjectTypeId { get; set; }
     public Guid? ParentSecureObjectId { get; set; }

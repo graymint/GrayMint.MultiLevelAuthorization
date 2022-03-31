@@ -4,7 +4,7 @@ namespace MultiLevelAuthorization.Models;
 
 public class SecureObjectUserPermission
 {
-    public short AppId { get; set; }
+    public int AppId { get; set; }
     public Guid SecureObjectId { get; set; }
     public Guid UserId { get; set; }
     public Guid PermissionGroupId { get; set; }

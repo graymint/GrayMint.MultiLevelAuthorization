@@ -4,7 +4,7 @@ namespace MultiLevelAuthorization.Models;
 
 public class Role
 {
-    public short AppId { get; init; }
+    public int AppId { get; init; }
     public Guid RoleId { get; set; }
     public Guid OwnerId { get; set; }
     public string RoleName { get; set; } = null!;

@@ -331,9 +331,11 @@ public class AuthManager
 
     public async Task<string> App_Create(AppCreateRequestHandler request)
     {
+        var maxApp = await GetMaxApp();
         // Create auth.App
         var appEntity = (await _authDbContext.Apps.AddAsync(new App()
-       {
+        {
+            AppId = (maxApp == null) ? 1 : maxApp.AppId + 1,
             AppName = request.AppName,
             AppDescription = request.AppDescription
         })).Entity;
@@ -345,6 +347,15 @@ public class AuthManager
     {
         var result = await _authDbContext.Apps
             .SingleAsync(x => x.AppName == appId);
+
+        return result;
+    }
+
+    private async Task<App> GetMaxApp()
+    {
+        var result = await _authDbContext.Apps
+            .OrderByDescending(x => x.AppId)
+            .FirstOrDefaultAsync();
 
         return result;
     }

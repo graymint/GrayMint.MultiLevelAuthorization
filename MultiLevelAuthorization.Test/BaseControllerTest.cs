@@ -18,7 +18,7 @@ public abstract class BaseControllerTest
     protected WebApplicationFactory<Program> WebApplication { get; private set; } = default!;
     protected HttpClient HttpClient { get; private set; } = default!;
     protected AuthenticationHeaderValue AppCreatorAuthorization { get; private set; } = default!;
-    protected Guid AppId { get; private set; } = default!;
+    protected string AppId { get; private set; } = default!;
 
     [TestInitialize]
     public virtual async Task Init()
@@ -40,16 +40,17 @@ public abstract class BaseControllerTest
         var key = WebApplication.Services.GetRequiredService<IOptions<AppOptions>>().Value.AuthenticationKey;
         AppCreatorAuthorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, Program.CreateAppCreatorToken(key));
         HttpClient.DefaultRequestHeaders.Authorization = AppCreatorAuthorization;
-        
+
         var controller = new AppController(HttpClient);
         AppId = await controller.AppsAsync(new AppCreateRequest
         {
-            AppName = $"test_{Guid.NewGuid()}"
-        });
+            AppName = $"test_{Guid.NewGuid().ToString()}",
+            AppDescription = "test application"
+        }); 
         var appToken = await controller.AuthenticationTokenAsync(AppId);
 
         // Init HttpClient for the created app
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, appToken);
-        
+
     }
 }

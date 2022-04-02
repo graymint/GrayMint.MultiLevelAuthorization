@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Persistence;
+using MultiLevelAuthorization.Repositories;
 using MultiLevelAuthorization.Server.Mapper;
-using MultiLevelAuthorization.ServiceRegistration;
 
 namespace MultiLevelAuthorization.Server;
 
@@ -62,10 +62,14 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddAppSwaggerGen(AppOptions.Name);
         builder.Services.AddMemoryCache();
-        builder.Host.ConfigureServices(services => ConfigureServices(configuration, services));
+
+        // Config core requirements
+        builder.Services.AddDbContext<AuthDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("AuthDatabase")));
+        builder.Services.AddScoped<AuthManager>();
 
         builder.Services.AddHostedService<TimedHostedService>();
-        
+
         builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 
         var mapperConfig = new MapperConfiguration(mc =>
@@ -113,11 +117,4 @@ public class Program
     {
         return JwtTool.CreateSymmetricJwt(key, AppOptions.AuthIssuer, AppOptions.AuthIssuer, Guid.NewGuid().ToString(), null, new[] { "AppCreator" });
     }
-
-    static void ConfigureServices(IConfiguration configuration,
-   IServiceCollection services)
-    {
-        services.AddInfrastructureServices(configuration);
-    }
-
 }

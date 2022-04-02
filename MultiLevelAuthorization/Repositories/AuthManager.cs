@@ -6,16 +6,12 @@ using MultiLevelAuthorization.Persistence;
 
 namespace MultiLevelAuthorization.Repositories;
 
-public class AuthManager : IAuthManager
+public class AuthManager
 {
     protected readonly AuthDbContext _authDbContext;
-    // private readonly ApplicationDbContext _authDbContext;
-    //private readonly short appId;
-
-    public AuthManager(AuthDbContext dbContext)//, short appId)
+    public AuthManager(AuthDbContext dbContext)
     {
         _authDbContext = dbContext;
-        //appId = appId;
     }
 
     public async Task<AppDto> Init(int appId, SecureObjectTypeDto[] secureObjectTypes, PermissionDto[] permissions, PermissionGroupDto[] permissionGroups, bool removeOtherPermissionGroups = true)
@@ -132,6 +128,12 @@ public class AuthManager : IAuthManager
         }
     }
 
+    public async Task<SecureObjectType[]> GetSecureObjectTypes(int appId)
+    {
+        return await _authDbContext.SecureObjectTypes
+            .Where(x => x.AppId == appId)
+            .ToArrayAsync();
+    }
     public async Task<PermissionGroup[]> GetPermissionGroups(int appId)
     {
         return await _authDbContext.PermissionGroups
@@ -327,16 +329,23 @@ public class AuthManager : IAuthManager
             throw new SecurityException($"You need to grant {permission.PermissionName} permission!");
     }
 
-    public async Task<Guid> App_Create( AppCreateRequestHandler request)
+    public async Task<string> App_Create(AppCreateRequestHandler request)
     {
-       // Create auth.App
-       var appEntity = (await _authDbContext.Apps.AddAsync(new App()
+        // Create auth.App
+        var appEntity = (await _authDbContext.Apps.AddAsync(new App()
        {
-           AppName = request.AppName,
-           AppGuid = Guid.NewGuid()
-       })).Entity;
+            AppName = request.AppName,
+            AppDescription = request.AppDescription
+        })).Entity;
         await _authDbContext.SaveChangesAsync();
 
-        return appEntity.AppGuid;
+        return appEntity.AppName;
+    }
+    public async Task<App> App_PropsByName(string appId)
+    {
+        var result = await _authDbContext.Apps
+            .SingleAsync(x => x.AppName == appId);
+
+        return result;
     }
 }

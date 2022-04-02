@@ -43,8 +43,6 @@ public partial class AuthDbContext : DbContext
                 .ValueGeneratedNever();
             entity.HasIndex(e => new { e.AppName })
             .IsUnique();
-            entity.HasIndex(e => new { e.AppGuid })
-            .IsUnique();
         });
 
         modelBuilder.Entity<SecureObjectType>(entity =>

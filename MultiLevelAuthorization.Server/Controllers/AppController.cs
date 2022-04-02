@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using MultiLevelAuthorization.DTOs;
 using MultiLevelAuthorization.Repositories;
 using MultiLevelAuthorization.Server.DTOs;
+using System.Net.Mime;
+using AppDto = MultiLevelAuthorization.Server.DTOs.AppDto;
 
 namespace MultiLevelAuthorization.Server.Controllers;
 
@@ -12,11 +14,11 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [Route("/api/apps")]
 public class AppController : ControllerBase
 {
-    private readonly IAuthManager _authManager;
+    private readonly AuthManager _authManager;
     private readonly IOptions<AppOptions> _appOptions;
     private readonly IMapper _mapper;
 
-    public AppController( IAuthManager authManager, IOptions<AppOptions> appOptions, IMapper mapper)
+    public AppController(AuthManager authManager, IOptions<AppOptions> appOptions, IMapper mapper)
     {
         _authManager = authManager;
         _appOptions = appOptions;
@@ -24,8 +26,9 @@ public class AppController : ControllerBase
     }
 
     [HttpPost]
+    [Produces(MediaTypeNames.Text.Plain)]
     [Authorize(AuthenticationSchemes = "Robot", Roles = "AppCreator")]
-    public async Task<Guid> Create(AppCreateRequest request)
+    public async Task<string> Create(AppCreateRequest request)
     {
         var createRequestHandler = _mapper.Map<AppCreateRequestHandler>(request);
 
@@ -33,44 +36,60 @@ public class AppController : ControllerBase
         return result;
     }
 
-    //[HttpPost("{appId}/init")]
-    //public async Task<AppDto> Init(Guid appId, AppInitRequest request)
-    //{
-    //    var app = await _dbContext.Apps.SingleAsync(x => x.AppGuid == appId);
+    [HttpPost("{appId}/init")]
+    public async Task<AppDto> Init(string appId, AppInitRequest request)
+    {
+        var app = await _authManager.App_PropsByName(appId);
 
-    //    //todo: check permission
+        //todo: check permission
 
-    //    var result = await _authManager.Init(request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
-    //    var ret = new AppDto(appId, app.AppName, result.SystemSecureObjectId);
-    //    return ret;
-    //}
+        var result = await _authManager.Init(app.AppId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+        var ret = new AppDto(appId, app.AppName, result.SystemSecureObjectId);
+        return ret;
+    }
 
-    //[HttpGet("{appId}/permission-groups")]
-    //public async Task<PermissionGroupDto[]> PermissionGroups(Guid appId)
-    //{
-    //    var app = await _dbContext.Apps.SingleAsync(x => x.AppGuid == appId);
-    //    //todo: check permission
+    [HttpGet("{appId}/SecureObjectTypes")]
+    public async Task<List<SecureObjectTypeDto>> GetSecureObjectTypes(string appId)
+    {
+        var app = await _authManager.App_PropsByName(appId);
 
-    //    var res = await _authManager.GetPermissionGroups();
-    //    var ret = res.Select(
-    //        x => new PermissionGroupDto(
-    //            x.PermissionGroupId,
-    //            x.PermissionGroupName,
-    //            x.Permissions.Select(y => new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
-    //        );
-    //    return ret.ToArray();
-    //}
+        //todo: check permission
 
-    //[HttpGet("{appId}/authentication-token")]
-    //[Produces(MediaTypeNames.Text.Plain)]
-    //[Authorize(AuthenticationSchemes = "Robot", Roles = "AppCreator")]
-    //public async Task<string> GetAuthenticationToken(Guid appId)
-    //{
-    //    //todo: check permission
+        var result = await _authManager.GetSecureObjectTypes(app.AppId);
+        List<SecureObjectTypeDto> list = new List<SecureObjectTypeDto>();
+        foreach (var item in result)
+        {
+            list.Add(new SecureObjectTypeDto(item.SecureObjectTypeId, item.SecureObjectTypeName));
+        }
+        return list;
+    }
 
-    //    var app = await _dbContext.Apps.SingleAsync(x => x.AppGuid == appId);
-    //    var jwt = JwtTool.CreateSymmetricJwt(_appOptions.Value.AuthenticationKey, AppOptions.AuthIssuer, AppOptions.AuthIssuer,
-    //        app.AppId.ToString(), null, new[] { "AppUser" });
-    //    return jwt;
-    //}
+    [HttpGet("{appId}/permission-groups")]
+    public async Task<PermissionGroupDto[]> PermissionGroups(string appId)
+    {
+        var app = await _authManager.App_PropsByName(appId);
+        //todo: check permission
+
+        var res = await _authManager.GetPermissionGroups(app.AppId);
+        var ret = res.Select(
+            x => new PermissionGroupDto(
+                x.PermissionGroupId,
+                x.PermissionGroupName,
+                x.Permissions.Select(y => new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
+            );
+        return ret.ToArray();
+    }
+
+    [HttpGet("{appId}/authentication-token")]
+    [Produces(MediaTypeNames.Text.Plain)]
+    [Authorize(AuthenticationSchemes = "Robot", Roles = "AppCreator")]
+    public async Task<string> GetAuthenticationToken(string appId)
+    {
+        //todo: check permission
+
+        var app = await _authManager.App_PropsByName(appId);
+        var jwt = JwtTool.CreateSymmetricJwt(_appOptions.Value.AuthenticationKey, AppOptions.AuthIssuer, AppOptions.AuthIssuer,
+            app.AppId.ToString(), null, new[] { "AppUser" });
+        return jwt;
+    }
 }

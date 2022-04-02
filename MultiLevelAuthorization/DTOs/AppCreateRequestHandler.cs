@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 namespace MultiLevelAuthorization.DTOs;
 public class AppCreateRequestHandler
 {
-    public AppCreateRequestHandler(string appName)
+    public AppCreateRequestHandler(string appName, string appDescription)
     {
         AppName = appName;
+        AppDescription = appDescription;
     }
 
     public string AppName { get; set; }
+    public string AppDescription { get; set; }
 }

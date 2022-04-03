@@ -17,6 +17,9 @@ public class AuthManager
 
     public async Task<AppDto> Init(int appId, SecureObjectTypeDto[] secureObjectTypes, PermissionDto[] permissions, PermissionGroupDto[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
+        // Validate SecureObjectTypes
+        await SecureObjectType_ValidateName(secureObjectTypes);
+
         // Prepare system secure object
         secureObjectTypes = await SecureObjectType_BuildSystemObject(appId, secureObjectTypes);
 
@@ -36,10 +39,7 @@ public class AuthManager
     private async Task UpdateSecureObjectTypes(int appId, SecureObjectTypeDto[] obValues)
     {
         try
-        {
-            // Validate SecureObjectTypes
-            await SecureObjectType_ValidateName(appId, obValues);
-
+       {
             // Get SecureObjectTypes from db
             var dbValues = await _authDbContext.SecureObjectTypes.Where(x => x.AppId == appId).ToListAsync();
 
@@ -63,6 +63,15 @@ public class AuthManager
         {
             throw ex;
         }
+    }
+
+    private async Task SecureObjectType_ValidateName(SecureObjectTypeDto[] secureObjectTypes)
+    {
+        // Validate for System value in list
+        var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
+        if (result != null)
+            throw new Exception("The SecureObjectTypeName could not allow System as an input parameter");
+
     }
 
     private async Task UpdatePermissions(int appId, PermissionDto[] obValues)
@@ -155,20 +164,11 @@ public class AuthManager
         _authDbContext.PermissionGroupPermissions.RemoveRange(dbValues);
     }
 
-    private async Task SecureObjectType_ValidateName(int appId, SecureObjectTypeDto[] secureObjectTypes)
-    {
-        // Validate for duplicate value in list
-        var t = secureObjectTypes.GroupBy(x => x.SecureObjectTypeName).Where(c => c.Count() > 1).SelectMany(grp => grp);
-        if (t.Count() > 0)
-            throw new Exception("SecureObjectTypeName could not allow repetitive values");
-
-    }
-
     private async Task<SecureObjectTypeDto[]> SecureObjectType_BuildSystemObject(int appId, SecureObjectTypeDto[] secureObjectTypes)
     {
         // System object must exists
         SecureObjectTypeDto aaa;
-        var systemSecureObject = await _authDbContext.SecureObjects.SingleOrDefaultAsync(x => x.SecureObjectType!.AppId == appId && x.ParentSecureObjectId == null);
+        var systemSecureObject = await _authDbContext.SecureObjects.SingleOrDefaultAsync(x => x.SecureObjectType.AppId == appId && x.ParentSecureObjectId == null);
         if (systemSecureObject == null)
         {
             //var secureObjectType = (await _authDbContext.SecureObjectTypes.AddAsync(new SecureObjectType(appId, Guid.NewGuid(), "System"))).Entity;

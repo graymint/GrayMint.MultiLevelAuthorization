@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -12,13 +12,14 @@ namespace MultiLevelAuthorization.Server.Controllers;
 
 [ApiController]
 [Route("/api/apps")]
-public class AppController : ControllerBase
+
+public class AuthorizationController : ControllerBase
 {
     private readonly AuthManager _authManager;
     private readonly IOptions<AppOptions> _appOptions;
     private readonly IMapper _mapper;
 
-    public AppController(AuthManager authManager, IOptions<AppOptions> appOptions, IMapper mapper)
+    public AuthorizationController(AuthManager authManager, IOptions<AppOptions> appOptions, IMapper mapper)
     {
         _authManager = authManager;
         _appOptions = appOptions;

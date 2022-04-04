@@ -8,10 +8,10 @@ using MultiLevelAuthorization.Test.Apis;
 namespace MultiLevelAuthorization.Test.Tests;
 
 [TestClass]
-public class AuthorizationTest : BaseControllerTest
+public class InitTest : BaseControllerTest
 {
     [TestMethod]
-    public async Task Successfully_Init_And_Validate_Parameters_In_Create()
+    public async Task Init_Successfully()
     {
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -45,23 +45,17 @@ public class AuthorizationTest : BaseControllerTest
         //-----------
         var actualTypes = await controller.SecureObjectTypesAsync(AppId);
 
-        // Validate count of output
-        Assert.AreEqual(4, actualTypes.Count());
+        Assert.AreEqual(4, actualTypes.Count(), "Validate count of output");
 
         //Validate created record ( Systematic and manually by api)
         actualTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId && x.SecureObjectTypeName == newSecureObjectType1.SecureObjectTypeName);
         actualTypes.Single(x => x.SecureObjectTypeName == "System");
-        actualTypes.Single(x => x.SecureObjectTypeName == "User");
-        actualTypes.Single(x => x.SecureObjectTypeName == "Project");
 
         //-----------
         // check: Validate successfuly created PermissionGroup
         //-----------
         var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
         actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName);
-        actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectOwner");
-        actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectViewer");
-        actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic");
 
         //-----------
         // check: Validate successfuly created PermissionGroupPermission and Permission
@@ -71,7 +65,7 @@ public class AuthorizationTest : BaseControllerTest
     }
 
     [TestMethod]
-    public async Task Init_And_Validate_CRUD_For_PermissionGroups()
+    public async Task PermissionGroups_CRUD()
     {
         // Create first types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -115,6 +109,10 @@ public class AuthorizationTest : BaseControllerTest
         };
         var permissionGroups2 = PermissionGroups.All.Concat(new[] { newPermissionGroup2 }).ToArray();
 
+        //-----------------------------
+        // check : Successfully creation of PermissionGroup1 and PermissionGroup2
+        //-----------------------------
+
         // Call Init api for second time and add PermissionGroup2
         await controller.InitAsync(AppId, new AppInitRequest
         {
@@ -143,6 +141,10 @@ public class AuthorizationTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups3 = PermissionGroups.All.Concat(new[] { newPermissionGroup2, newPermissionGroup3 }).ToArray();
+
+        //-----------------------------
+        // check : Successfully delete SecureObjectType1, update SecureObjectType2 and create the SecureObjectType3 after third call the Init
+        //-----------------------------
 
         // Init for third
         await controller.InitAsync(AppId, new AppInitRequest
@@ -173,13 +175,8 @@ public class AuthorizationTest : BaseControllerTest
         Assert.AreEqual(5, actualPermissionGroups.Count);
     }
 
-    public async Task Init_And_Validate_CRUD_For_PermissionGroupPermissions()
-    {
-
-    }
-
     [TestMethod]
-    public async Task Init_And_Validate_CRUD_For_SecureObjectType()
+    public async Task SecureObjectType_CRUD()
     {
         // Create new SecureObjectType
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -223,6 +220,10 @@ public class AuthorizationTest : BaseControllerTest
         var newSecureObjectType3 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes3 = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2, newSecureObjectType3 }).ToArray();
 
+        //-------------------------
+        // check : Successfully delete SecureObjectType1, update SecureObjectType2 and create the SecureObjectType3 after second call the Init
+        //-------------------------
+
         // Call Init for second time
         await controller.InitAsync(AppId, new AppInitRequest
         {
@@ -255,8 +256,13 @@ public class AuthorizationTest : BaseControllerTest
         Assert.AreEqual(5, actualSecureObjectTypes.Count);
     }
 
+    public async Task PermissionGroupPermissions_CRUD()
+    {
+
+    }
+
     [TestMethod]
-    public async Task InvalidOperation_Exception_Is_Expected_When_Name_Is_System_In_List_SecureObjectType()
+    public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
     {
         var controller = new AuthorizationController(HttpClient);
 
@@ -278,6 +284,10 @@ public class AuthorizationTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
+        //-----------------------
+        //check : Invalid operation exception is expected when "System" passed as SecureObjectTypeName
+        //-----------------------
+
         // Call Init api
         try
         {
@@ -292,13 +302,13 @@ public class AuthorizationTest : BaseControllerTest
         }
         catch (Exception ex)
         {
-            if (!ex.Message.Contains("The SecureObjectTypeName could not set to System"))
+            if (!ex.Message.Contains("The SecureObjectTypeName could not allow System as an input parameter"))
                 Assert.Fail();
         }
     }
 
     [TestMethod]
-    public async Task InvalidOperation_Exception_Is_Expected_When_Name_Is_Duplicate_In_List_SecureObjectType()
+    public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_duplicate_in_db()
     {
         var controller = new AuthorizationController(HttpClient);
 
@@ -321,6 +331,10 @@ public class AuthorizationTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
+        //-----------------------
+        //check : Invalid operation exception is expected when passed a duplicate name as SecureObjectTypeName
+        //-----------------------
+
         // Call Init api
         try
         {
@@ -331,19 +345,15 @@ public class AuthorizationTest : BaseControllerTest
                 Permissions = permissions,
                 RemoveOtherPermissionGroups = false
             });
-            Assert.Fail("Invalid operation exception is expected when SecureObjectTypeName is repetitive in list");
+            Assert.Fail("Invalid operation exception is expected when SecureObjectTypeName is repetitive in db");
         }
         catch (Exception ex)
         {
-            if (!ex.Message.Contains("SecureObjectTypeName could not allow repetitive values"))
+            if (!ex.Message.Contains("IX_SecureObjectTypes_AppId_SecureObjectTypeName"))
                 Assert.Fail();
         }
 
     }
-
-    //-----------
-    // check: System object is not deleted
-    //-----------
 
     #region RemarkTests
 

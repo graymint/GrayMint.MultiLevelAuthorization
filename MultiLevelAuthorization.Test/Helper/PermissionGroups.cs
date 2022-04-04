@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MultiLevelAuthorization.Test.Apis;
 
-namespace MultiLevelAuthorization.Test;
+namespace MultiLevelAuthorization.Test.Helper;
 public static class PermissionGroups
 {
     public static Apis.PermissionGroupDto UserBasic { get; } = new()

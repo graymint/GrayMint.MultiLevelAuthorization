@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiLevelAuthorization.Server;
 using MultiLevelAuthorization.Test.Apis;
 
-namespace MultiLevelAuthorization.Test;
+namespace MultiLevelAuthorization.Test.Helper;
 
 public abstract class BaseControllerTest
 {

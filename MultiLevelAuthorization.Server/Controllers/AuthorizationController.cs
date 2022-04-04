@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MultiLevelAuthorization.DTOs;
+using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Repositories;
 using MultiLevelAuthorization.Server.DTOs;
 using System.Net.Mime;
@@ -50,13 +51,13 @@ public class AuthorizationController : ControllerBase
     }
 
     [HttpGet("{appId}/SecureObjectTypes")]
-    public async Task<List<SecureObjectTypeDto>> GetSecureObjectTypes(string appId)
+    public async Task<List<SecureObjectTypeDto>> SecureObjectType_List(string appId)
     {
         var app = await _authManager.App_PropsByName(appId);
 
         //todo: check permission
 
-        var result = await _authManager.GetSecureObjectTypes(app.AppId);
+        var result = await _authManager.SecureObjectType_List(app.AppId);
         List<SecureObjectTypeDto> list = new List<SecureObjectTypeDto>();
         foreach (var item in result)
         {
@@ -65,13 +66,29 @@ public class AuthorizationController : ControllerBase
         return list;
     }
 
+    [HttpGet("{appId}/SecureObjects")]
+    public async Task<List<SecureObjectDto>> SecureObject_List(string appId)
+    {
+        var app = await _authManager.App_PropsByName(appId);
+
+        //todo: check permission
+
+        var result = await _authManager.SecureObject_List(app.AppId);
+        List<SecureObjectDto> list = new List<SecureObjectDto>();
+        foreach (var item in result)
+        {
+            list.Add(new SecureObjectDto(item.SecureObjectId, item.SecureObjectTypeId, item.ParentSecureObjectId));
+        }
+        return list;
+    }
+
     [HttpGet("{appId}/permission-groups")]
-    public async Task<PermissionGroupDto[]> PermissionGroups(string appId)
+    public async Task<PermissionGroupDto[]> PermissionGroup_List(string appId)
     {
         var app = await _authManager.App_PropsByName(appId);
         //todo: check permission
 
-        var res = await _authManager.GetPermissionGroups(app.AppId);
+        var res = await _authManager.PermissionGroup_List(app.AppId);
         var ret = res.Select(
             x => new PermissionGroupDto(
                 x.PermissionGroupId,
@@ -93,4 +110,48 @@ public class AuthorizationController : ControllerBase
             app.AppId.ToString(), null, new[] { "AppUser" });
         return jwt;
     }
+
+    [HttpPost("{appId}/SecureObject")]
+    public async Task<SecureObjectDto> SecureObject_Create(string appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
+    {
+        var app = await _authManager.App_PropsByName(appId);
+
+        //todo: check permission
+
+        var result = await _authManager.SecureObject_Create(app.AppId, secureObjectId, secureObjectTypeId, parentSecureObjectId);
+        return result;
+    }
+
+    [HttpPost("{appId}/Role")]
+    public async Task<Role> Role_Create(string appId, string roleName, Guid ownerId, Guid modifiedByUserId)
+    {
+        var app = await _authManager.App_PropsByName(appId);
+
+        //todo: check permission
+
+        var result = await _authManager.Role_Create(app.AppId, roleName, ownerId, modifiedByUserId);
+        return result;
+    }
+
+    [HttpGet("{appId}/Roles")]
+    public async Task<Role[]> Role_List(string appId)
+    {
+        //todo: check permission
+
+        var app = await _authManager.App_PropsByName(appId);
+        var result = await _authManager.Role_List(app.AppId);
+
+        return result;
+    }
+    [HttpGet("{appId}/role-users")]
+    public async Task<RoleUser[]> Role_Users(string appId, Guid roleId)
+    {
+        //todo: check permission
+
+        var app = await _authManager.App_PropsByName(appId);
+        var result = await _authManager.Role_Users(app.AppId, roleId);
+
+        return result;
+    }
+
 }

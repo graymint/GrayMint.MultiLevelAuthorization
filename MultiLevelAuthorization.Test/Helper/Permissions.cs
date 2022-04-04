@@ -1,8 +1,7 @@
 ﻿
 using MultiLevelAuthorization.Test.Apis;
 
-namespace MultiLevelAuthorization.Test;
-
+namespace MultiLevelAuthorization.Test.Helper;
 public static class Permissions
 {
     public static PermissionDto ProjectCreate { get; } = new PermissionDto { PermissionCode = 10, PermissionName = nameof(ProjectCreate) };

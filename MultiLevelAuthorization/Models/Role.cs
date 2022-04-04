@@ -11,7 +11,7 @@ public class Role
     public Guid ModifiedByUserId { get; set; }
     public DateTime CreatedTime { get; set; }
 
-    public virtual App? App { get; set; }
+    //public virtual App? App { get; set; }
     public virtual ICollection<SecureObjectRolePermission>? RolePermissions { get; set; }
     public virtual ICollection<RoleUser>? RoleUsers { get; set; }
 

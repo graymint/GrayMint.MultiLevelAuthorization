@@ -245,6 +245,77 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<SecureObjectDto>> SecureObjectsAsync(string appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (appId == null)
+                throw new System.ArgumentNullException("appId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/apps/{appId}/SecureObjects");
+            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<SecureObjectDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PermissionGroupDto>> PermissionGroupsAsync(string appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
@@ -381,6 +452,323 @@ namespace MultiLevelAuthorization.Test.Apis
             }
         }
 
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<SecureObjectDto> SecureObjectAsync(string appId, System.Guid? secureObjectId = null, System.Guid? secureObjectTypeId = null, System.Guid? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (appId == null)
+                throw new System.ArgumentNullException("appId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/apps/{appId}/SecureObject?");
+            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            if (secureObjectId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (secureObjectTypeId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (parentSecureObjectId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("parentSecureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(parentSecureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<SecureObjectDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Role> RoleAsync(string appId, string roleName = null, System.Guid? ownerId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (appId == null)
+                throw new System.ArgumentNullException("appId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/apps/{appId}/Role?");
+            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            if (roleName != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("roleName") + "=").Append(System.Uri.EscapeDataString(ConvertToString(roleName, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (ownerId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("ownerId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (modifiedByUserId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("modifiedByUserId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(modifiedByUserId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "text/plain");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Role>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Role>> RolesAsync(string appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (appId == null)
+                throw new System.ArgumentNullException("appId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/apps/{appId}/Roles");
+            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Role>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RoleUser>> RoleUsersAsync(string appId, System.Guid? roleId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (appId == null)
+                throw new System.ArgumentNullException("appId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/apps/{appId}/role-users?");
+            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            if (roleId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("roleId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(roleId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<RoleUser>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         protected struct ObjectResponseResult<T>
         {
             public ObjectResponseResult(T responseObject, string responseText)
@@ -482,6 +870,36 @@ namespace MultiLevelAuthorization.Test.Apis
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class App
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appName")]
+        public string AppName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appDescription")]
+        public string AppDescription { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypes")]
+        public System.Collections.Generic.ICollection<SecureObjectType> SecureObjectTypes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroups")]
+        public System.Collections.Generic.ICollection<PermissionGroup> PermissionGroups { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("groupPermissions")]
+        public System.Collections.Generic.ICollection<PermissionGroupPermission> GroupPermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissions")]
+        public System.Collections.Generic.ICollection<Permission> Permissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roles")]
+        public System.Collections.Generic.ICollection<Role> Roles { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AppCreateRequest
     {
 
@@ -527,6 +945,30 @@ namespace MultiLevelAuthorization.Test.Apis
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Permission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
+        public int PermissionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionName")]
+        public string PermissionName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroups")]
+        public System.Collections.Generic.ICollection<PermissionGroup> PermissionGroups { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupPermissions")]
+        public System.Collections.Generic.ICollection<PermissionGroupPermission> PermissionGroupPermissions { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PermissionDto
     {
 
@@ -535,6 +977,27 @@ namespace MultiLevelAuthorization.Test.Apis
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionName")]
         public string PermissionName { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PermissionGroup
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupName")]
+        public string PermissionGroupName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissions")]
+        public System.Collections.Generic.ICollection<Permission> Permissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
 
     }
 
@@ -554,6 +1017,186 @@ namespace MultiLevelAuthorization.Test.Apis
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PermissionGroupPermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
+        public int PermissionId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroup")]
+        public PermissionGroup PermissionGroup { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permission")]
+        public Permission Permission { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Role
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
+        public System.Guid OwnerId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleName")]
+        public string RoleName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rolePermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectRolePermission> RolePermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleUsers")]
+        public System.Collections.Generic.ICollection<RoleUser> RoleUsers { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RoleUser
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public System.Guid UserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("role")]
+        public Role Role { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObject
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public System.Guid SecureObjectTypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("parentSecureObjectId")]
+        public System.Guid? ParentSecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectType")]
+        public SecureObjectType SecureObjectType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rolePermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectRolePermission> RolePermissions { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userPermissions")]
+        public System.Collections.Generic.ICollection<SecureObjectUserPermission> UserPermissions { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public System.Guid SecureObjectTypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("parentSecureObjectId")]
+        public System.Guid? ParentSecureObjectId { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectRolePermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("roleId")]
+        public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObject")]
+        public SecureObject SecureObject { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("role")]
+        public Role Role { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroup")]
+        public PermissionGroup PermissionGroup { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectType
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public System.Guid SecureObjectTypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeName")]
+        public string SecureObjectTypeName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("app")]
+        public App App { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isSystem")]
+        public bool IsSystem { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjects")]
+        public System.Collections.Generic.ICollection<SecureObject> SecureObjects { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectTypeDto
     {
 
@@ -562,6 +1205,30 @@ namespace MultiLevelAuthorization.Test.Apis
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
         public System.Guid SecureObjectTypeId { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class SecureObjectUserPermission
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public System.Guid SecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public System.Guid UserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
+        public System.Guid PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
+        public System.Guid ModifiedByUserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
+        public System.DateTime CreatedTime { get; set; }
 
     }
 

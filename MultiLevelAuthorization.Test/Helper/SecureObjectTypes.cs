@@ -1,8 +1,7 @@
 ﻿using System;
 using MultiLevelAuthorization.Test.Apis;
 
-namespace MultiLevelAuthorization.Test;
-
+namespace MultiLevelAuthorization.Test.Helper;
 public class SecureObjectTypes
 {
     public static SecureObjectTypeDto Project { get; } = new SecureObjectTypeDto { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = nameof(Project) };

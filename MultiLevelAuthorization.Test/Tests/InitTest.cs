@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiLevelAuthorization.Test.Apis;
+using MultiLevelAuthorization.Test.Helper;
 
 namespace MultiLevelAuthorization.Test.Tests;
 
@@ -143,7 +144,7 @@ public class InitTest : BaseControllerTest
         var permissionGroups3 = PermissionGroups.All.Concat(new[] { newPermissionGroup2, newPermissionGroup3 }).ToArray();
 
         //-----------------------------
-        // check : Successfully delete SecureObjectType1, update SecureObjectType2 and create the SecureObjectType3 after third call the Init
+        // check : Successfully delete SecureObjectType1, update PermissionGroups2 and create the PermissionGroups3 after third call the Init
         //-----------------------------
 
         // Init for third
@@ -354,6 +355,12 @@ public class InitTest : BaseControllerTest
         }
 
     }
+
+    //todo PermissionGroupPermissions_CRUD
+
+    //-----------
+    //    // check: used SecureObjectType should not be deleted
+    //    //-----------
 
     #region RemarkTests
 

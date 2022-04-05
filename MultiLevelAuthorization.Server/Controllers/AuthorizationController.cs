@@ -8,6 +8,8 @@ using MultiLevelAuthorization.Repositories;
 using MultiLevelAuthorization.Server.DTOs;
 using System.Net.Mime;
 using AppDto = MultiLevelAuthorization.Server.DTOs.AppDto;
+using PermissionGroupDto = MultiLevelAuthorization.Server.DTOs.PermissionGroupDto;
+using PermissionGroupDtoHandler = MultiLevelAuthorization.DTOs.PermissionGroupDto;
 
 namespace MultiLevelAuthorization.Server.Controllers;
 
@@ -42,10 +44,12 @@ public class AuthorizationController : ControllerBase
     public async Task<AppDto> Init(string appId, AppInitRequest request)
     {
         var app = await _authManager.App_PropsByName(appId);
+        //var app = await _authManager.PermissionGroup_PropsByName(request.PermissionGroups.);
 
         //todo: check permission
 
-        var result = await _authManager.Init(app.AppId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+        PermissionGroupDtoHandler[] xxxxxxxxxxxxxx = new PermissionGroupDtoHandler[3];
+        var result = await _authManager.Init(app.AppId, request.SecureObjectTypes, request.Permissions, xxxxxxxxxxxxxx, request.RemoveOtherPermissionGroups);
         var ret = new AppDto(appId, app.AppName, result.SystemSecureObjectId);
         return ret;
     }
@@ -91,7 +95,7 @@ public class AuthorizationController : ControllerBase
         var res = await _authManager.PermissionGroup_List(app.AppId);
         var ret = res.Select(
             x => new PermissionGroupDto(
-                x.PermissionGroupId,
+                x.PermissionGroupGuid,
                 x.PermissionGroupName,
                 x.Permissions.Select(y => new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
             );

@@ -15,6 +15,7 @@ public class AuthManager
         _authDbContext = dbContext;
     }
 
+
     #region Permission
 
     public async Task<PermissionGroup[]> PermissionGroup_List(int appId)
@@ -25,7 +26,7 @@ public class AuthManager
             .ToArrayAsync();
     }
 
-    private async Task PermissionGroupPermission_Remove(int appId, Guid permissionGroupId)
+    private async Task PermissionGroupPermission_Remove(int appId, int permissionGroupId)
     {
         // Get list PermissionGroupPermissions based on App and PermissionGroup
         var dbValues = await _authDbContext.PermissionGroupPermissions
@@ -45,8 +46,6 @@ public class AuthManager
             await _authDbContext.Permissions.AddAsync(new Permission(appId, obValue.PermissionCode, obValue.PermissionName));
 
         // delete
-        //foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.PermissionId != c.PermissionCode)))
-        //    _authDbContext.Permissions.Remove(dbValue);
         var deleteValues = dbValues.Where(x => obValues.All(c => x.AppId == appId && x.PermissionId != c.PermissionCode));
         _authDbContext.Permissions.RemoveRange(deleteValues);
 
@@ -72,46 +71,39 @@ public class AuthManager
 
     private async Task PermissionGroup_UpdateBulk(int appId, PermissionGroupDto[] obValues, bool removeOthers)
     {
-        try
+        var dbValues = await _authDbContext.PermissionGroups
+            .Where(x => x.AppId == appId)
+            .Include(x => x.PermissionGroupPermissions).ToListAsync();
+
+        // add
+        foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionGroupId != c.PermissionGroupId)))
         {
-            var dbValues = await _authDbContext.PermissionGroups
-                .Where(x => x.AppId == appId)
-                .Include(x => x.PermissionGroupPermissions).ToListAsync();
-
-            // add
-            foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionGroupId != c.PermissionGroupId)))
-            {
-                var res = await _authDbContext.PermissionGroups.AddAsync(new PermissionGroup(appId, obValue.PermissionGroupId, obValue.PermissionGroupName));
-                PermissionGroupPermission_UpdateBulk(res.Entity.PermissionGroupPermissions,
-                    obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = appId, PermissionGroupId = res.Entity.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
-            }
-
-            // delete
-            if (removeOthers)
-                foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionGroupId != c.PermissionGroupId)))
-                {
-                    // Remove PermissionGroupPermission
-                    await PermissionGroupPermission_Remove(appId, dbValue.PermissionGroupId);
-
-                    // Remove PermissionGroup
-                    _authDbContext.PermissionGroups.Remove(dbValue);
-                }
-
-            // update
-            foreach (var dbValue in dbValues)
-            {
-                var obValue = obValues.SingleOrDefault(x => x.PermissionGroupId == dbValue.PermissionGroupId);
-                if (obValue == null) continue;
-
-                PermissionGroupPermission_UpdateBulk(dbValue.PermissionGroupPermissions,
-                    obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = appId, PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
-
-                dbValue.PermissionGroupName = obValue.PermissionGroupName;
-            }
+            var res = await _authDbContext.PermissionGroups.AddAsync(new PermissionGroup(appId, obValue.PermissionGroupId, obValue.PermissionGroupGuid, obValue.PermissionGroupName));
+            PermissionGroupPermission_UpdateBulk(res.Entity.PermissionGroupPermissions,
+                obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = appId, PermissionGroupId = res.Entity.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
         }
-        catch (Exception ex)
+
+        // delete
+        if (removeOthers)
+            foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionGroupId != c.PermissionGroupId)))
+            {
+                // Remove PermissionGroupPermission
+                await PermissionGroupPermission_Remove(appId, dbValue.PermissionGroupId);
+
+                // Remove PermissionGroup
+                _authDbContext.PermissionGroups.Remove(dbValue);
+            }
+
+        // update
+        foreach (var dbValue in dbValues)
         {
-            throw ex;
+            var obValue = obValues.SingleOrDefault(x => x.PermissionGroupId == dbValue.PermissionGroupId);
+            if (obValue == null) continue;
+
+            PermissionGroupPermission_UpdateBulk(dbValue.PermissionGroupPermissions,
+                obValue.Permissions.Select(x => new PermissionGroupPermission { AppId = appId, PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionCode }).ToArray());
+
+            dbValue.PermissionGroupName = obValue.PermissionGroupName;
         }
     }
 
@@ -176,7 +168,7 @@ public class AuthManager
         return result;
     }
 
-    private async Task<App> GetMaxApp()
+    private async Task<App?> GetMaxApp()
     {
         var result = await _authDbContext.Apps
             .OrderByDescending(x => x.AppId)
@@ -208,7 +200,7 @@ public class AuthManager
             RoleName = roleName
         };
         await _authDbContext.Roles.AddAsync(role);
-        await _authDbContext.SaveChangesAsync();    
+        await _authDbContext.SaveChangesAsync();
         return role;
     }
 
@@ -290,7 +282,7 @@ public class AuthManager
            .ToArrayAsync();
     }
 
-    public async Task<SecureObjectRolePermission> SecureObject_AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+    public async Task<SecureObjectRolePermission> SecureObject_AddRolePermission(int appId, Guid secureObjectId, Guid roleId, int permissionGroupId, Guid modifiedByUserId)
     {
         //todo check permission on appId
 
@@ -307,7 +299,7 @@ public class AuthManager
         return ret.Entity;
     }
 
-    public async Task<SecureObjectUserPermission> SecureObject_AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+    public async Task<SecureObjectUserPermission> SecureObject_AddUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionGroupId,
         Guid modifiedByUserId)
     {
         //todo check permission on appId
@@ -453,30 +445,23 @@ public class AuthManager
 
     private async Task SecureObjectType_UpdateBulk(int appId, SecureObjectTypeDto[] obValues)
     {
-        try
+        // Get SecureObjectTypes from db
+        var dbValues = await _authDbContext.SecureObjectTypes.Where(x => x.AppId == appId).ToListAsync();
+
+        // add
+        foreach (var obValue in obValues.Where(x => dbValues.All(c => c.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
+            await _authDbContext.SecureObjectTypes.AddAsync(new SecureObjectType(appId, obValue.SecureObjectTypeId, obValue.SecureObjectTypeName));
+
+        // delete
+        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
+            _authDbContext.SecureObjectTypes.Remove(dbValue);
+
+        // update
+        foreach (var dbValue in dbValues)
         {
-            // Get SecureObjectTypes from db
-            var dbValues = await _authDbContext.SecureObjectTypes.Where(x => x.AppId == appId).ToListAsync();
-
-            // add
-            foreach (var obValue in obValues.Where(x => dbValues.All(c => c.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
-                await _authDbContext.SecureObjectTypes.AddAsync(new SecureObjectType(appId, obValue.SecureObjectTypeId, obValue.SecureObjectTypeName));
-
-            // delete
-            foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
-                _authDbContext.SecureObjectTypes.Remove(dbValue);
-
-            // update
-            foreach (var dbValue in dbValues)
-            {
-                var obValue = obValues.SingleOrDefault(x => x.SecureObjectTypeId == dbValue.SecureObjectTypeId);
-                if (obValue == null) continue;
-                dbValue.SecureObjectTypeName = obValue.SecureObjectTypeName;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
+            var obValue = obValues.SingleOrDefault(x => x.SecureObjectTypeId == dbValue.SecureObjectTypeId);
+            if (obValue == null) continue;
+            dbValue.SecureObjectTypeName = obValue.SecureObjectTypeName;
         }
     }
 

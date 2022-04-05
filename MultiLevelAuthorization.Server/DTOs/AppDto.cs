@@ -5,10 +5,10 @@ public class AppDto : MultiLevelAuthorization.DTOs.AppDto
     public string AppName { get; }
     public string AppDescription { get; }
 
-    public AppDto(string appName, string AppDescription, Guid systemSecureObjectId)
+    public AppDto(string appName, string appDescription, Guid systemSecureObjectId)
         : base(systemSecureObjectId)
     {
         AppName = appName;
-        AppDescription = AppDescription;
+        AppDescription = appDescription;
     }
 }

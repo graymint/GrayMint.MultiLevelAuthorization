@@ -7,7 +7,7 @@ public class SecureObjectRolePermission
     public int AppId { get; set; }
     public Guid SecureObjectId { get; set; }
     public Guid RoleId { get; set; }
-    public Guid PermissionGroupId { get; set; }
+    public int PermissionGroupId { get; set; }
     public Guid ModifiedByUserId { get; set; }
     public DateTime CreatedTime { get; set; }
 

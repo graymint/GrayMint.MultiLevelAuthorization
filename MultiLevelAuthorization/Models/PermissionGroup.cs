@@ -5,9 +5,10 @@ namespace MultiLevelAuthorization.Models;
 public class PermissionGroup
 {
     public int AppId { get; set; }
-    public Guid PermissionGroupId { get; set; }
+    public int PermissionGroupId { get; set; }
+    public Guid PermissionGroupGuid { get; set; }
     public string PermissionGroupName { get; set; }
-    
+
     public virtual ICollection<Permission> Permissions { get; set; } = new HashSet<Permission>();
     public virtual App? App { get; set; }
 
@@ -15,10 +16,11 @@ public class PermissionGroup
     [JsonIgnore] public virtual ICollection<SecureObjectRolePermission>? RolePermissions { get; set; }
     [JsonIgnore] public virtual ICollection<SecureObjectUserPermission>? UserPermissions { get; set; }
 
-    public PermissionGroup(int appId, Guid permissionGroupId, string permissionGroupName)
+    public PermissionGroup(int appId, int permissionGroupId, Guid permissionGroupGuid, string permissionGroupName)
     {
         AppId = appId;
         PermissionGroupId = permissionGroupId;
+        PermissionGroupGuid = permissionGroupGuid;
         PermissionGroupName = permissionGroupName;
     }
 }

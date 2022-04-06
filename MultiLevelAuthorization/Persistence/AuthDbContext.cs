@@ -85,8 +85,8 @@ public partial class AuthDbContext : DbContext
         modelBuilder.Entity<PermissionGroup>(entity =>
         {
             entity.Property(e => e.PermissionGroupId)
-                .ValueGeneratedNever();
-
+                .ValueGeneratedOnAdd();
+            entity.HasKey(x => new { x.PermissionGroupId });
             entity.HasIndex(e => new { e.AppId, e.PermissionGroupName })
                 .IsUnique();
         });

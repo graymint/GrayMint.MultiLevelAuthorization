@@ -915,14 +915,14 @@ namespace MultiLevelAuthorization.Test.Apis
     public partial class AppDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("systemSecureObjectId")]
-        public System.Guid SystemSecureObjectId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("appName")]
         public string AppName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("appDescription")]
         public string AppDescription { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("systemSecureObjectId")]
+        public System.Guid SystemSecureObjectId { get; set; }
 
     }
 
@@ -988,7 +988,10 @@ namespace MultiLevelAuthorization.Test.Apis
         public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
-        public System.Guid PermissionGroupId { get; set; }
+        public int PermissionGroupId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupGuid")]
+        public System.Guid PermissionGroupGuid { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupName")]
         public string PermissionGroupName { get; set; }
@@ -1024,7 +1027,7 @@ namespace MultiLevelAuthorization.Test.Apis
         public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
-        public System.Guid PermissionGroupId { get; set; }
+        public int PermissionGroupId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
         public int PermissionId { get; set; }
@@ -1061,9 +1064,6 @@ namespace MultiLevelAuthorization.Test.Apis
 
         [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
         public System.DateTime CreatedTime { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("app")]
-        public App App { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("rolePermissions")]
         public System.Collections.Generic.ICollection<SecureObjectRolePermission> RolePermissions { get; set; }
@@ -1153,7 +1153,7 @@ namespace MultiLevelAuthorization.Test.Apis
         public System.Guid RoleId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
-        public System.Guid PermissionGroupId { get; set; }
+        public int PermissionGroupId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
         public System.Guid ModifiedByUserId { get; set; }
@@ -1222,7 +1222,7 @@ namespace MultiLevelAuthorization.Test.Apis
         public System.Guid UserId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
-        public System.Guid PermissionGroupId { get; set; }
+        public int PermissionGroupId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("modifiedByUserId")]
         public System.Guid ModifiedByUserId { get; set; }

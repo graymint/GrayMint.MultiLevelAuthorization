@@ -49,14 +49,14 @@ public class InitTest : BaseControllerTest
         Assert.AreEqual(4, actualTypes.Count(), "Validate count of output");
 
         //Validate created record ( Systematic and manually by api)
-        actualTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId && x.SecureObjectTypeName == newSecureObjectType1.SecureObjectTypeName);
-        actualTypes.Single(x => x.SecureObjectTypeName == "System");
+        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId && x.SecureObjectTypeName == newSecureObjectType1.SecureObjectTypeName));
+        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeName == "System"));
 
         //-----------
-        // check: Validate successfuly created PermissionGroup
+        // check: Validate successful created PermissionGroup
         //-----------
         var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
-        actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName);
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
 
         //-----------
         // check: Validate successfuly created PermissionGroupPermission and Permission
@@ -97,9 +97,9 @@ public class InitTest : BaseControllerTest
 
         // Get system PermissionGroup properties
         var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
-        Guid projectOwnerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectOwner").PermissionGroupId;
-        Guid projectViewerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectViewer").PermissionGroupId;
-        Guid userBasicId = actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic").PermissionGroupId;
+        var projectOwnerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectOwner").PermissionGroupId;
+        var projectViewerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectViewer").PermissionGroupId;
+        var userBasicId = actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic").PermissionGroupId;
 
         // Prepare PermissionGroup2
         var newPermissionGroup2 = new PermissionGroupDto()
@@ -128,8 +128,8 @@ public class InitTest : BaseControllerTest
         Assert.AreEqual(5, actualPermissionGroups.Count());
 
         // Vaidate to exists PermissionGroup1 and PermissionGroup2
-        actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName);
-        actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId && x.PermissionGroupName == newPermissionGroup2.PermissionGroupName);
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId && x.PermissionGroupName == newPermissionGroup2.PermissionGroupName));
 
         // Prepare PermissionGroup3
         var newPermissionGroupName = Guid.NewGuid().ToString();
@@ -163,15 +163,15 @@ public class InitTest : BaseControllerTest
         Assert.IsNull(actualPermissionGroups.FirstOrDefault(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId));
 
         // PermissionGroup2 must be updated
-        actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId && x.PermissionGroupName == newPermissionGroupName);
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId && x.PermissionGroupName == newPermissionGroupName));
 
         // PermissionGroup3 must be created
-        actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup3.PermissionGroupId && x.PermissionGroupName == newPermissionGroup3.PermissionGroupName);
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup3.PermissionGroupId && x.PermissionGroupName == newPermissionGroup3.PermissionGroupName));
 
         // validate PermissionGroupId for system object
-        actualPermissionGroups.Single(x => x.PermissionGroupId == projectOwnerId && x.PermissionGroupName == "ProjectOwner");
-        actualPermissionGroups.Single(x => x.PermissionGroupId == projectViewerId && x.PermissionGroupName == "ProjectViewer");
-        actualPermissionGroups.Single(x => x.PermissionGroupId == userBasicId && x.PermissionGroupName == "UserBasic");
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == projectOwnerId && x.PermissionGroupName == "ProjectOwner"));
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == projectViewerId && x.PermissionGroupName == "ProjectViewer"));
+        Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == userBasicId && x.PermissionGroupName == "UserBasic"));
 
         Assert.AreEqual(5, actualPermissionGroups.Count);
     }
@@ -209,9 +209,9 @@ public class InitTest : BaseControllerTest
 
         // Retrieve all systematic SecureObjectTypes
         var actualSecureObjectTypes = await controller.SecureObjectTypesAsync(AppId);
-        Guid secureObjectTypes_User = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "User").SecureObjectTypeId;
-        Guid secureObjectTypes_System = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "System").SecureObjectTypeId;
-        Guid secureObjectTypes_Project = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "Project").SecureObjectTypeId;
+        var secureObjectTypesUser = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "User").SecureObjectTypeId;
+        var secureObjectTypesSystem = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "System").SecureObjectTypeId;
+        var secureObjectTypesProject = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "Project").SecureObjectTypeId;
 
         // Update name of newSecureObjectType2
         var secureObjectTypeName = Guid.NewGuid().ToString();
@@ -241,26 +241,23 @@ public class InitTest : BaseControllerTest
         Assert.IsNull(actualSecureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId));
 
         // SecureObjectType2 must be updated
-        actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType2.SecureObjectTypeId &&
-                                       x.SecureObjectTypeName == secureObjectTypeName);
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType2.SecureObjectTypeId &&
+                                                             x.SecureObjectTypeName == secureObjectTypeName));
 
         // SecureObjectType3 must be created
-        actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType3.SecureObjectTypeId &&
-                                       x.SecureObjectTypeName == newSecureObjectType3.SecureObjectTypeName);
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType3.SecureObjectTypeId &&
+                                       x.SecureObjectTypeName == newSecureObjectType3.SecureObjectTypeName));
 
         // Make sure that systematic SecureObjectType never be updated
-        actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypes_User && x.SecureObjectTypeName == "User");
-        actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypes_System && x.SecureObjectTypeName == "System");
-        actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypes_Project && x.SecureObjectTypeName == "Project");
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesUser && x.SecureObjectTypeName == "User"));
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesSystem && x.SecureObjectTypeName == "System"));
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesProject && x.SecureObjectTypeName == "Project"));
 
         // Validate count of output
         Assert.AreEqual(5, actualSecureObjectTypes.Count);
     }
 
-    public async Task PermissionGroupPermissions_CRUD()
-    {
-
-    }
+    //todo PermissionGroupPermissions_CRUD()
 
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
@@ -339,7 +336,7 @@ public class InitTest : BaseControllerTest
         // Call Init api
         try
         {
-            var appDto = await controller.InitAsync(AppId, new AppInitRequest
+            await controller.InitAsync(AppId, new AppInitRequest
             {
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,

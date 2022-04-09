@@ -3,7 +3,7 @@ namespace MultiLevelAuthorization.Test.Apis
 {
     using System = global::System;
 
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AuthorizationController
     {
         private System.Net.Http.HttpClient _httpClient;
@@ -869,7 +869,7 @@ namespace MultiLevelAuthorization.Test.Apis
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class App
     {
 
@@ -899,7 +899,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AppCreateRequest
     {
 
@@ -911,7 +911,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AppDto
     {
 
@@ -926,9 +926,15 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AppInitRequest
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("rootSecureObjectId")]
+        public System.Guid RootSecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("rootSeureObjectTypeId")]
+        public System.Guid RootSeureObjectTypeId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypes")]
         public System.Collections.Generic.ICollection<SecureObjectTypeDto> SecureObjectTypes { get; set; }
@@ -944,7 +950,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Permission
     {
 
@@ -968,7 +974,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PermissionDto
     {
 
@@ -980,18 +986,18 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PermissionGroup
     {
-
-        [System.Text.Json.Serialization.JsonPropertyName("appId")]
-        public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupId")]
         public int PermissionGroupId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupGuid")]
-        public System.Guid PermissionGroupGuid { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("permissionGroupExternalId")]
+        public System.Guid PermissionGroupExternalId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionGroupName")]
         public string PermissionGroupName { get; set; }
@@ -1004,7 +1010,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PermissionGroupDto
     {
 
@@ -1019,7 +1025,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PermissionGroupPermission
     {
 
@@ -1043,7 +1049,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Role
     {
 
@@ -1073,7 +1079,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RoleUser
     {
 
@@ -1097,21 +1103,24 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObject
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
+        public int SecureObjectId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("appId")]
         public int AppId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
-        public System.Guid SecureObjectId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
-        public System.Guid SecureObjectTypeId { get; set; }
+        public int SecureObjectTypeId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("parentSecureObjectId")]
-        public System.Guid? ParentSecureObjectId { get; set; }
+        public int? ParentSecureObjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectExternalId")]
+        public System.Guid SecureObjectExternalId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectType")]
         public SecureObjectType SecureObjectType { get; set; }
@@ -1124,7 +1133,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectDto
     {
 
@@ -1139,7 +1148,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectRolePermission
     {
 
@@ -1147,7 +1156,7 @@ namespace MultiLevelAuthorization.Test.Apis
         public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
-        public System.Guid SecureObjectId { get; set; }
+        public int SecureObjectId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("roleId")]
         public System.Guid RoleId { get; set; }
@@ -1172,15 +1181,18 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectType
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
+        public int SecureObjectTypeId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("appId")]
         public int AppId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeId")]
-        public System.Guid SecureObjectTypeId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeExternalId")]
+        public System.Guid SecureObjectTypeExternalId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypeName")]
         public string SecureObjectTypeName { get; set; }
@@ -1196,7 +1208,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectTypeDto
     {
 
@@ -1208,7 +1220,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectUserPermission
     {
 
@@ -1216,7 +1228,7 @@ namespace MultiLevelAuthorization.Test.Apis
         public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectId")]
-        public System.Guid SecureObjectId { get; set; }
+        public int SecureObjectId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public System.Guid UserId { get; set; }
@@ -1234,7 +1246,7 @@ namespace MultiLevelAuthorization.Test.Apis
 
 
 
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ApiException : System.Exception
     {
         public int StatusCode { get; private set; }
@@ -1257,7 +1269,7 @@ namespace MultiLevelAuthorization.Test.Apis
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ApiException<TResult> : ApiException
     {
         public TResult Result { get; private set; }

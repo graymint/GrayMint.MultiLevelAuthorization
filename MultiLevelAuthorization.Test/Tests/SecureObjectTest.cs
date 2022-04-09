@@ -32,10 +32,14 @@ public class SecureObjectTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -76,34 +80,39 @@ public class SecureObjectTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
+
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
             RemoveOtherPermissionGroups = true
         });
 
-        //// Prepare parameters
-        //Guid secureObjectId = Guid.NewGuid();
+        // Prepare parameters
+        Guid secureObjectId = Guid.NewGuid();
 
-        ////----------------------
-        //// check : Successfully create new SecureObject without ParentSecureObjectId
-        ////----------------------
+        //----------------------
+        // check : Successfully create new SecureObject without ParentSecureObjectId
+        //----------------------
 
-        //// Call api to create SecureObject
-        //await controller.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, null);
+        // Call api to create SecureObject
+        await controller.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, null);
 
-        //// Call api to get info based on created SecureObject
-        //var result = await controller.SecureObjectsAsync(AppId);
+        // Call api to get info based on created SecureObject
+        var result = await controller.SecureObjectsAsync(AppId);
 
-        //// Assert consequence
-        //Assert.IsNotNull(result.First(x => x.SecureObjectId == secureObjectId
-        //                            && x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId
-        //                            && x.ParentSecureObjectId == appDto.SystemSecureObjectId
-        //                            ));
+        // Assert consequence
+        Assert.IsNotNull(result.First(x => x.SecureObjectId == secureObjectId
+                                    && x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId
+                                    && x.ParentSecureObjectId == appDto.SystemSecureObjectId
+                                    ));
     }
     [TestMethod]
     public async Task SecureObject_CRUD_with_ParentSecureObjectId()
@@ -129,9 +138,15 @@ public class SecureObjectTest : BaseControllerTest
         permissionGroupDto.Add(newPermissionGroup1);
         var permissionGroups = permissionGroupDto;// PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
+
         // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
+
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,

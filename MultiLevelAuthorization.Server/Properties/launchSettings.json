@@ -11,7 +11,7 @@
   "profiles": {
     "AuthorizationServer": {
       "commandName": "Project",
-      "commandLineArgs": "/recreatedb",
+      "commandLineArgs": "/recreatedba",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {

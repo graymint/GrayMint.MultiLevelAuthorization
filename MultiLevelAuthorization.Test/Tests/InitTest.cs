@@ -30,11 +30,15 @@ public class InitTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId =    rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -84,11 +88,15 @@ public class InitTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -117,6 +125,8 @@ public class InitTest : BaseControllerTest
         // Call App_Init api for second time and add PermissionGroup2
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups2,
             Permissions = permissions,
@@ -150,6 +160,8 @@ public class InitTest : BaseControllerTest
         // App_Init for third
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups3,
             Permissions = permissions,
@@ -196,11 +208,15 @@ public class InitTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -228,6 +244,8 @@ public class InitTest : BaseControllerTest
         // Call App_Init for second time
         await controller.InitAsync(AppId, new AppInitRequest
         {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes3,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -281,16 +299,20 @@ public class InitTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
+            
         //-----------------------
         //check : Invalid operation exception is expected when "System" passed as SecureObjectTypeName
         //-----------------------
 
-        // Call App_Init api
+            // Call App_Init api
         try
         {
             await controller.InitAsync(AppId, new AppInitRequest
             {
+                RootSecureObjectId = rootSecureObjectId1,
+                RootSeureObjectTypeId = rootSecureObjectTypeId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -328,6 +350,8 @@ public class InitTest : BaseControllerTest
             Permissions = new List<PermissionDto> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         //-----------------------
         //check : Invalid operation exception is expected when passed a duplicate name as SecureObjectTypeName
@@ -338,6 +362,8 @@ public class InitTest : BaseControllerTest
         {
             await controller.InitAsync(AppId, new AppInitRequest
             {
+                RootSecureObjectId = rootSecureObjectId1,
+                RootSeureObjectTypeId = rootSecureObjectTypeId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -351,6 +377,63 @@ public class InitTest : BaseControllerTest
                 Assert.Fail();
         }
 
+    }
+
+    [TestMethod]
+    public async Task RootSecureObject_and_RootSecureObjectType_must_be_unique()
+    {
+        // Create new types
+        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
+
+        // Create new permission
+        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
+
+        // Create new permissionGroup
+        var newPermissionGroup1 = new PermissionGroupDto()
+        {
+            PermissionGroupId = Guid.NewGuid(),
+            PermissionGroupName = Guid.NewGuid().ToString(),
+            Permissions = new List<PermissionDto> { newPermission }
+        };
+        var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
+        var rootSecureObjectId1 = Guid.NewGuid();
+        var rootSecureObjectTypeId1 = Guid.NewGuid();
+
+        var rootSecureObjectId2 = Guid.NewGuid();
+
+        // Call App_Init api
+        var controller = new AuthorizationController(HttpClient);
+        await controller.InitAsync(AppId, new AppInitRequest
+        {
+            RootSecureObjectId = rootSecureObjectId1,
+            RootSeureObjectTypeId = rootSecureObjectTypeId1,
+            SecureObjectTypes = secureObjectTypes,
+            PermissionGroups = permissionGroups,
+            Permissions = permissions,
+            RemoveOtherPermissionGroups = true
+        });
+
+        // Try to call Init with another RootSecureObjectId
+        try
+        {
+            await controller.InitAsync(AppId, new AppInitRequest
+            {
+                RootSecureObjectId = rootSecureObjectId2,
+                RootSeureObjectTypeId = rootSecureObjectTypeId1,
+                SecureObjectTypes = secureObjectTypes,
+                PermissionGroups = permissionGroups,
+                Permissions = permissions,
+                RemoveOtherPermissionGroups = true
+            });
+            Assert.Fail("invalid operation is expected when RootSecureObjectId is different");
+        }
+        catch (Exception ex)
+        {
+            if (!ex.Message.Contains("In this app, RootSecureObjectId is incompatibe with saved data."))
+                Assert.Fail();
+        }
     }
 
     //todo PermissionGroupPermissions_CRUD

@@ -42,7 +42,7 @@ public class AuthorizationController : ControllerBase
     public async Task<AppDto> Init(string appId, AppInitRequest request)
     {
         //todo: check permission
-        var result = await _authManager.Init(appId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+        var result = await _authManager.App_Init(appId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
         return result;
     }
 
@@ -55,7 +55,7 @@ public class AuthorizationController : ControllerBase
         List<SecureObjectTypeDto> list = new List<SecureObjectTypeDto>();
         foreach (var item in result)
         {
-            list.Add(new SecureObjectTypeDto(item.SecureObjectTypeId, item.SecureObjectTypeName));
+            list.Add(new SecureObjectTypeDto(item.SecureObjectTypeExternalId, item.SecureObjectTypeName));
         }
         return list;
     }
@@ -82,7 +82,7 @@ public class AuthorizationController : ControllerBase
         var res = await _authManager.PermissionGroup_List(appId);
         var ret = res.Select(
             x => new PermissionGroupDto(
-                x.PermissionGroupGuid,
+                x.PermissionGroupExternalId,
                 x.PermissionGroupName,
                 x.Permissions.Select(y => new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
             );

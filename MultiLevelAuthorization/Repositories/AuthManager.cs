@@ -14,12 +14,11 @@ public class AuthManager
         _authDbContext = dbContext;
     }
 
-
     #region Permission
-    private async Task<int> PermissionGroup_GetIdByGuid(int appId, Guid permissionGroupId)
+    private async Task<int> PermissionGroup_GetIdByExternalId(int appId, Guid permissionGroupId)
     {
         var result = await _authDbContext.PermissionGroups
-            .SingleAsync(x => x.AppId == appId && x.PermissionGroupGuid == permissionGroupId);
+            .SingleAsync(x => x.AppId == appId && x.PermissionGroupExternalId == permissionGroupId);
 
         return result.PermissionGroupId;
     }
@@ -86,7 +85,7 @@ public class AuthManager
                 .Include(x => x.PermissionGroupPermissions).ToListAsync();
 
             // add
-            foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionGroupId != c.PermissionGroupGuid)))
+            foreach (var obValue in obValues.Where(x => dbValues.All(c => x.PermissionGroupId != c.PermissionGroupExternalId)))
             {
                 var res = await _authDbContext.PermissionGroups.AddAsync(
                     new PermissionGroup(appId, obValue.PermissionGroupId, obValue.PermissionGroupName));
@@ -96,7 +95,7 @@ public class AuthManager
 
             // delete
             if (removeOthers)
-                foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionGroupGuid != c.PermissionGroupId)))
+                foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.PermissionGroupExternalId != c.PermissionGroupId)))
                 {
                     // Remove PermissionGroupPermission
                     await PermissionGroupPermission_Remove(appId, dbValue.PermissionGroupId);
@@ -108,7 +107,7 @@ public class AuthManager
             // update
             foreach (var dbValue in dbValues)
             {
-                var obValue = obValues.SingleOrDefault(x => x.PermissionGroupId == dbValue.PermissionGroupGuid);
+                var obValue = obValues.SingleOrDefault(x => x.PermissionGroupId == dbValue.PermissionGroupExternalId);
                 if (obValue == null) continue;
 
                 PermissionGroupPermission_UpdateBulk(dbValue.PermissionGroupPermissions,
@@ -146,36 +145,48 @@ public class AuthManager
     {
         var result = await _authDbContext.Apps
             .SingleAsync(x => x.AppId == appId);
-
         return result;
     }
 
-    public async Task<AppDto> Init(string appId, SecureObjectTypeDto[] secureObjectTypes, PermissionDto[] permissions, PermissionGroupDto[] permissionGroups, bool removeOtherPermissionGroups = true)
+    public async Task<AppDto> App_Init(string appId, SecureObjectTypeDto[] secureObjectTypes, PermissionDto[] permissions, PermissionGroupDto[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
-        var dbAppId = await App_GetIdByName(appId);
+        try
+        {
+            var dbAppId = await App_GetIdByName(appId);
 
-        var appInfo = App_Get(dbAppId);
+            var appInfo = await App_Get(dbAppId);
 
-        // Validate SecureObjectTypes
-        SecureObjectType_ValidateName(secureObjectTypes);
+            // Validate SecureObjectTypes for System value in list
+            var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
+            if (result != null)
+                throw new Exception("The SecureObjectTypeName could not allow System as an input parameter");
 
-        // Prepare system secure object
-        var secureObject = await SecureObject_CreateImp(dbAppId, default, default, default, true);
+            // Prepare system secure object
+            var secureObjectDto = await SecureObject_BuildSystemEntity(dbAppId);
+            //SecureObjectDto secureObjectDto = new SecureObjectDto(secureObject.SecureObjectId, secureObject.SecureObjectTypeId, secureObject.ParentSecureObjectId);
 
-        // Prepare SecureObjectTypes to add System to passed list
-        secureObjectTypes = SecureObjectType_BuildSystemObject(secureObjectTypes, secureObject.SecureObjectTypeId);
+            // Prepare SecureObjectTypes to add System to passed list
+            SecureObjectTypeDto secureObjectTypeDto = new SecureObjectTypeDto(secureObjectDto.SecureObjectTypeId, "System");
+            secureObjectTypes = secureObjectTypes.Concat(new[] { secureObjectTypeDto }).ToArray();
 
-        // update types
-        await SecureObjectType_UpdateBulk(dbAppId, secureObjectTypes);
-        await Permission_UpdateBulk(dbAppId, permissions);
-        await PermissionGroup_UpdateBulk(dbAppId, permissionGroups, removeOtherPermissionGroups);
+            // update types
+            await SecureObjectType_UpdateBulk(dbAppId, secureObjectTypes);
+            await Permission_UpdateBulk(dbAppId, permissions);
+            await PermissionGroup_UpdateBulk(dbAppId, permissionGroups, removeOtherPermissionGroups);
 
-        // Table function
-        await _authDbContext.Database.ExecuteSqlRawAsync(SecureObject_HierarchySql());
-        await _authDbContext.SaveChangesAsync();
+            // Table function
+            await _authDbContext.Database.ExecuteSqlRawAsync(SecureObject_HierarchySql());
+            await _authDbContext.SaveChangesAsync();
 
-        var appData = new AppDto(appInfo.Result.AppName, appInfo.Result.AppDescription, secureObject.SecureObjectId);
-        return appData;
+            var appData = new AppDto(appInfo.AppName, appInfo.AppDescription, secureObjectDto.SecureObjectId);
+            return appData;
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<string> App_Create(AppCreateRequestHandler request)
@@ -271,74 +282,120 @@ public class AuthManager
     #endregion
 
     #region SecureObject
+    private async Task<int> SecureObject_GetIdByExternalId(int appId, Guid secureObjectId)
+    {
+        var result = await _authDbContext.SecureObjects
+            .SingleAsync(x => x.AppId == appId && x.SecureObjectExternalId == secureObjectId);
+
+        return result.SecureObjectId;
+    }
+
+    private async Task<int> SecureObjectType_GetIdByExternalId(int appId, Guid secureObjectTypeId)
+    {
+        var result = await _authDbContext.SecureObjects
+            .SingleAsync(x => x.AppId == appId && x.SecureObjectExternalId == secureObjectTypeId);
+
+        return result.SecureObjectId;
+    }
 
     public async Task<SecureObjectDto> SecureObject_Create(string appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
     {
         var dbAppId = await App_GetIdByName(appId);
+        var dbSecureObjectTypeId = await SecureObjectType_GetIdByExternalId(dbAppId, secureObjectTypeId);
+        var dbSecureObjectId = await SecureObject_GetIdByExternalId(dbAppId, secureObjectId);
 
         // Call worker
-        var secureObject = await SecureObject_CreateImp(dbAppId, secureObjectId, secureObjectTypeId, parentSecureObjectId, false);
+        var secureObject = await SecureObject_CreateImp(dbAppId, dbSecureObjectId, dbSecureObjectTypeId, parentSecureObjectId);
         await _authDbContext.SaveChangesAsync();
 
         var result = new SecureObjectDto(secureObject.SecureObjectId, secureObject.SecureObjectTypeId, secureObject.ParentSecureObjectId);
         return result;
     }
 
-    private async Task<SecureObjectDto> SecureObject_CreateImp(int appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId, bool initializeSystem)
+    private async Task<SecureObjectDto> SecureObject_CreateImp(int appId, int secureObjectId, int secureObjectTypeId, Guid? parentSecureObjectId)
     {
-        if (initializeSystem == true)
-        {
-            var retSecureObject = await SecureObject_BuildSystemEntity(appId);
-            SecureObjectDto secureObjectDto = new SecureObjectDto(retSecureObject.SecureObjectId, retSecureObject.SecureObjectTypeId, retSecureObject.ParentSecureObjectId);
-
-            return secureObjectDto;
-        }
-
+        int dbParentSecureObjectId;
         // Try to get parentSecureObjectId
         if (parentSecureObjectId == null)
         {
-            var systemSecureObject = await SecureObject_DefaultParent(appId);
+            var systemSecureObject = await SecureObject_Root(appId);
             if (systemSecureObject == null)
                 throw new Exception("SystemSecureObject does not have valid value");
 
             // Set parentSecureObjectId
-            parentSecureObjectId = systemSecureObject.SecureObjectId;
+            dbParentSecureObjectId = systemSecureObject.SecureObjectId;
+            parentSecureObjectId = systemSecureObject.SecureObjectExternalId;
         }
+        else
+        {
+            var retSecureObject = await _authDbContext.SecureObjects.SingleAsync(
+                x => x.SecureObjectExternalId == parentSecureObjectId);
+            dbParentSecureObjectId = retSecureObject.SecureObjectId;
+        }
+
+        // It could passed from parent but with this pattern the inputs structure of current function are same.
+        Guid secureObjectExternalId = (await _authDbContext.SecureObjects.SingleAsync(x => x.SecureObjectId == secureObjectId)).SecureObjectExternalId;
 
         // Prepare SecureObject
         var secureObject = new SecureObject
         {
             AppId = appId,
-            SecureObjectId = secureObjectId,
+            SecureObjectExternalId = secureObjectExternalId,
             SecureObjectTypeId = secureObjectTypeId,
-            ParentSecureObjectId = parentSecureObjectId
+            ParentSecureObjectId = dbParentSecureObjectId
         };
         await _authDbContext.SecureObjects.AddAsync(secureObject);
 
-        var result = new SecureObjectDto(secureObject.SecureObjectId, secureObject.SecureObjectTypeId, secureObject.ParentSecureObjectId);
+        var result = new SecureObjectDto(secureObject.SecureObjectExternalId, secureObjectExternalId, parentSecureObjectId);
         return result;
     }
 
-    public async Task<SecureObject[]> SecureObject_List(string appId)
+    public async Task<List<SecureObjectDto>> SecureObject_List(string appId)
     {
         var dbAppId = await App_GetIdByName(appId);
 
-        return await _authDbContext.SecureObjects
-           .Where(x => x.AppId == dbAppId)
-           .ToArrayAsync();
+        var query = (from secureObjects in _authDbContext.SecureObjects
+                       join parentSecureObjects in _authDbContext.SecureObjects
+                           on secureObjects.ParentSecureObjectId equals parentSecureObjects.SecureObjectId
+                       join secureObjectTypes in _authDbContext.SecureObjectTypes
+                           on secureObjects.SecureObjectTypeId equals secureObjectTypes.SecureObjectTypeId
+                       where secureObjects.AppId == dbAppId
+                       select new
+                       {
+                           SecureObjectId = secureObjects.SecureObjectExternalId,
+                           SecureObjectTypeId = secureObjectTypes.SecureObjectTypeExternalId,
+                           ParentSecureObjectId = parentSecureObjects.SecureObjectExternalId
+                       });
+
+
+        var result = await query.ToListAsync();
+
+        var books = _authDbContext.SecureObjects.FromSqlRaw("SELECT BookId, Title, AuthorId, Isbn FROM Books").ToList();
+
+
+        List<SecureObjectDto> secureObjectDtos = new List<SecureObjectDto>();
+        foreach (var item in result)
+        {
+            SecureObjectDto secureObjectDto = new SecureObjectDto(item.SecureObjectId, item.SecureObjectTypeId, item.ParentSecureObjectId);
+            secureObjectDtos.Add(secureObjectDto);
+        }
+
+        return secureObjectDtos;
+
     }
 
     public async Task<SecureObjectRolePermission> SecureObject_AddRolePermission(string appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         var dbAppId = await App_GetIdByName(appId);
-        var dbPermissionGroupId = await PermissionGroup_GetIdByGuid(dbAppId, permissionGroupId);
+        var dbPermissionGroupId = await PermissionGroup_GetIdByExternalId(dbAppId, permissionGroupId);
+        var dbSecureObjectId = await SecureObject_GetIdByExternalId(dbAppId, secureObjectId);
 
         //todo check permission on appId
 
         var secureObjectRolePermission = new SecureObjectRolePermission
         {
             AppId = dbAppId,
-            SecureObjectId = secureObjectId,
+            SecureObjectId = dbSecureObjectId,
             RoleId = roleId,
             PermissionGroupId = dbPermissionGroupId,
             CreatedTime = DateTime.UtcNow,
@@ -352,14 +409,15 @@ public class AuthManager
         Guid modifiedByUserId)
     {
         var dbAppId = await App_GetIdByName(appId);
-        var dbPermissionGroupId = await PermissionGroup_GetIdByGuid(dbAppId, permissionGroupId);
+        var dbPermissionGroupId = await PermissionGroup_GetIdByExternalId(dbAppId, permissionGroupId);
+        var dbSecureObjectId = await SecureObject_GetIdByExternalId(dbAppId, secureObjectId);
 
         //todo check permission on appId
 
         var secureObjectUserPermission = new SecureObjectUserPermission
         {
             AppId = dbAppId,
-            SecureObjectId = secureObjectId,
+            SecureObjectId = dbSecureObjectId,
             UserId = userId,
             PermissionGroupId = dbPermissionGroupId,
             CreatedTime = DateTime.UtcNow,
@@ -403,10 +461,11 @@ public class AuthManager
     public async Task<SecureObjectRolePermission[]> SecureObject_GetRolePermissionGroups(string appId, Guid secureObjectId)
     {
         var dbAppId = await App_GetIdByName(appId);
+        var dbSecureObjectId = await SecureObject_GetIdByExternalId(dbAppId, secureObjectId);
 
         var ret = await _authDbContext.SecureObjectRolePermissions
             .Include(x => x.Role)
-            .Where(x => x.SecureObjectId == secureObjectId && x.SecureObject!.SecureObjectType!.AppId == dbAppId)
+            .Where(x => x.SecureObjectId == dbSecureObjectId && x.SecureObject!.SecureObjectType!.AppId == dbAppId)
             .ToArrayAsync();
         return ret;
     }
@@ -414,9 +473,10 @@ public class AuthManager
     public async Task<SecureObjectUserPermission[]> SecureObject_GetUserPermissionGroups(string appId, Guid secureObjectId)
     {
         var dbAppId = await App_GetIdByName(appId);
+        var dbSecureObjectId = await SecureObject_GetIdByExternalId(dbAppId, secureObjectId);
 
         var ret = await _authDbContext.SecureObjectUserPermissions
-            .Where(x => x.SecureObjectId == secureObjectId && x.SecureObject!.SecureObjectType!.AppId == dbAppId)
+            .Where(x => x.SecureObjectId == dbSecureObjectId && x.SecureObject!.SecureObjectType!.AppId == dbAppId)
             .ToArrayAsync();
         return ret;
     }
@@ -466,31 +526,41 @@ public class AuthManager
             throw new SecurityException($"You need to grant {permission.PermissionName} permission!");
     }
 
-    private async Task<SecureObject> SecureObject_BuildSystemEntity(int appId)
+    private async Task<SecureObjectDto> SecureObject_BuildSystemEntity(int appId)
     {
-        SecureObject secureObject;
-        var systemSecureObject = await SecureObject_DefaultParent(appId);
+        Guid systemSecureObjectTypeExternalId;
+        var systemSecureObject = await SecureObject_Root(appId);
         if (systemSecureObject == null)
         {
-            var secureObjectTypeDto = new SecureObjectTypeDto(Guid.NewGuid(), "System");
+            systemSecureObjectTypeExternalId = Guid.NewGuid();
+            var secureObjectType = new SecureObjectType(appId, systemSecureObjectTypeExternalId, "System");
+            await _authDbContext.SecureObjectTypes.AddAsync(secureObjectType);
+            await _authDbContext.SaveChangesAsync();
+            var secureObjectTypeId = secureObjectType.SecureObjectTypeId;
 
-            secureObject = new SecureObject
+            var secureObject = new SecureObject
             {
                 AppId = appId,
-                SecureObjectId = Guid.NewGuid(),
-                SecureObjectTypeId = secureObjectTypeDto.SecureObjectTypeId,
+                SecureObjectExternalId = Guid.NewGuid(),
+                SecureObjectTypeId = secureObjectTypeId,
                 ParentSecureObjectId = null
             };
             await _authDbContext.SecureObjects.AddAsync(secureObject);
+            systemSecureObject = secureObject;
         }
         else
         {
-            secureObject = systemSecureObject;
+            systemSecureObjectTypeExternalId =
+                (await _authDbContext.SecureObjectTypes.SingleAsync(x =>
+                    x.SecureObjectTypeId == systemSecureObject.SecureObjectTypeId)).SecureObjectTypeExternalId;
         }
-        return secureObject;
+
+        SecureObjectDto secureObjectDto = new SecureObjectDto(
+            systemSecureObject.SecureObjectExternalId, systemSecureObjectTypeExternalId, null);
+        return secureObjectDto;
     }
 
-    private async Task<SecureObject?> SecureObject_DefaultParent(int appId)
+    private async Task<SecureObject?> SecureObject_Root(int appId)
     {
         var systemSecureObject = await _authDbContext.SecureObjects.SingleOrDefaultAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
         return systemSecureObject;
@@ -502,36 +572,21 @@ public class AuthManager
         var dbValues = await _authDbContext.SecureObjectTypes.Where(x => x.AppId == appId).ToListAsync();
 
         // add
-        foreach (var obValue in obValues.Where(x => dbValues.All(c => c.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
+        foreach (var obValue in obValues.Where(x =>
+                     dbValues.All(c => c.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeExternalId)))
             await _authDbContext.SecureObjectTypes.AddAsync(new SecureObjectType(appId, obValue.SecureObjectTypeId, obValue.SecureObjectTypeName));
 
         // delete
-        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeId)))
+        foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeExternalId != c.SecureObjectTypeId)))
             _authDbContext.SecureObjectTypes.Remove(dbValue);
 
         // update
         foreach (var dbValue in dbValues)
         {
-            var obValue = obValues.SingleOrDefault(x => x.SecureObjectTypeId == dbValue.SecureObjectTypeId);
+            var obValue = obValues.SingleOrDefault(x => x.SecureObjectTypeId == dbValue.SecureObjectTypeExternalId);
             if (obValue == null) continue;
             dbValue.SecureObjectTypeName = obValue.SecureObjectTypeName;
         }
-    }
-
-    private void SecureObjectType_ValidateName(SecureObjectTypeDto[] secureObjectTypes)
-    {
-        // Validate for System value in list
-        var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
-        if (result != null)
-            throw new Exception("The SecureObjectTypeName could not allow System as an input parameter");
-    }
-
-    private SecureObjectTypeDto[] SecureObjectType_BuildSystemObject(SecureObjectTypeDto[] secureObjectTypes, Guid systemSecureObjectTypeId)
-    {
-        // System object must exists
-        SecureObjectTypeDto secureObjectTypeDto = new SecureObjectTypeDto(systemSecureObjectTypeId, "System");
-        secureObjectTypes = secureObjectTypes.Concat(new[] { secureObjectTypeDto }).ToArray();
-        return secureObjectTypes;
     }
 
     #endregion

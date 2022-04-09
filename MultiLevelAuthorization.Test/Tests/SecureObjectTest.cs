@@ -33,7 +33,7 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
@@ -43,7 +43,7 @@ public class SecureObjectTest : BaseControllerTest
         });
 
         //----------------------
-        // check : Successfully create new SecureObject without ParentSecureObjectId in Init call
+        // check : Successfully create new SecureObject without ParentSecureObjectId in App_Init call
         //----------------------
 
         // Call api to get info based on created SecureObject
@@ -77,7 +77,7 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
@@ -129,7 +129,7 @@ public class SecureObjectTest : BaseControllerTest
         permissionGroupDto.Add(newPermissionGroup1);
         var permissionGroups = permissionGroupDto;// PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         appDto = await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,

@@ -49,7 +49,7 @@ public abstract class BaseControllerTest
         }); 
         var appToken = await controller.AuthenticationTokenAsync(AppId);
 
-        // Init HttpClient for the created app
+        // App_Init HttpClient for the created app
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, appToken);
 
     }

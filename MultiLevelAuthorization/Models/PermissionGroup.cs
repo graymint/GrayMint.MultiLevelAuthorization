@@ -6,7 +6,7 @@ public class PermissionGroup
 {
     public int PermissionGroupId { get; set; }
     public int AppId { get; set; }
-    public Guid PermissionGroupGuid { get; set; }
+    public Guid PermissionGroupExternalId { get; set; }
     public string PermissionGroupName { get; set; }
 
     public virtual ICollection<Permission> Permissions { get; set; } = new HashSet<Permission>();
@@ -16,10 +16,10 @@ public class PermissionGroup
     [JsonIgnore] public virtual ICollection<SecureObjectRolePermission>? RolePermissions { get; set; }
     [JsonIgnore] public virtual ICollection<SecureObjectUserPermission>? UserPermissions { get; set; }
 
-    public PermissionGroup(int appId, Guid permissionGroupGuid, string permissionGroupName)
+    public PermissionGroup(int appId, Guid permissionGroupExternalId, string permissionGroupName)
     {
         AppId = appId;
-        PermissionGroupGuid = permissionGroupGuid;
+        PermissionGroupExternalId = permissionGroupExternalId;
         PermissionGroupName = permissionGroupName;
     }
 }

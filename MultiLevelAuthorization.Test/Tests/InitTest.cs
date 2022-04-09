@@ -31,7 +31,7 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
@@ -85,7 +85,7 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
@@ -114,7 +114,7 @@ public class InitTest : BaseControllerTest
         // check : Successfully creation of PermissionGroup1 and PermissionGroup2
         //-----------------------------
 
-        // Call Init api for second time and add PermissionGroup2
+        // Call App_Init api for second time and add PermissionGroup2
         await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
@@ -144,10 +144,10 @@ public class InitTest : BaseControllerTest
         var permissionGroups3 = PermissionGroups.All.Concat(new[] { newPermissionGroup2, newPermissionGroup3 }).ToArray();
 
         //-----------------------------
-        // check : Successfully delete SecureObjectType1, update PermissionGroups2 and create the PermissionGroups3 after third call the Init
+        // check : Successfully delete SecureObjectType1, update PermissionGroups2 and create the PermissionGroups3 after third call the App_Init
         //-----------------------------
 
-        // Init for third
+        // App_Init for third
         await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
@@ -197,7 +197,7 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
-        // Call Init api
+        // Call App_Init api
         var controller = new AuthorizationController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
@@ -222,10 +222,10 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes3 = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2, newSecureObjectType3 }).ToArray();
 
         //-------------------------
-        // check : Successfully delete SecureObjectType1, update SecureObjectType2 and create the SecureObjectType3 after second call the Init
+        // check : Successfully delete SecureObjectType1, update SecureObjectType2 and create the SecureObjectType3 after second call the App_Init
         //-------------------------
 
-        // Call Init for second time
+        // Call App_Init for second time
         await controller.InitAsync(AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes3,
@@ -286,7 +286,7 @@ public class InitTest : BaseControllerTest
         //check : Invalid operation exception is expected when "System" passed as SecureObjectTypeName
         //-----------------------
 
-        // Call Init api
+        // Call App_Init api
         try
         {
             await controller.InitAsync(AppId, new AppInitRequest
@@ -333,7 +333,7 @@ public class InitTest : BaseControllerTest
         //check : Invalid operation exception is expected when passed a duplicate name as SecureObjectTypeName
         //-----------------------
 
-        // Call Init api
+        // Call App_Init api
         try
         {
             await controller.InitAsync(AppId, new AppInitRequest
@@ -379,7 +379,7 @@ public class InitTest : BaseControllerTest
     //        Permissions = new List<Permission> { newPermission }
     //    };
     //    var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-    //    await authDbContext.Init(secureObjectTypes, permissions, permissionGroups);
+    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
 
     //    await using (TestAuthContext vhContext2 = new())
     //    {
@@ -422,7 +422,7 @@ public class InitTest : BaseControllerTest
     //    // check: update SecureObjectTypeName
     //    //-----------
     //    newSecureObjectType1.SecureObjectTypeName = "new-name_" + Guid.NewGuid();
-    //    await authDbContext.Init(secureObjectTypes, permissions, permissionGroups);
+    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
     //    await using (TestAuthContext vhContext2 = new())
     //        Assert.AreEqual(newSecureObjectType1.SecureObjectTypeName, vhContext2.SecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId).SecureObjectTypeName);
 
@@ -431,7 +431,7 @@ public class InitTest : BaseControllerTest
     //    //-----------
     //    SecureObjectType newSecureObjectType2 = new(Guid.NewGuid(), Guid.NewGuid().ToString());
     //    secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2 }).ToArray();
-    //    await authDbContext.Init(secureObjectTypes, permissions, permissionGroups);
+    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
     //    await using (TestAuthContext vhContext2 = new())
     //    {
     //        Assert.IsTrue(vhContext2.SecureObjectTypes.Any(x => x.SecureObjectTypeId == newSecureObjectType2.SecureObjectTypeId));
@@ -446,7 +446,7 @@ public class InitTest : BaseControllerTest
     //        Permissions = new List<Permission> { newPermission }
     //    };
     //    permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup2 }).ToArray();
-    //    await authDbContext.Init(secureObjectTypes, permissions, permissionGroups);
+    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
     //    await using (TestAuthContext vhContext2 = new())
     //    {
     //        Assert.IsTrue(vhContext2.PermissionGroups.Any(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId));
@@ -471,7 +471,7 @@ public class InitTest : BaseControllerTest
     //    await authDbContext.AuthManager.SecureObject_AddUserPermission(secureObject, guest1,
     //        PermissionGroups.ProjectViewer, AuthManager.SystemUserId);
     //    PermissionGroups.ProjectViewer.PermissionGroupName = Guid.NewGuid().ToString();
-    //    await authDbContext.Init(SecureObjectTypes.All, Permissions.All, PermissionGroups.All);
+    //    await authDbContext.App_Init(SecureObjectTypes.All, Permissions.All, PermissionGroups.All);
     //    Assert.IsTrue(await authDbContext.AuthManager.SecureObject_HasUserPermission(secureObject.SecureObjectId, guest1, Permissions.ProjectRead));
 
     //    //-----------

@@ -47,8 +47,9 @@ public partial class AuthDbContext : DbContext
 
         modelBuilder.Entity<SecureObjectType>(entity =>
         {
+            entity.HasKey(e => e.SecureObjectTypeId);
             entity.Property(e => e.SecureObjectTypeId)
-                .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
 
             entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeName })
                 .IsUnique();
@@ -121,9 +122,10 @@ public partial class AuthDbContext : DbContext
         {
             entity.HasOne(e => e.SecureObjectType)
                 .WithMany(d => d.SecureObjects)
-                .HasPrincipalKey(p => new { p.AppId, p.SecureObjectTypeId })
-                .HasForeignKey(f => new { f.AppId, f.SecureObjectTypeId });
-
+                .HasForeignKey(f => new { f.SecureObjectTypeId });
+            entity.HasKey(x => x.SecureObjectId);
+            entity.Property(x => x.SecureObjectId).
+                ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<SecureObjectRolePermission>(entity =>

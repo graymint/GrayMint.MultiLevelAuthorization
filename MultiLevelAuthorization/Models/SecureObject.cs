@@ -3,10 +3,11 @@ namespace MultiLevelAuthorization.Models;
 
 public class SecureObject
 {
+    public int SecureObjectId { get; set; }
     public int AppId { get; set; }
-    public Guid SecureObjectId { get; set; }
-    public Guid SecureObjectTypeId { get; set; }
-    public Guid? ParentSecureObjectId { get; set; }
+    public int SecureObjectTypeId { get; set; }
+    public int? ParentSecureObjectId { get; set; }
+    public Guid SecureObjectExternalId { get; set; }
 
     public virtual SecureObjectType? SecureObjectType { get; set; }
     public virtual ICollection<SecureObjectRolePermission>? RolePermissions { get; set; }

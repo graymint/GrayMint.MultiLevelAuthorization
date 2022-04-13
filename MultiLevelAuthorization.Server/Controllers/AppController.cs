@@ -41,7 +41,7 @@ namespace MultiLevelAuthorization.Server.Controllers
         public async Task<AppDto> Init(string appId, AppInitRequest request)
         {
             //todo: check permission
-            var result = await _authManager.App_Init(appId, request.RootSecureObjectId, request.RootSeureObjectTypeId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+            var result = await _authManager.App_Init(appId, request.RootSecureObjectId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
             return result;
         }
 

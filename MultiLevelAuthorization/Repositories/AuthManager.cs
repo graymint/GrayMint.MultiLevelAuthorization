@@ -428,8 +428,8 @@ public class AuthManager
         return ret.Entity;
     }
 
-    public async Task<SecureObjectUserPermission> SecureObject_AddUserPermission(string appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
-        Guid modifiedByUserId)
+        public async Task<SecureObjectUserPermission> SecureObject_AddUserPermission(string appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+            Guid modifiedByUserId)
     {
         var dbAppId = await App_GetIdByName(appId);
         var dbPermissionGroupId = await PermissionGroup_GetIdByExternalId(dbAppId, permissionGroupId);
@@ -562,11 +562,12 @@ public class AuthManager
             var secureObjectType = await _authDbContext.SecureObjectTypes
                 .SingleAsync(x => x.SecureObjectTypeId == systemSecureObject.SecureObjectTypeId);
 
-            rootSecureObjectTypeId = secureObjectType.SecureObjectTypeExternalId;
-
             // Vaidate root secure object
-            if (systemSecureObject.SecureObjectTypeId != dbRootSecureObjectTypeId || systemSecureObject.SecureObjectExternalId != rootSecureObjectId)
-                throw new InvalidOperationException("In this app, RootSecureObjectId is incompatibe with saved data.");
+            if ( systemSecureObject.SecureObjectExternalId != rootSecureObjectId)
+                throw new InvalidOperationException("In this app, RootSecureObjectId is incompatible with saved data.");
+
+            // Set rootSecureObjectTypeId
+            rootSecureObjectTypeId = secureObjectType.SecureObjectTypeExternalId;
         }
 
         SecureObjectDto secureObjectDto = new SecureObjectDto(

@@ -42,7 +42,7 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_AddUser()
     {
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new RoleController(HttpClient);
 
         //Prepare conditions
         string roleName = Guid.NewGuid().ToString();
@@ -78,7 +78,7 @@ public class RoleTest : BaseControllerTest
         //-----------------------------
         // check : Successfully retrieve user2 and user3 for role2
         //-----------------------------
-        var users = await controller.RoleUsersGetAsync(AppId, role2.RoleId);
+        var users = await controller.RoleUsersAsync(AppId, role2.RoleId);
         Assert.AreEqual(2, users.Count);
         Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId2));
         Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId3));

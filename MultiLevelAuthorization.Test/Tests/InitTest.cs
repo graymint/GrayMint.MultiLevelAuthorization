@@ -63,12 +63,6 @@ public class InitTest : BaseControllerTest
         //-----------
         var actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
-
-        //-----------
-        // check: Validate successfuly created PermissionGroupPermission and Permission
-        //-----------
-        //var actualPermissions = actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId).Permissions;
-        //actualPermissions.Single(x => x.PermissionId == newPermission.PermissionId && x.PermissionName == newPermission.PermissionName);
     }
 
     [TestMethod]

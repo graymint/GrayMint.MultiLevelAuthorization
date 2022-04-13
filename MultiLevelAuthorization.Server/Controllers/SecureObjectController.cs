@@ -47,5 +47,32 @@ namespace MultiLevelAuthorization.Server.Controllers
             return result;
         }
 
+        [HttpPost("{appId}/secureObject-adduserpermission")]
+        public async Task<IActionResult> SecureObject_AddUserPermission(string appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+            Guid modifiedByUserId)
+        {
+            //todo: check permission
+
+            await _authManager.SecureObject_AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
+            return Ok();
+        }
+
+        [HttpPost("{appId}/secureObject-addrolepermission")]
+        public async Task<IActionResult> SecureObject_AddRolePermission(string appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+        {
+            //todo: check permission
+
+            await _authManager.SecureObject_AddRolePermission(appId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
+            return Ok();
+        }
+
+        [HttpGet("{appId}/secureObject-userpermissions")]
+        public async Task<List<PermissionDto>> SecureObject_GetUserPermissions(string appId, Guid secureObjectId, Guid userId)
+        {
+            //todo: check permission
+
+            var result = await _authManager.SecureObject_GetUserPermissions(appId, secureObjectId, userId);
+            return result;
+        }
     }
 }

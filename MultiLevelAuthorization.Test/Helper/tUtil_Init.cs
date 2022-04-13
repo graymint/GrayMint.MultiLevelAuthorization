@@ -29,7 +29,7 @@ public class tUtil_Init : BaseControllerTest
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
         // Call App_Init api
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new AppController(HttpClient);
         appDto = await controller.InitAsync(appId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,

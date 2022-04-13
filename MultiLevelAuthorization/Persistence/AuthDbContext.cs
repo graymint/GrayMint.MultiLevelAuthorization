@@ -19,7 +19,7 @@ public partial class AuthDbContext : DbContext
     public virtual DbSet<SecureObjectUserPermission> SecureObjectUserPermissions { get; set; } = default!;
     public virtual DbSet<App> Apps { get; set; } = default!;
 
-    public IQueryable<SecureObject> SecureObjectHierarchy(Guid id)
+    public IQueryable<SecureObject> SecureObjectHierarchy(int id)
         => FromExpression(() => SecureObjectHierarchy(id));
 
     public AuthDbContext()
@@ -171,7 +171,7 @@ public partial class AuthDbContext : DbContext
 
         // functions
         modelBuilder
-            .HasDbFunction(typeof(AuthDbContext).GetMethod(nameof(SecureObjectHierarchy), new[] { typeof(Guid) })!)
+            .HasDbFunction(typeof(AuthDbContext).GetMethod(nameof(SecureObjectHierarchy), new[] { typeof(int) })!)
             .HasName(nameof(SecureObjectHierarchy));
 
         // ReSharper disable once InvocationIsSkipped

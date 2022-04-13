@@ -19,7 +19,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
@@ -38,7 +38,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId =    rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -66,7 +65,7 @@ public class InitTest : BaseControllerTest
         // check: Validate successfuly created PermissionGroupPermission and Permission
         //-----------
         //var actualPermissions = actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId).Permissions;
-        //actualPermissions.Single(x => x.PermissionId == newPermission.PermissionCode && x.PermissionName == newPermission.PermissionName);
+        //actualPermissions.Single(x => x.PermissionId == newPermission.PermissionId && x.PermissionName == newPermission.PermissionName);
     }
 
     [TestMethod]
@@ -77,7 +76,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create first permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create first permissionGroup
@@ -96,7 +95,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -126,7 +124,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups2,
             Permissions = permissions,
@@ -161,7 +158,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups3,
             Permissions = permissions,
@@ -197,7 +193,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
@@ -216,7 +212,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -245,7 +240,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes3,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -288,7 +282,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
@@ -312,7 +306,6 @@ public class InitTest : BaseControllerTest
             await controller.InitAsync(AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId1,
-                RootSeureObjectTypeId = rootSecureObjectTypeId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -339,7 +332,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
@@ -363,7 +356,6 @@ public class InitTest : BaseControllerTest
             await controller.InitAsync(AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId1,
-                RootSeureObjectTypeId = rootSecureObjectTypeId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -387,7 +379,7 @@ public class InitTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionCode = Permissions.All.Max(x => x.PermissionCode) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
@@ -408,7 +400,6 @@ public class InitTest : BaseControllerTest
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
-            RootSeureObjectTypeId = rootSecureObjectTypeId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -421,7 +412,6 @@ public class InitTest : BaseControllerTest
             await controller.InitAsync(AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId2,
-                RootSeureObjectTypeId = rootSecureObjectTypeId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -436,138 +426,7 @@ public class InitTest : BaseControllerTest
         }
     }
 
-    //todo PermissionGroupPermissions_CRUD
-
-    //-----------
-    //    // check: used SecureObjectType should not be deleted
-    //    //-----------
-
     #region RemarkTests
-
-    //[TestMethod]
-    //public async Task Seeding()
-    //{
-    //    await using var authDbContext = new TestAuthContext();
-
-    //    // Create new base types
-    //    var newSecureObjectType1 = new SecureObjectType(Guid.NewGuid(), Guid.NewGuid().ToString());
-    //    var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
-
-    //    var maxPermissionId = authDbContext.Permissions.Max(x => (int?)x.PermissionId) ?? 100;
-    //    var newPermission = new Permission(maxPermissionId + 1, Guid.NewGuid().ToString());
-    //    var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
-
-    //    var newPermissionGroup1 = new PermissionGroup(Guid.NewGuid(), Guid.NewGuid().ToString())
-    //    {
-    //        Permissions = new List<Permission> { newPermission }
-    //    };
-    //    var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
-
-    //    await using (TestAuthContext vhContext2 = new())
-    //    {
-
-    //        //-----------
-    //        // check: new type is inserted
-    //        //-----------
-    //        Assert.AreEqual(newSecureObjectType1.SecureObjectTypeName,
-    //            vhContext2.SecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId).SecureObjectTypeName);
-
-    //        //-----------
-    //        // check: new permission is inserted
-    //        //-----------
-    //        Assert.AreEqual(newPermission.PermissionName,
-    //            vhContext2.Permissions.Single(x => x.PermissionId == newPermission.PermissionId).PermissionName);
-
-    //        //-----------
-    //        // check new permission group is inserted
-    //        //-----------
-    //        Assert.AreEqual(newPermissionGroup1.PermissionGroupName,
-    //            vhContext2.PermissionGroups
-    //                .Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId).PermissionGroupName);
-
-    //        //-----------
-    //        // check: new permission group permissions in inserted
-    //        //-----------
-    //        Assert.IsTrue(vhContext2.PermissionGroups.Include(x => x.Permissions)
-    //            .Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId)
-    //            .Permissions.Any(x => x.PermissionId == newPermission.PermissionId));
-
-    //        //-----------
-    //        // check: System object is not deleted
-    //        //-----------
-    //        Assert.IsTrue(vhContext2.SecureObjectTypes.Any(x => x.SecureObjectTypeId == AuthManager.SystemSecureObjectTypeId));
-    //        Assert.IsTrue(vhContext2.PermissionGroups.Any(x =>
-    //            x.PermissionGroupId == AuthManager.SystemPermissionGroupId));
-    //    }
-
-    //    //-----------
-    //    // check: update SecureObjectTypeName
-    //    //-----------
-    //    newSecureObjectType1.SecureObjectTypeName = "new-name_" + Guid.NewGuid();
-    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
-    //    await using (TestAuthContext vhContext2 = new())
-    //        Assert.AreEqual(newSecureObjectType1.SecureObjectTypeName, vhContext2.SecureObjectTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId).SecureObjectTypeName);
-
-    //    //-----------
-    //    // check: add/remove SecureObjectTypeName
-    //    //-----------
-    //    SecureObjectType newSecureObjectType2 = new(Guid.NewGuid(), Guid.NewGuid().ToString());
-    //    secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2 }).ToArray();
-    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
-    //    await using (TestAuthContext vhContext2 = new())
-    //    {
-    //        Assert.IsTrue(vhContext2.SecureObjectTypes.Any(x => x.SecureObjectTypeId == newSecureObjectType2.SecureObjectTypeId));
-    //        Assert.IsFalse(vhContext2.SecureObjectTypes.Any(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId));
-    //    }
-
-    //    //-----------
-    //    // check: add/remove new PermissionGroup
-    //    //-----------
-    //    PermissionGroup newPermissionGroup2 = new(Guid.NewGuid(), Guid.NewGuid().ToString())
-    //    {
-    //        Permissions = new List<Permission> { newPermission }
-    //    };
-    //    permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup2 }).ToArray();
-    //    await authDbContext.App_Init(secureObjectTypes, permissions, permissionGroups);
-    //    await using (TestAuthContext vhContext2 = new())
-    //    {
-    //        Assert.IsTrue(vhContext2.PermissionGroups.Any(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId));
-    //        Assert.IsFalse(vhContext2.PermissionGroups.Any(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId));
-    //    }
-    //}
-
-    //[TestMethod]
-    //public async Task Rename_permission_group()
-    //{
-    //    await using var authDbContext = new TestAuthContext();
-
-    //    var secureObject = await authDbContext.AuthManager.CreateSecureObject(Guid.NewGuid(), SecureObjectTypes.Project);
-    //    await authDbContext.SaveChangesAsync();
-
-    //    //-----------
-    //    // check: assigned permission group should remain intact after renaming its name
-    //    //-----------
-    //    var guest1 = Guid.NewGuid();
-
-    //    Assert.IsFalse(await authDbContext.AuthManager.SecureObject_HasUserPermission(secureObject.SecureObjectId, guest1, Permissions.ProjectRead));
-    //    await authDbContext.AuthManager.SecureObject_AddUserPermission(secureObject, guest1,
-    //        PermissionGroups.ProjectViewer, AuthManager.SystemUserId);
-    //    PermissionGroups.ProjectViewer.PermissionGroupName = Guid.NewGuid().ToString();
-    //    await authDbContext.App_Init(SecureObjectTypes.All, Permissions.All, PermissionGroups.All);
-    //    Assert.IsTrue(await authDbContext.AuthManager.SecureObject_HasUserPermission(secureObject.SecureObjectId, guest1, Permissions.ProjectRead));
-
-    //    //-----------
-    //    // check: used SecureObjectType should not be deleted
-    //    //-----------
-    //    try
-    //    {
-    //        authDbContext.SecureObjectTypes.Remove(SecureObjectTypes.Project);
-    //        await authDbContext.SaveChangesAsync();
-    //        Assert.Fail("No cascade expected for SecureObjectType!");
-    //    }
-    //    catch { /* ignored */ }
-    //}
 
     //[TestMethod]
     //public async Task InheritanceAccess()

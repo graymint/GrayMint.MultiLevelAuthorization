@@ -42,7 +42,7 @@ public class AuthorizationController : ControllerBase
     public async Task<AppDto> Init(string appId, AppInitRequest request)
     {
         //todo: check permission
-        var result = await _authManager.App_Init(appId, request.RootSecureObjectId, request.RootSeureObjectTypeId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+        var result = await _authManager.App_Init(appId, request.RootSecureObjectId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
         return result;
     }
 
@@ -67,6 +67,42 @@ public class AuthorizationController : ControllerBase
 
         var result = await _authManager.SecureObject_List(appId);
         return result;
+    }
+
+    [HttpPost("{appId}/secureobject-addrolepermission")]
+    public async Task<IActionResult> SecureObject_AddRolePermission(string appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+    {
+        //todo: check permission
+
+        var result = await _authManager.SecureObject_AddRolePermission(appId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
+        return Ok();
+    }
+
+    [HttpPost("{appId}/secureobject-adduserpermission")]
+    public async Task<IActionResult> SecureObject_AddUserPermission(string appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+            Guid modifiedByUserId)
+    {
+        //todo: check permission
+
+        var result = await _authManager.SecureObject_AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
+        return Ok();
+    }
+
+    [HttpPost("{appId}/role-adduser")]
+    public async Task<IActionResult> Role_AddUser(string appId, Guid roleId, Guid userId, Guid modifiedByUserId)
+    {
+        //todo: check permission
+
+        await _authManager.Role_AddUser(appId, roleId, userId, modifiedByUserId);
+        return Ok();
+    }
+
+    [HttpPost("{appId}/role-users")]
+    public async Task<List<UserDto>> Role_AddUser(string appId, Guid roleId)
+    {
+        //todo: check permission
+
+        return await _authManager.Role_Users(appId, roleId);
     }
 
     [HttpGet("{appId}/permission-groups")]
@@ -106,7 +142,7 @@ public class AuthorizationController : ControllerBase
     }
 
     [HttpPost("{appId}/Role")]
-    public async Task<Role> Role_Create(string appId, string roleName, Guid ownerId, Guid modifiedByUserId)
+    public async Task<RoleDto> Role_Create(string appId, string roleName, Guid ownerId, Guid modifiedByUserId)
     {
         //todo: check permission
 
@@ -124,11 +160,31 @@ public class AuthorizationController : ControllerBase
         return result;
     }
     [HttpGet("{appId}/role-users")]
-    public async Task<RoleUser[]> Role_Users(string appId, Guid roleId)
+    public async Task<List<UserDto>> Role_Users(string appId, Guid roleId)
     {
         //todo: check permission
 
         var result = await _authManager.Role_Users(appId, roleId);
+
+        return result;
+    }
+
+    [HttpGet("{appId}/secureobject_userpermissions")]
+    public async Task<List<PermissionDto>> SecureObject_GetUserPermissions(string appId, Guid secureObjectId, Guid userId)
+    {
+        //todo: check permission
+
+        var result = await _authManager.SecureObject_GetUserPermissions(appId, secureObjectId, userId);
+
+        return result;
+    }
+
+    [HttpGet("{appId}/user-roles")]
+    public async Task<List<RoleDto>> User_Roles(string appId, Guid userId)
+    {
+        //todo: check permission
+
+        var result = await _authManager.User_Roles(appId, userId);
 
         return result;
     }

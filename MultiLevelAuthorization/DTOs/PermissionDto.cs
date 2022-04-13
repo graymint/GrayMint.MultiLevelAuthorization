@@ -2,12 +2,12 @@
 
 public class PermissionDto
 {
-    public int PermissionCode { get; set; }
+    public int PermissionId { get; set; }
     public string PermissionName { get; set; }
 
-    public PermissionDto(int permissionCode, string permissionName)
+    public PermissionDto(int permissionId, string permissionName)
     {
-        PermissionCode = permissionCode;
+        PermissionId = permissionId;
         PermissionName = permissionName;
     }
 }

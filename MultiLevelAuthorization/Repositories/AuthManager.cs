@@ -542,7 +542,7 @@ public class AuthManager
 
             // Vaidate root secure object
             if (systemSecureObject.SecureObjectTypeId != dbRootSecureObjectTypeId || systemSecureObject.SecureObjectExternalId != rootSecureObjectId)
-                throw new InvalidOperationException("In this app, RootSecureObjectId is incompatibe with saved data.");
+                throw new InvalidOperationException("In this app, RootSecureObjectId is incompatible with saved data.");
         }
 
         SecureObjectDto secureObjectDto = new SecureObjectDto(

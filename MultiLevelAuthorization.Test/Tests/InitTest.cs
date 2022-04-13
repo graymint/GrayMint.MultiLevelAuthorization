@@ -34,8 +34,11 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AuthorizationController(HttpClient);
-        await controller.InitAsync(AppId, new AppInitRequest
+        var controllerApp = new AppController(HttpClient);
+        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerPermission = new PermissionController(HttpClient);
+
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId =    rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -48,7 +51,7 @@ public class InitTest : BaseControllerTest
         //-----------
         // check: Validate successfuly created SecureObjectTypes
         //-----------
-        var actualTypes = await controller.SecureObjectTypesAsync(AppId);
+        var actualTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
 
         Assert.AreEqual(4, actualTypes.Count(), "Validate count of output");
 
@@ -59,7 +62,7 @@ public class InitTest : BaseControllerTest
         //-----------
         // check: Validate successful created PermissionGroup
         //-----------
-        var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
+        var actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
 
         //-----------
@@ -92,8 +95,9 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AuthorizationController(HttpClient);
-        await controller.InitAsync(AppId, new AppInitRequest
+        var controllerApp = new AppController(HttpClient);
+        var controllerPermission = new PermissionController(HttpClient);
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -104,7 +108,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Get system PermissionGroup properties
-        var actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
+        var actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
         var projectOwnerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectOwner").PermissionGroupId;
         var projectViewerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectViewer").PermissionGroupId;
         var userBasicId = actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic").PermissionGroupId;
@@ -123,7 +127,7 @@ public class InitTest : BaseControllerTest
         //-----------------------------
 
         // Call App_Init api for second time and add PermissionGroup2
-        await controller.InitAsync(AppId, new AppInitRequest
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -134,7 +138,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Validate count of PermissionGroups
-        actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
+        actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
         Assert.AreEqual(5, actualPermissionGroups.Count());
 
         // Vaidate to exists PermissionGroup1 and PermissionGroup2
@@ -158,7 +162,7 @@ public class InitTest : BaseControllerTest
         //-----------------------------
 
         // App_Init for third
-        await controller.InitAsync(AppId, new AppInitRequest
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -169,7 +173,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve PermissionGroups info
-        actualPermissionGroups = await controller.PermissionGroupsAsync(AppId);
+        actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
 
         // PermissionGroup1 must be deleted
         Assert.IsNull(actualPermissionGroups.FirstOrDefault(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId));
@@ -212,8 +216,9 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AuthorizationController(HttpClient);
-        await controller.InitAsync(AppId, new AppInitRequest
+        var controllerApp = new AppController(HttpClient);
+        var controllerSecureObject = new SecureObjectController(HttpClient);
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -224,7 +229,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve all systematic SecureObjectTypes
-        var actualSecureObjectTypes = await controller.SecureObjectTypesAsync(AppId);
+        var actualSecureObjectTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
         var secureObjectTypesUser = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "User").SecureObjectTypeId;
         var secureObjectTypesSystem = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "System").SecureObjectTypeId;
         var secureObjectTypesProject = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "Project").SecureObjectTypeId;
@@ -242,7 +247,7 @@ public class InitTest : BaseControllerTest
         //-------------------------
 
         // Call App_Init for second time
-        await controller.InitAsync(AppId, new AppInitRequest
+        await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -253,7 +258,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve information again
-        actualSecureObjectTypes = await controller.SecureObjectTypesAsync(AppId);
+        actualSecureObjectTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
 
         // SecureObjectType1 must be deleted
         Assert.IsNull(actualSecureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId));
@@ -280,7 +285,7 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
     {
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new AppController(HttpClient);
 
         // Create new SecureObjectType
         var secureObjectTypeName = "System";
@@ -330,7 +335,7 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_duplicate_in_db()
     {
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new AppController(HttpClient);
 
         // Create new SecureObjectType
         var secureObjectTypeName = Guid.NewGuid().ToString();
@@ -404,7 +409,7 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectId2 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new AppController(HttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
@@ -431,7 +436,7 @@ public class InitTest : BaseControllerTest
         }
         catch (Exception ex)
         {
-            if (!ex.Message.Contains("In this app, RootSecureObjectId is incompatibe with saved data."))
+            if (!ex.Message.Contains("In this app, RootSecureObjectId is incompatible with saved data."))
                 Assert.Fail();
         }
     }

@@ -16,7 +16,7 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_CRUD()
     {
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new RoleController(HttpClient);
 
         string roleName = Guid.NewGuid().ToString();
         Guid ownerId = Guid.NewGuid();

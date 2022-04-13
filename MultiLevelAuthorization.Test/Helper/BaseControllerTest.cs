@@ -41,7 +41,7 @@ public abstract class BaseControllerTest
         AppCreatorAuthorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, Program.CreateAppCreatorToken(key));
         HttpClient.DefaultRequestHeaders.Authorization = AppCreatorAuthorization;
 
-        var controller = new AuthorizationController(HttpClient);
+        var controller = new AppController(HttpClient);
         AppId = await controller.AppsAsync(new AppCreateRequest
         {
             AppName = $"test_{Guid.NewGuid().ToString()}",

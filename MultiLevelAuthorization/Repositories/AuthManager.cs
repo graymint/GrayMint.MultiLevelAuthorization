@@ -565,19 +565,13 @@ public class AuthManager
             rootSecureObjectTypeId = secureObjectType.SecureObjectTypeExternalId;
 
             // Vaidate root secure object
-            if (systemSecureObject.SecureObjectExternalId != rootSecureObjectId)
+            if (systemSecureObject.SecureObjectTypeId != dbRootSecureObjectTypeId || systemSecureObject.SecureObjectExternalId != rootSecureObjectId)
                 throw new InvalidOperationException("In this app, RootSecureObjectId is incompatibe with saved data.");
         }
 
         SecureObjectDto secureObjectDto = new SecureObjectDto(
             rootSecureObjectId, rootSecureObjectTypeId, null);
         return secureObjectDto;
-    }
-
-    private async Task<SecureObject?> SecureObject_Root(int appId)
-    {
-        var systemSecureObject = await _authDbContext.SecureObjects.SingleOrDefaultAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
-        return systemSecureObject;
     }
 
     private async Task SecureObjectType_UpdateBulk(int appId, SecureObjectTypeDto[] obValues)

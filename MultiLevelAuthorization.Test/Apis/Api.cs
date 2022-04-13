@@ -567,7 +567,7 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Role> RoleAsync(string appId, string roleName = null, System.Guid? ownerId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PermissionGroupDto>> PermissionGroupsAsync(string appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -926,7 +926,7 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<SecureObjectTypeDto>> SecureObjectTypesAsync(string appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<Role> RoleAsync(string appId, string roleName = null, System.Guid? ownerId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -967,7 +967,7 @@ namespace MultiLevelAuthorization.Test.Apis
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<SecureObjectTypeDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Role>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1068,25 +1068,17 @@ namespace MultiLevelAuthorization.Test.Apis
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SecureObjectDto> SecureObjectAsync(string appId, System.Guid? secureObjectId = null, System.Guid? secureObjectTypeId = null, System.Guid? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RoleUser>> RoleUsersAsync(string appId, System.Guid? roleId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/apps/{appId}/secureObject?");
+            urlBuilder_.Append("api/apps/{appId}/role-users?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
-            if (secureObjectId != null)
+            if (roleId != null)
             {
-                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            if (secureObjectTypeId != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            if (parentSecureObjectId != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("parentSecureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(parentSecureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+                urlBuilder_.Append(System.Uri.EscapeDataString("roleId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(roleId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
 
@@ -1123,7 +1115,7 @@ namespace MultiLevelAuthorization.Test.Apis
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<SecureObjectDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<RoleUser>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1314,9 +1306,6 @@ namespace MultiLevelAuthorization.Test.Apis
         [System.Text.Json.Serialization.JsonPropertyName("rootSecureObjectId")]
         public System.Guid RootSecureObjectId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("rootSeureObjectTypeId")]
-        public System.Guid RootSeureObjectTypeId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("secureObjectTypes")]
         public System.Collections.Generic.ICollection<SecureObjectTypeDto> SecureObjectTypes { get; set; }
 
@@ -1359,8 +1348,8 @@ namespace MultiLevelAuthorization.Test.Apis
     public partial class PermissionDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("permissionCode")]
-        public int PermissionCode { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("permissionId")]
+        public int PermissionId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("permissionName")]
         public string PermissionName { get; set; }
@@ -1434,11 +1423,11 @@ namespace MultiLevelAuthorization.Test.Apis
     public partial class Role
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("appId")]
-        public int AppId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("roleId")]
         public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("ownerId")]
         public System.Guid OwnerId { get; set; }
@@ -1460,15 +1449,15 @@ namespace MultiLevelAuthorization.Test.Apis
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.7.0 (NJsonSchema v10.6.7.0 (Newtonsoft.Json v13.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RoleUser
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("appId")]
-        public int AppId { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("roleId")]
         public System.Guid RoleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("appId")]
+        public int AppId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public System.Guid UserId { get; set; }
@@ -1622,6 +1611,15 @@ namespace MultiLevelAuthorization.Test.Apis
 
         [System.Text.Json.Serialization.JsonPropertyName("createdTime")]
         public System.DateTime CreatedTime { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class UserDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
+        public System.Guid UserId { get; set; }
 
     }
 

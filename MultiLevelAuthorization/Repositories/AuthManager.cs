@@ -550,12 +550,6 @@ public class AuthManager
         return secureObjectDto;
     }
 
-    private async Task<SecureObject?> SecureObject_Root(int appId)
-    {
-        var systemSecureObject = await _authDbContext.SecureObjects.SingleOrDefaultAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
-        return systemSecureObject;
-    }
-
     private async Task SecureObjectType_UpdateBulk(int appId, SecureObjectTypeDto[] obValues)
     {
         // Get SecureObjectTypes from db

@@ -14,8 +14,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task Init_create_null_parent_for_SecureObject()
     {
-        var controller = new AuthorizationController(HttpClient);
-        var appDto = new AppDto();
+        var controllerApp = new AppController(HttpClient);
+        var controllerSecureObject = new SecureObjectController(HttpClient);
+
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
@@ -36,7 +37,7 @@ public class SecureObjectTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        appDto = await controller.InitAsync(AppId, new AppInitRequest
+        var appDto = await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             RootSeureObjectTypeId = rootSecureObjectTypeId1,
@@ -51,7 +52,7 @@ public class SecureObjectTest : BaseControllerTest
         //----------------------
 
         // Call api to get info based on created SecureObject
-        var result = await controller.SecureObjectsAsync(AppId);
+        var result = await controllerSecureObject.SecureObjectsAsync(AppId);
 
         // Assert consequence
         Assert.IsNotNull(result.First(x => x.SecureObjectId == appDto.SystemSecureObjectId
@@ -62,8 +63,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_CRUD_without_ParentSecureObjectId()
     {
-        var controller = new AuthorizationController(HttpClient);
-        var appDto = new AppDto();
+        var controllerApp = new AppController(HttpClient);
+        var controllerSecureObject = new SecureObjectController(HttpClient);
+
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
@@ -84,7 +86,7 @@ public class SecureObjectTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        appDto = await controller.InitAsync(AppId, new AppInitRequest
+        var appDto = await controllerApp.InitAsync(AppId, new AppInitRequest
         {
 
             RootSecureObjectId = rootSecureObjectId1,
@@ -103,10 +105,10 @@ public class SecureObjectTest : BaseControllerTest
         //----------------------
 
         // Call api to create SecureObject
-        await controller.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, null);
+        await controllerSecureObject.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, null);
 
         // Call api to get info based on created SecureObject
-        var result = await controller.SecureObjectsAsync(AppId);
+        var result = await controllerSecureObject.SecureObjectsAsync(AppId);
 
         // Assert consequence
         Assert.IsNotNull(result.First(x => x.SecureObjectId == secureObjectId
@@ -117,8 +119,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_CRUD_with_ParentSecureObjectId()
     {
-        var controller = new AuthorizationController(HttpClient);
-        var appDto = new AppDto();
+        var controllerApp = new AppController(HttpClient);
+        var controllerSecureObject = new SecureObjectController(HttpClient);
+
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
@@ -142,7 +145,7 @@ public class SecureObjectTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        appDto = await controller.InitAsync(AppId, new AppInitRequest
+        var appDto = await controllerApp.InitAsync(AppId, new AppInitRequest
         {
 
             RootSecureObjectId = rootSecureObjectId1,
@@ -159,7 +162,7 @@ public class SecureObjectTest : BaseControllerTest
         Guid parentSecureObjectId = appDto.SystemSecureObjectId;
 
         // Call api to create SecureObject to build new parent expect System
-        await controller.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, parentSecureObjectId);
+        await controllerSecureObject.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, parentSecureObjectId);
 
         //----------------------
         // check : Successfully create new SecureObject with another SecureObject expect system as a parent
@@ -167,10 +170,10 @@ public class SecureObjectTest : BaseControllerTest
         parentSecureObjectId = secureObjectId;
         secureObjectId = Guid.NewGuid();
 
-        await controller.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, parentSecureObjectId);
+        await controllerSecureObject.SecureObjectAsync(AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, parentSecureObjectId);
 
         // Call api to get info based on created SecureObject
-        var result = await controller.SecureObjectsAsync(AppId);
+        var result = await controllerSecureObject.SecureObjectsAsync(AppId);
 
         // Assert consequence
         Assert.IsNotNull(result.First(x => x.SecureObjectId == secureObjectId

@@ -38,5 +38,59 @@ public class RoleTest : BaseControllerTest
                                         && x.ModifiedByUserId == modifiedByUserId
                                         ));
     }
+
+    [TestMethod]
+    public async Task Role_AddUser()
+    {
+        var controller = new RoleController(HttpClient);
+
+        //Prepare conditions
+        string roleName = Guid.NewGuid().ToString();
+        Guid ownerId = Guid.NewGuid();
+        Guid modifiedByUserId = Guid.NewGuid();
+        Guid userId1 = Guid.NewGuid();
+        Guid userId2 = Guid.NewGuid();
+        Guid userId3 = Guid.NewGuid();
+
+        // Create role1        
+        var role1 = await controller.RoleAsync(AppId, roleName, ownerId, modifiedByUserId);
+
+        // Create role2
+        roleName = Guid.NewGuid().ToString();
+        var role2 = await controller.RoleAsync(AppId, roleName, ownerId, modifiedByUserId);
+
+        // Create role2
+        roleName = Guid.NewGuid().ToString();
+        var role3 = await controller.RoleAsync(AppId, roleName, ownerId, modifiedByUserId);
+
+        // Add user1 to role1
+        await controller.RoleAdduserAsync(AppId, role1.RoleId, userId1, modifiedByUserId);
+
+        // Add user2 to role2
+        await controller.RoleAdduserAsync(AppId, role2.RoleId, userId2, modifiedByUserId);
+
+        // Add user3 to role2
+        await controller.RoleAdduserAsync(AppId, role2.RoleId, userId3, modifiedByUserId);
+
+        // add user1 to role3
+        await controller.RoleAdduserAsync(AppId, role3.RoleId, userId1, modifiedByUserId);
+
+        //-----------------------------
+        // check : Successfully retrieve user2 and user3 for role2
+        //-----------------------------
+        var users = await controller.RoleUsersAsync(AppId, role2.RoleId);
+        Assert.AreEqual(2, users.Count);
+        Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId2));
+        Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId3));
+
+        //-----------------------------
+        // check : Successfully retrieve role1 and role3 for user1
+        //-----------------------------
+        var roles = await controller.UserRolesAsync(AppId, userId1);
+        Assert.AreEqual(2, roles.Count);
+        Assert.IsNotNull(roles.SingleOrDefault(x => x.RoleId == role1.RoleId));
+        Assert.IsNotNull(roles.SingleOrDefault(x => x.RoleId == role3.RoleId));
+
+    }
 }
 

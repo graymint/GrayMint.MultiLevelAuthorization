@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MultiLevelAuthorization\MultiLevelAuthorization.csproj" />
+    <ProjectReference Include="..\MultiLevelAuthorization\GrayMint.MultiLevelAuthorization.csproj" />
   </ItemGroup>
 
 </Project>

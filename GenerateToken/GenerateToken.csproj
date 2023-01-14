@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MultiLevelAuthorization.Server\MultiLevelAuthorization.Server.csproj" />
+    <ProjectReference Include="..\MultiLevelAuthorization.Server\GrayMint.MultiLevelAuthorization.Server.csproj" />
   </ItemGroup>
 
 </Project>

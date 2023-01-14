@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization", "MultiLevelAuthorization\GrayMint.MultiLevelAuthorization.csproj", "{D1CE6CE6-E95E-4BB6-BA47-87638BD4675C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization", "GrayMint.MultiLevelAuthorization\GrayMint.MultiLevelAuthorization.csproj", "{D1CE6CE6-E95E-4BB6-BA47-87638BD4675C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization.Test", "MultiLevelAuthorization.Test\GrayMint.MultiLevelAuthorization.Test.csproj", "{9028FBDA-688F-4DA9-BE70-D7251D829B4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization.Test", "GrayMint.MultiLevelAuthorization.Test\GrayMint.MultiLevelAuthorization.Test.csproj", "{9028FBDA-688F-4DA9-BE70-D7251D829B4B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization.Server", "MultiLevelAuthorization.Server\GrayMint.MultiLevelAuthorization.Server.csproj", "{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization.Server", "GrayMint.MultiLevelAuthorization.Server\GrayMint.MultiLevelAuthorization.Server.csproj", "{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateToken", "GenerateToken\GenerateToken.csproj", "{C8212B7D-A8EA-4FAA-A76A-1D4186598920}"
 EndProject

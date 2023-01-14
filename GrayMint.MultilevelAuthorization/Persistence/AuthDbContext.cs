@@ -1,25 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MultiLevelAuthorization.Models;
+﻿using GrayMint.MultiLevelAuthorization.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace MultiLevelAuthorization.Persistence;
+namespace GrayMint.MultiLevelAuthorization.Persistence;
 
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class AuthDbContext : DbContext
 {
     public const string Schema = "auth";
 
-    public virtual DbSet<SecureObjectType> SecureObjectTypes { get; set; } = default!;
-    public virtual DbSet<PermissionGroup> PermissionGroups { get; set; } = default!;
-    public virtual DbSet<Permission> Permissions { get; set; } = default!;
-    public virtual DbSet<PermissionGroupPermission> PermissionGroupPermissions { get; set; } = default!;
-    public virtual DbSet<Role> Roles { get; set; } = default!;
-    public virtual DbSet<RoleUser> RoleUsers { get; set; } = default!;
-    public virtual DbSet<SecureObject> SecureObjects { get; set; } = default!;
-    public virtual DbSet<SecureObjectRolePermission> SecureObjectRolePermissions { get; set; } = default!;
-    public virtual DbSet<SecureObjectUserPermission> SecureObjectUserPermissions { get; set; } = default!;
-    public virtual DbSet<App> Apps { get; set; } = default!;
+    public virtual DbSet<SecureObjectTypeModel> SecureObjectTypes { get; set; } = default!;
+    public virtual DbSet<PermissionGroupModel> PermissionGroups { get; set; } = default!;
+    public virtual DbSet<PermissionModel> Permissions { get; set; } = default!;
+    public virtual DbSet<PermissionGroupPermissionModel> PermissionGroupPermissions { get; set; } = default!;
+    public virtual DbSet<RoleModel> Roles { get; set; } = default!;
+    public virtual DbSet<RoleUserModel> RoleUsers { get; set; } = default!;
+    public virtual DbSet<SecureObjectModel> SecureObjects { get; set; } = default!;
+    public virtual DbSet<SecureObjectRolePermissionModel> SecureObjectRolePermissions { get; set; } = default!;
+    public virtual DbSet<SecureObjectUserPermissionModel> SecureObjectUserPermissions { get; set; } = default!;
+    public virtual DbSet<AppModel> Apps { get; set; } = default!;
 
-    public IQueryable<SecureObject> SecureObjectHierarchy(int id)
+    public IQueryable<SecureObjectModel> SecureObjectHierarchy(int id)
         => FromExpression(() => SecureObjectHierarchy(id));
 
     public AuthDbContext()
@@ -37,7 +37,7 @@ public partial class AuthDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
 
-        modelBuilder.Entity<App>(entity =>
+        modelBuilder.Entity<AppModel>(entity =>
         {
             entity.Property(e => e.AppId)
                 .ValueGeneratedNever();
@@ -45,7 +45,7 @@ public partial class AuthDbContext : DbContext
             .IsUnique();
         });
 
-        modelBuilder.Entity<SecureObjectType>(entity =>
+        modelBuilder.Entity<SecureObjectTypeModel>(entity =>
         {
             entity.HasKey(e => e.SecureObjectTypeId);
             entity.Property(e => e.SecureObjectTypeId)
@@ -55,7 +55,7 @@ public partial class AuthDbContext : DbContext
                 .IsUnique();
         });
 
-        modelBuilder.Entity<Permission>(entity =>
+        modelBuilder.Entity<PermissionModel>(entity =>
         {
             entity.HasKey(x => new { x.AppId, x.PermissionId });
 
@@ -68,7 +68,7 @@ public partial class AuthDbContext : DbContext
             entity
                 .HasMany(p => p.PermissionGroups)
                 .WithMany(p => p.Permissions)
-                .UsingEntity<PermissionGroupPermission>(
+                .UsingEntity<PermissionGroupPermissionModel>(
                     j => j
                         .HasOne(pt => pt.PermissionGroup)
                         .WithMany(t => t.PermissionGroupPermissions)
@@ -83,7 +83,7 @@ public partial class AuthDbContext : DbContext
                 );
         });
 
-        modelBuilder.Entity<PermissionGroup>(entity =>
+        modelBuilder.Entity<PermissionGroupModel>(entity =>
         {
             entity.Property(e => e.PermissionGroupId)
                 .ValueGeneratedOnAdd();
@@ -92,7 +92,7 @@ public partial class AuthDbContext : DbContext
                 .IsUnique();
         });
 
-        modelBuilder.Entity<PermissionGroupPermission>(entity =>
+        modelBuilder.Entity<PermissionGroupPermissionModel>(entity =>
         {
             entity.HasKey(e => new { e.PermissionGroupId, e.PermissionId });
 
@@ -101,14 +101,14 @@ public partial class AuthDbContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<RoleModel>(entity =>
         {
             entity.HasIndex(e => new { e.AppId, e.RoleName })
                 .IsUnique();
 
         });
 
-        modelBuilder.Entity<RoleUser>(entity =>
+        modelBuilder.Entity<RoleUserModel>(entity =>
         {
             entity.HasKey(e => new { e.RoleId, e.UserId });
 
@@ -118,7 +118,7 @@ public partial class AuthDbContext : DbContext
                 .HasPrincipalKey(d => new { d.AppId, d.RoleId });
         });
 
-        modelBuilder.Entity<SecureObject>(entity =>
+        modelBuilder.Entity<SecureObjectModel>(entity =>
         {
             entity.HasOne(e => e.SecureObjectType)
                 .WithMany(d => d.SecureObjects)
@@ -128,7 +128,7 @@ public partial class AuthDbContext : DbContext
                 ValueGeneratedOnAdd();
         });
 
-        modelBuilder.Entity<SecureObjectRolePermission>(entity =>
+        modelBuilder.Entity<SecureObjectRolePermissionModel>(entity =>
         {
             entity.HasKey(e => new { e.SecureObjectId, e.RoleId, e.PermissionGroupId });
 
@@ -151,7 +151,7 @@ public partial class AuthDbContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
-        modelBuilder.Entity<SecureObjectUserPermission>(entity =>
+        modelBuilder.Entity<SecureObjectUserPermissionModel>(entity =>
         {
             entity.HasKey(e => new { e.SecureObjectId, UsedId = e.UserId, e.PermissionGroupId });
 

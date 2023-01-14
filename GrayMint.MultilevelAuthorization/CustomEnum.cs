@@ -1,4 +1,4 @@
-﻿namespace MultiLevelAuthorization;
+﻿namespace GrayMint.MultiLevelAuthorization;
 
 public class CustomEnum<T> where T : struct
 {

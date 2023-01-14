@@ -2,13 +2,12 @@
 using MultiLevelAuthorization.DTOs;
 using MultiLevelAuthorization.Server.DTOs;
 
-namespace MultiLevelAuthorization.Server.Mapper
+namespace MultiLevelAuthorization.Server.Mapper;
+
+public class AppCreateRequestMapper : Profile
 {
-    public class AppCreateRequestMapper : Profile
+    public AppCreateRequestMapper()
     {
-        public AppCreateRequestMapper()
-        {
-            CreateMap<AppCreateRequest, AppCreateRequestHandler>().ReverseMap();
-        }
+        CreateMap<AppCreateRequest, AppCreateRequestHandler>().ReverseMap();
     }
 }

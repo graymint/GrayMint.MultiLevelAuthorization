@@ -1,8 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace GrayMint.MultiLevelAuthorization.Models;
 
-namespace MultiLevelAuthorization.Models;
-
-public class RoleUser
+public class RoleUserModel
 {
     public Guid RoleId { get; set; }
     public int AppId { get; set; }
@@ -10,5 +8,5 @@ public class RoleUser
     public Guid ModifiedByUserId { get; set; }
     public DateTime CreatedTime { get; set; }
 
-    public virtual Role? Role { get; set; }
+    public virtual RoleModel? Role { get; set; }
 }

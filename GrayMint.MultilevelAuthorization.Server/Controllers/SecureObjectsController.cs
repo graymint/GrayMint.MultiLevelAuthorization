@@ -12,17 +12,17 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [ApiController]
 [Route("/api/v{version:apiVersion}/apps/{appId}/secure-objects")]
 
-public class SecureObjectController : Controller
+public class SecureObjectsController : Controller
 {
     private readonly SecureObjectService _secureObjectService;
 
-    public SecureObjectController(SecureObjectService secureObjectService)
+    public SecureObjectsController(SecureObjectService secureObjectService)
     {
         _secureObjectService = secureObjectService;
     }
 
     [HttpGet("secure-object-types")]
-    public async Task<SecureObjectType[]> SecureObjectType_List(int appId)
+    public async Task<SecureObjectType[]> GetSecureObjectTypes(int appId)
     {
         var secureObjectTypes = await _secureObjectService.GetSecureObjectTypes(appId);
         return secureObjectTypes;
@@ -43,7 +43,7 @@ public class SecureObjectController : Controller
     }
 
     [HttpPost("{secureObjectId}/add-user-permission")]
-    public async Task<IActionResult> SecureObject_AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+    public async Task<IActionResult> AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
         Guid modifiedByUserId)
     {
         await _secureObjectService.AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
@@ -58,7 +58,7 @@ public class SecureObjectController : Controller
     }
 
     [HttpGet("{secureObjectId}/user-permissions")]
-    public async Task<Permission[]> SecureObject_GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
+    public async Task<Permission[]> GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
     {
         var userPermissions = await _secureObjectService.GetUserPermissions(appId, secureObjectId, userId);
         return userPermissions;

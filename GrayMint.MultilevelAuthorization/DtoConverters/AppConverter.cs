@@ -9,6 +9,7 @@ public static class AppConverter
     {
         return new App
         {
+            AppId = appModel.AppId,
             AppName = appModel.AppName
         };
     }

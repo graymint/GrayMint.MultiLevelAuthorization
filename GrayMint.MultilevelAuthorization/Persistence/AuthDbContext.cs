@@ -40,7 +40,7 @@ public partial class AuthDbContext : DbContext
         {
             entity.HasKey(x => x.AppId);
             entity.Property(e => e.AppId)
-                .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
             entity.HasIndex(e => new { e.AppName })
             .IsUnique();
         });

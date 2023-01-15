@@ -88,7 +88,7 @@ public class AuthRepo3
         return secureObject;
     }
 
-    public async Task<SecureObjectModel> GetRootSecureObject(int appId)
+    public async Task<SecureObjectModel?> GetRootSecureObject(int appId)
     {
         var secureObject = await _authDbContext.SecureObjects
             .SingleAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
@@ -198,7 +198,9 @@ public class AuthRepo3
                     select new RoleView
                     {
                         RoleId = roles.RoleId,
-                        RoleName = roles.RoleName
+                        RoleName = roles.RoleName,
+                        ModifiedByUserId = roleUser.ModifiedByUserId,
+                        OwnerId = roles.OwnerId
                     };
 
         var roleViews = await query.ToArrayAsync();

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MultiLevelAuthorization.Server;
-using MultiLevelAuthorization.Test.Apis;
+using MultiLevelAuthorization.Test.Api;
 
 namespace MultiLevelAuthorization.Test.Helper;
 
@@ -22,6 +22,12 @@ public class TestInit
     public HttpClient HttpClientAppCreator { get; set; }
     protected AuthenticationHeaderValue AppCreatorAuthorization { get; private set; } = default!;
     public AppsClient AppsClient => new(HttpClientAppCreator);
+    public UsersClient UsersClient => new(HttpClientAppUser);
+    public PermissionsClient PermissionsClient => new(HttpClientAppUser);
+    public SecureObjectsClient SecuresObjectClient => new(HttpClientAppUser);
+    public  RolesClient RolesClient => new(HttpClientAppUser);
+    public AuthenticationHeaderValue AuthorizationAppCreator { get; private set; } = default!;
+    public AuthenticationHeaderValue AuthorizationAppUser { get; private set; } = default!;
 
     private TestInit ()
     {
@@ -65,12 +71,12 @@ public class TestInit
 
         // create app
         var appsClient = new AppsClient(HttpClientAppCreator);
-        AppId = (await appsClient.CreateAsync(new AppCreateRequest { AppName = Guid.NewGuid().ToString() })).AppId;
+        var app = await appsClient.CreateAsync(new AppCreateRequest { AppName = Guid.NewGuid().ToString() });
+        AppId = app.AppId;
 
         // attach its token
         var token = await AppsClient.GetAuthorizationTokenAsync(AppId);
         AuthorizationAppUser = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         HttpClientAppUser.DefaultRequestHeaders.Authorization = AuthorizationAppUser;
     }
-
 }

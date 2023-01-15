@@ -21,33 +21,12 @@ public class SecureObjectService
         _permissionService = permissionService;
     }
 
-    public async Task<int> GetIdByExternalId(int appId, Guid secureObjectId)
-    {
-        var secureObjectIdResult = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectId);
-        return secureObjectIdResult.SecureObjectId;
-    }
-
     public async Task<SecureObject> Create(int appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
     {
         var dbSecureObjectTypeId = await GetSecureObjectTypeIdByExternalId(appId, secureObjectTypeId);
 
-        // Call worker
-        var secureObject = await CreateImp(appId, secureObjectId, dbSecureObjectTypeId, parentSecureObjectId);
-        await _authRepo.SaveChangesAsync();
-
-        var result = new SecureObject
-        {
-            SecureObjectId = secureObject.SecureObjectId,
-            SecureObjectTypeId = secureObject.SecureObjectTypeId,
-            ParentSecureObjectId = secureObject.ParentSecureObjectId
-        };
-        return result;
-    }
-
-    private async Task<SecureObject> CreateImp(int appId, Guid secureObjectId, int secureObjectTypeId, Guid? parentSecureObjectId)
-    {
-        int dbParentSecureObjectId;
         // Try to get parentSecureObjectId
+        int dbParentSecureObjectId;
         if (parentSecureObjectId == null)
         {
             // Make sure system secure object has been created
@@ -67,22 +46,24 @@ public class SecureObjectService
         }
 
         // Prepare SecureObject
-        var secureObject = new SecureObjectModel
+        var secureObjectModel = new SecureObjectModel
         {
             AppId = appId,
             SecureObjectExternalId = secureObjectId,
-            SecureObjectTypeId = secureObjectTypeId,
+            SecureObjectTypeId = dbSecureObjectTypeId,
             ParentSecureObjectId = dbParentSecureObjectId
         };
-        await _authRepo.AddEntity(secureObject);
+        await _authRepo.AddEntity(secureObjectModel);
+        await _authRepo.SaveChangesAsync();
 
-        var result = new SecureObject
+        var secureObject = new SecureObject
         {
-            SecureObjectId = secureObject.SecureObjectExternalId,
-            SecureObjectTypeId = secureObject.SecureObjectType.SecureObjectTypeExternalId,
+            SecureObjectId = secureObjectId,
+            SecureObjectTypeId = secureObjectTypeId,
             ParentSecureObjectId = parentSecureObjectId
         };
-        return result;
+        
+        return secureObject;
     }
 
     public async Task<SecureObject[]> GetSecureObjects(int appId)

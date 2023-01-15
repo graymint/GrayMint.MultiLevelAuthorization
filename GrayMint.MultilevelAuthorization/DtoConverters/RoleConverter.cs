@@ -10,7 +10,9 @@ public static class RoleConverter
         return new Role
         {
             RoleId = roleModel.RoleId,
-            RoleName = roleModel.RoleName
+            RoleName = roleModel.RoleName,
+            ModifiedByUserId = roleModel.ModifiedByUserId,
+            OwnerId = roleModel.OwnerId
         };
     }
 }

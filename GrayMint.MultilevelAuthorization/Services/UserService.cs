@@ -16,7 +16,13 @@ public class UserService
         var roleViews = await _authRepo.GetUserRoles(appId, userId);
 
         var roles = roleViews
-            .Select(x => new Role { RoleId = x.RoleId, RoleName = x.RoleName })
+            .Select(x => new Role
+            {
+                RoleId = x.RoleId,
+                RoleName = x.RoleName,
+                ModifiedByUserId = x.ModifiedByUserId,
+                OwnerId = x.OwnerId
+            })
             .ToArray();
 
         return roles;

@@ -20,7 +20,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{userId}/roles")]
-    public async Task<Role[]> User_Roles(int appId, Guid userId)
+    public async Task<Role[]> GetUserRoles(int appId, Guid userId)
     {
         var roles = await _userService.GetUserRoles(appId, userId);
         return roles;

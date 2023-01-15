@@ -63,13 +63,14 @@ public class AppService
 
         var appData = new App
         {
+            AppId = appId,
             AppName = appInfo.AppName,
             SystemSecureObjectId = secureObjectDto.SecureObjectId
         };
         return appData;
     }
 
-    public async Task<int> Create(AppCreateRequest request)
+    public async Task<App> Create(AppCreateRequest request)
     {
         // Create auth.App
         var app = new AppModel
@@ -81,7 +82,7 @@ public class AppService
         await _authRepo.AddEntity(app);
         await _authRepo.SaveChangesAsync();
 
-        return app.AppId;
+        return app.ToDto();
     }
 
     public async Task ResetAuthorizationCode(int appId)

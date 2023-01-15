@@ -30,7 +30,6 @@ public class AppsController : Controller
     [HttpPost("{appId}/init")]
     public async Task<App> Init(int appId, AppInitRequest request)
     {
-        //todo: check permission
         var result = await _appService.InitApp(appId, request.RootSecureObjectId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
         return result;
     }
@@ -40,8 +39,8 @@ public class AppsController : Controller
     [HttpPost]
     public async Task<ActionResult<App>> Create(AppCreateRequest appCreateRequest)
     {
-        var appId = await _appService.Create(appCreateRequest);
-        return CreatedAtAction(nameof(Get), new { appId }, appId);
+        var app = await _appService.Create(appCreateRequest);
+        return CreatedAtAction(nameof(Get), new { app.AppId }, app);
     }
 
     [HttpGet("{appId:int}")]

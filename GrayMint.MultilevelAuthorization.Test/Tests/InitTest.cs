@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MultiLevelAuthorization.Test.Apis;
+using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
 
 namespace MultiLevelAuthorization.Test.Tests;
@@ -15,30 +15,27 @@ public class InitTest : BaseControllerTest
     public async Task Init_Successfully()
     {
         // Create new types
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(AppUserHttpClient);
-        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
-        var controllerPermission = new PermissionController(AppUserHttpClient);
 
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId =    rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -48,9 +45,9 @@ public class InitTest : BaseControllerTest
         });
 
         //-----------
-        // check: Validate successfuly created SecureObjectTypes
+        // check: Validate successfully created SecureObjectTypes
         //-----------
-        var actualTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
+        var actualTypes = await TestInit1.SecuresObjectClient.GetSecureObjectTypesAsync(TestInit1.AppId);
 
         Assert.AreEqual(4, actualTypes.Count(), "Validate count of output");
 
@@ -61,7 +58,7 @@ public class InitTest : BaseControllerTest
         //-----------
         // check: Validate successful created PermissionGroup
         //-----------
-        var actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
+        var actualPermissionGroups = await TestInit1.PermissionsClient.GetPermissionGroupsAsync(TestInit1.AppId);
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
     }
 
@@ -69,28 +66,26 @@ public class InitTest : BaseControllerTest
     public async Task PermissionGroups_CRUD()
     {
         // Create first types
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create first permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create first permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(AppUserHttpClient);
-        var controllerPermission = new PermissionController(AppUserHttpClient);
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -100,17 +95,17 @@ public class InitTest : BaseControllerTest
         });
 
         // Get system PermissionGroup properties
-        var actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
+        var actualPermissionGroups = await TestInit1.PermissionsClient.GetPermissionGroupsAsync(TestInit1.AppId);
         var projectOwnerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectOwner").PermissionGroupId;
         var projectViewerId = actualPermissionGroups.Single(x => x.PermissionGroupName == "ProjectViewer").PermissionGroupId;
         var userBasicId = actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic").PermissionGroupId;
 
         // Prepare PermissionGroup2
-        var newPermissionGroup2 = new PermissionGroupDto()
+        var newPermissionGroup2 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups2 = PermissionGroups.All.Concat(new[] { newPermissionGroup2 }).ToArray();
 
@@ -119,7 +114,7 @@ public class InitTest : BaseControllerTest
         //-----------------------------
 
         // Call App_Init api for second time and add PermissionGroup2
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -129,10 +124,10 @@ public class InitTest : BaseControllerTest
         });
 
         // Validate count of PermissionGroups
-        actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
-        Assert.AreEqual(5, actualPermissionGroups.Count());
+        actualPermissionGroups = await TestInit1.PermissionsClient.GetPermissionGroupsAsync(TestInit1.AppId);
+        Assert.AreEqual(5, actualPermissionGroups.Count);
 
-        // Vaidate to exists PermissionGroup1 and PermissionGroup2
+        // Validate to exists PermissionGroup1 and PermissionGroup2
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId && x.PermissionGroupName == newPermissionGroup1.PermissionGroupName));
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == newPermissionGroup2.PermissionGroupId && x.PermissionGroupName == newPermissionGroup2.PermissionGroupName));
 
@@ -140,11 +135,11 @@ public class InitTest : BaseControllerTest
         var newPermissionGroupName = Guid.NewGuid().ToString();
         newPermissionGroup2.PermissionGroupName = newPermissionGroupName;
 
-        var newPermissionGroup3 = new PermissionGroupDto()
+        var newPermissionGroup3 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups3 = PermissionGroups.All.Concat(new[] { newPermissionGroup2, newPermissionGroup3 }).ToArray();
 
@@ -153,7 +148,7 @@ public class InitTest : BaseControllerTest
         //-----------------------------
 
         // App_Init for third
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -163,7 +158,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve PermissionGroups info
-        actualPermissionGroups = await controllerPermission.PermissionGroupsAsync(AppId);
+        actualPermissionGroups = await TestInit1.PermissionsClient.GetPermissionGroupsAsync(TestInit1.AppId);
 
         // PermissionGroup1 must be deleted
         Assert.IsNull(actualPermissionGroups.FirstOrDefault(x => x.PermissionGroupId == newPermissionGroup1.PermissionGroupId));
@@ -178,7 +173,6 @@ public class InitTest : BaseControllerTest
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == projectOwnerId && x.PermissionGroupName == "ProjectOwner"));
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == projectViewerId && x.PermissionGroupName == "ProjectViewer"));
         Assert.IsNotNull(actualPermissionGroups.Single(x => x.PermissionGroupId == userBasicId && x.PermissionGroupName == "UserBasic"));
-
         Assert.AreEqual(5, actualPermissionGroups.Count);
     }
 
@@ -186,29 +180,27 @@ public class InitTest : BaseControllerTest
     public async Task SecureObjectType_CRUD()
     {
         // Create new SecureObjectType
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
-        var newSecureObjectType2 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType2 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(AppUserHttpClient);
-        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -218,7 +210,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve all systematic SecureObjectTypes
-        var actualSecureObjectTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
+        var actualSecureObjectTypes = await TestInit1.SecuresObjectClient.GetSecureObjectTypesAsync(TestInit1.AppId);
         var secureObjectTypesUser = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "User").SecureObjectTypeId;
         var secureObjectTypesSystem = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "System").SecureObjectTypeId;
         var secureObjectTypesProject = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "Project").SecureObjectTypeId;
@@ -228,7 +220,7 @@ public class InitTest : BaseControllerTest
         newSecureObjectType2.SecureObjectTypeName = secureObjectTypeName;
 
         // Prepare SecureObjectType3
-        var newSecureObjectType3 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType3 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes3 = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2, newSecureObjectType3 }).ToArray();
 
         //-------------------------
@@ -236,7 +228,7 @@ public class InitTest : BaseControllerTest
         //-------------------------
 
         // Call App_Init for second time
-        await controllerApp.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes3,
@@ -246,7 +238,7 @@ public class InitTest : BaseControllerTest
         });
 
         // Retrieve information again
-        actualSecureObjectTypes = await controllerSecureObject.SecureObjectTypesAsync(AppId);
+        actualSecureObjectTypes = await TestInit1.SecuresObjectClient.GetSecureObjectTypesAsync(TestInit1.AppId);
 
         // SecureObjectType1 must be deleted
         Assert.IsNull(actualSecureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId));
@@ -273,23 +265,21 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
     {
-        var controller = new AppController(AppUserHttpClient);
-
         // Create new SecureObjectType
         var secureObjectTypeName = "System";
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
@@ -302,7 +292,7 @@ public class InitTest : BaseControllerTest
             // Call App_Init api
         try
         {
-            await controller.InitAsync(AppId, new AppInitRequest
+            await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId1,
                 SecureObjectTypes = secureObjectTypes,
@@ -322,24 +312,22 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_duplicate_in_db()
     {
-        var controller = new AppController(AppUserHttpClient);
-
         // Create new SecureObjectType
         var secureObjectTypeName = Guid.NewGuid().ToString();
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
-        var newSecureObjectType2 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
+        var newSecureObjectType2 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
@@ -352,7 +340,7 @@ public class InitTest : BaseControllerTest
         // Call App_Init api
         try
         {
-            await controller.InitAsync(AppId, new AppInitRequest
+            await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId1,
                 SecureObjectTypes = secureObjectTypes,
@@ -374,19 +362,19 @@ public class InitTest : BaseControllerTest
     public async Task RootSecureObject_and_RootSecureObjectType_must_be_unique()
     {
         // Create new types
-        var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        var newPermission = new PermissionDto() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
+        var newPermission = new Permission() { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = Guid.NewGuid().ToString() };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroupDto()
+        var newPermissionGroup1 = new PermissionGroup()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<PermissionDto> { newPermission }
+            Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
@@ -395,8 +383,7 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectId2 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AppController(AppUserHttpClient);
-        await controller.InitAsync(AppId, new AppInitRequest
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
@@ -408,7 +395,7 @@ public class InitTest : BaseControllerTest
         // Try to call Init with another RootSecureObjectId
         try
         {
-            await controller.InitAsync(AppId, new AppInitRequest
+            await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
                 RootSecureObjectId = rootSecureObjectId2,
                 SecureObjectTypes = secureObjectTypes,

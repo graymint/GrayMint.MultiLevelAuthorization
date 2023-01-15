@@ -9,7 +9,7 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [Authorize(SimpleRoleAuth.Policy)]
 [ApiVersion("1")]
 [ApiController]
-[Route("/api/v{version:apiVersion}/apps/{appId}/roles")]
+[Route("/api/v{version:apiVersion}/apps/{appId:int}/roles")]
 public class RolesController : Controller
 {
     private readonly RoleService _roleService;
@@ -19,15 +19,15 @@ public class RolesController : Controller
         _roleService = roleService;
     }
 
-    [HttpPost("role")]
+    [HttpPost]
     public async Task<Role> Create(int appId, string roleName, Guid ownerId, Guid modifiedByUserId)
     {
         var result = await _roleService.Create(appId, roleName, ownerId, modifiedByUserId);
         return result;
     }
 
-    [HttpPost("{roleId}/add-user")]
-    public async Task<IActionResult> Role_AddUser(int appId, Guid roleId, Guid userId, Guid modifiedByUserId)
+    [HttpPost("{roleId:guid}/add-user")]
+    public async Task<IActionResult> AddUserToRole(int appId, Guid roleId, Guid userId, Guid modifiedByUserId)
     {
         await _roleService.AddUserToRole(appId, roleId, userId, modifiedByUserId);
         return Ok();

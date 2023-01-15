@@ -10,10 +10,10 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [ApiVersion("1")]
 [ApiController]
 [Route("/api/v{version:apiVersion}/apps/{appId}")]
-public class PermissionController : Controller
+public class PermissionsController : Controller
 {
     private readonly PermissionService _permissionService;
-    public PermissionController(PermissionService permissionService)
+    public PermissionsController(PermissionService permissionService)
     {
         _permissionService = permissionService;
     }

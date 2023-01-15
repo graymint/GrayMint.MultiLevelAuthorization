@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MultiLevelAuthorization.Test.Apis;
+namespace MultiLevelAuthorization.Test.Api;
 
 public class BaseApiClient
 {

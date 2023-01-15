@@ -6,6 +6,7 @@
 
     <IsPackable>false</IsPackable>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <RootNamespace>MultiLevelAuthorization.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GrayMint.MultiLevelAuthorization.Server\GrayMint.MultiLevelAuthorization.Server.csproj" />
   </ItemGroup>
 
 </Project>

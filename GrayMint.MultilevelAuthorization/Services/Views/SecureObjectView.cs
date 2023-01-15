@@ -1,4 +1,4 @@
-﻿namespace GrayMint.MultiLevelAuthorization.Services.Views;
+﻿namespace MultiLevelAuthorization.Services.Views;
 
 public class SecureObjectView
 {

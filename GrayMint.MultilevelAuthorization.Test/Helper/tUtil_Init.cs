@@ -1,9 +1,8 @@
-﻿using MultiLevelAuthorization.Test.Apis;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using MultiLevelAuthorization.Test.Apis;
 
 namespace MultiLevelAuthorization.Test.Helper;
 public class tUtil_Init : BaseControllerTest
@@ -29,7 +28,7 @@ public class tUtil_Init : BaseControllerTest
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
         // Call App_Init api
-        var controller = new AppController(HttpClient);
+        var controller = new AppController(AppUserHttpClient);
         appDto = await controller.InitAsync(appId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,

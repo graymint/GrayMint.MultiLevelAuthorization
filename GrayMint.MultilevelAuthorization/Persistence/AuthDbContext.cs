@@ -1,7 +1,7 @@
-﻿using GrayMint.MultiLevelAuthorization.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using MultiLevelAuthorization.Models;
 
-namespace GrayMint.MultiLevelAuthorization.Persistence;
+namespace MultiLevelAuthorization.Persistence;
 
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class AuthDbContext : DbContext
@@ -31,7 +31,6 @@ public partial class AuthDbContext : DbContext
     {
     }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -39,6 +38,7 @@ public partial class AuthDbContext : DbContext
 
         modelBuilder.Entity<AppModel>(entity =>
         {
+            entity.HasKey(x => x.AppId);
             entity.Property(e => e.AppId)
                 .ValueGeneratedNever();
             entity.HasIndex(e => new { e.AppName })
@@ -103,6 +103,7 @@ public partial class AuthDbContext : DbContext
 
         modelBuilder.Entity<RoleModel>(entity =>
         {
+            entity.HasKey(x => x.RoleId);
             entity.HasIndex(e => new { e.AppId, e.RoleName })
                 .IsUnique();
 

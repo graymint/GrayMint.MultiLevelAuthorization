@@ -1,14 +1,15 @@
-﻿using GrayMint.MultiLevelAuthorization.Dtos;
-using GrayMint.MultiLevelAuthorization.Models;
-using GrayMint.MultiLevelAuthorization.Repositories;
+﻿using MultiLevelAuthorization.DtoConverters;
+using MultiLevelAuthorization.Dtos;
+using MultiLevelAuthorization.Models;
+using MultiLevelAuthorization.Repositories;
 
-namespace GrayMint.MultiLevelAuthorization.Services;
+namespace MultiLevelAuthorization.Services;
 
 public class PermissionService
 {
-    private readonly AuthRepo _authRepo;
+    private readonly AuthRepo3 _authRepo;
 
-    public PermissionService(AuthRepo authRepo)
+    public PermissionService(AuthRepo3 authRepo)
     {
         _authRepo = authRepo;
     }
@@ -18,9 +19,12 @@ public class PermissionService
         return permissionGroupIdResult;
     }
 
-    public async Task<PermissionGroupModel[]> GetPermissionGroups(int appId)
+    public async Task<PermissionGroup[]> GetPermissionGroups(int appId)
     {
-        return await _authRepo.GetPermissionGroups(appId);
+        var permissionGroupModels = await _authRepo.GetPermissionGroups(appId);
+
+        var permissionGroups = permissionGroupModels.Select(x => x.ToDto()).ToArray();
+        return permissionGroups;
     }
 
     private async Task RemovePermissionGroupPermission(int appId, int permissionGroupId)

@@ -1,32 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MultiLevelAuthorization.DTOs;
-using MultiLevelAuthorization.Repositories;
+﻿using GrayMint.Common.AspNetCore.SimpleRoleAuthorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MultiLevelAuthorization.Dtos;
+using MultiLevelAuthorization.Services;
 
 namespace MultiLevelAuthorization.Server.Controllers;
 
+[Authorize(SimpleRoleAuth.Policy)]
+[ApiVersion("1")]
 [ApiController]
-[Route("/api/apps")]
+[Route("/api/v{version:apiVersion}/apps/{appId}")]
 public class PermissionController : Controller
 {
-    private readonly AuthManager _authManager;
-
-    public PermissionController(AuthManager authManager)
+    private readonly PermissionService _permissionService;
+    public PermissionController(PermissionService permissionService)
     {
-        _authManager = authManager;
+        _permissionService = permissionService;
     }
 
-    [HttpGet("{appId}/permission-groups")]
-    public async Task<PermissionGroupDto[]> PermissionGroup_List(string appId)
+    [HttpGet("permission-groups")]
+    public async Task<PermissionGroup[]> GetPermissionGroups(int appId)
     {
-        //todo: check permission
-
-        var res = await _authManager.PermissionGroup_List(appId);
-        var ret = res.Select(
-            x => new PermissionGroupDto(
-                x.PermissionGroupExternalId,
-                x.PermissionGroupName,
-                x.Permissions.Select(y => new PermissionDto(y.PermissionId, y.PermissionName)).ToArray())
-        );
-        return ret.ToArray();
+        var permissionGroups = await _permissionService.GetPermissionGroups(appId);
+        return permissionGroups;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace GrayMint.MultiLevelAuthorization.Dtos;
+﻿namespace MultiLevelAuthorization.Dtos;
 
 public class Permission
 {

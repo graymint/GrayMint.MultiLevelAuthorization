@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GrayMint.MultiLevelAuthorization.Models;
+namespace MultiLevelAuthorization.Models;
 
 public class SecureObjectUserPermissionModel
 {

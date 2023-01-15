@@ -1,17 +1,18 @@
-﻿using GrayMint.MultiLevelAuthorization.Dtos;
-using GrayMint.MultiLevelAuthorization.Models;
-using GrayMint.MultiLevelAuthorization.Repositories;
+﻿using MultiLevelAuthorization.DtoConverters;
+using MultiLevelAuthorization.Dtos;
+using MultiLevelAuthorization.Models;
+using MultiLevelAuthorization.Repositories;
 
-namespace GrayMint.MultiLevelAuthorization.Services;
+namespace MultiLevelAuthorization.Services;
 
 public class AppService
 {
-    private readonly AuthRepo _authRepo;
+    private readonly AuthRepo3 _authRepo;
     private readonly SecureObjectService _secureObjectService;
     private readonly PermissionService _permissionService;
 
     public AppService(
-        AuthRepo authRepo,
+        AuthRepo3 authRepo,
         SecureObjectService secureObjectService,
         PermissionService permissionService
         )
@@ -21,23 +22,23 @@ public class AppService
         _permissionService = permissionService;
     }
 
-    private async Task<AppModel> Get(int appId)
+    public async Task<App> Get(int appId)
     {
         var app = await _authRepo.GetApp(appId);
-        return app;
+        return app.ToDto();
     }
 
     public async Task<App> InitApp(int appId, Guid rootSecureObjectId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
         if (rootSecureObjectId == Guid.Empty)
-            throw new InvalidOperationException("Can not set default guid for rootSecureObjectId");
+            throw new InvalidOperationException("Can not set default guid for rootSecureObjectId.");
 
         var appInfo = await Get(appId);
 
         // Validate SecureObjectTypes for System value in list
         var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
         if (result != null)
-            throw new Exception("The SecureObjectTypeName could not allow System as an input parameter");
+            throw new Exception("The SecureObjectTypeName could not allow System as an input parameter.");
 
         // Prepare system secure object
         var secureObjectDto = await _secureObjectService.BuildSystemEntity(appId, rootSecureObjectId);
@@ -68,17 +69,29 @@ public class AppService
         return appData;
     }
 
-    public async Task<int> Create(AppCreateRequestHandler request)
+    public async Task<int> Create(AppCreateRequest request)
     {
         // Create auth.App
         var app = new AppModel
         {
-            AppName = request.AppName
+            AppName = request.AppName,
+            AuthorizationCode = await _authRepo.NewAuthorizationCode()
         };
 
         await _authRepo.AddEntity(app);
         await _authRepo.SaveChangesAsync();
 
         return app.AppId;
+    }
+
+    public async Task ResetAuthorizationCode(int appId)
+    {
+        // get max token id
+        var maxAuthCode = await _authRepo.NewAuthorizationCode();
+
+        // update AuthorizationCode
+        var app = await _authRepo.GetApp(appId);
+        app.AuthorizationCode = maxAuthCode;
+        await _authRepo.SaveChangesAsync();
     }
 }

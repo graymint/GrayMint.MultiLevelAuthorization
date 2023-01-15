@@ -1,16 +1,15 @@
-﻿using GrayMint.MultiLevelAuthorization.Models;
-using GrayMint.MultiLevelAuthorization.Persistence;
-using GrayMint.MultiLevelAuthorization.Services;
-using GrayMint.MultiLevelAuthorization.Services.Views;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using MultiLevelAuthorization.Models;
+using MultiLevelAuthorization.Persistence;
+using MultiLevelAuthorization.Services.Views;
 
-namespace GrayMint.MultiLevelAuthorization.Repositories;
+namespace MultiLevelAuthorization.Repositories;
 
-public class AuthRepo
+public class AuthRepo3
 {
     private readonly AuthDbContext _authDbContext;
 
-    public AuthRepo(AuthDbContext authDbContext)
+    public AuthRepo3(AuthDbContext authDbContext)
     {
         _authDbContext = authDbContext;
     }
@@ -165,7 +164,6 @@ public class AuthRepo
                      });
 
         var result = await query.ToArrayAsync();
-
         return result;
     }
 
@@ -175,5 +173,44 @@ public class AuthRepo
             .SingleAsync(x => x.AppId == appId && x.SecureObjectTypeExternalId == secureObjectTypeId);
 
         return secureObjectType.SecureObjectTypeId;
+    }
+    public async Task<RoleModel[]> GetRoles(int appId)
+    {
+        return await _authDbContext.Roles
+            .Where(x => x.AppId == appId)
+            .ToArrayAsync();
+    }
+    public async Task<RoleUserModel[]> GetRoleUsers(int appId, Guid roleId)
+    {
+        var roleUserModels = await _authDbContext.RoleUsers
+            .Where(x => x.AppId == appId && x.RoleId == roleId)
+            .ToArrayAsync();
+
+        return roleUserModels;
+    }
+
+    public async Task<RoleView[]> GetUserRoles(int appId, Guid userId)
+    {
+        var query = from roleUser in _authDbContext.RoleUsers
+                    join roles in _authDbContext.Roles
+                        on roleUser.RoleId equals roles.RoleId
+                    where roleUser.AppId == appId && roleUser.UserId == userId
+                    select new RoleView
+                    {
+                        RoleId = roles.RoleId,
+                        RoleName = roles.RoleName
+                    };
+
+        var roleViews = await query.ToArrayAsync();
+        return roleViews;
+    }
+
+    public async Task<int> NewAuthorizationCode()
+    {
+        var result = await _authDbContext.Apps
+            .MaxAsync(x => (int?)x.AuthorizationCode);
+        var maxAuthCode = result ?? 0;
+        maxAuthCode++;
+        return maxAuthCode;
     }
 }

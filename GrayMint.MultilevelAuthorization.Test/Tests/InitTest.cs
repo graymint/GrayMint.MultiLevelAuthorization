@@ -34,9 +34,9 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
-        var controllerPermission = new PermissionController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
+        var controllerPermission = new PermissionController(AppUserHttpClient);
 
         await controllerApp.InitAsync(AppId, new AppInitRequest
         {
@@ -88,8 +88,8 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(HttpClient);
-        var controllerPermission = new PermissionController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerPermission = new PermissionController(AppUserHttpClient);
         await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
@@ -206,8 +206,8 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
         await controllerApp.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
@@ -273,7 +273,7 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
     {
-        var controller = new AppController(HttpClient);
+        var controller = new AppController(AppUserHttpClient);
 
         // Create new SecureObjectType
         var secureObjectTypeName = "System";
@@ -322,7 +322,7 @@ public class InitTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_duplicate_in_db()
     {
-        var controller = new AppController(HttpClient);
+        var controller = new AppController(AppUserHttpClient);
 
         // Create new SecureObjectType
         var secureObjectTypeName = Guid.NewGuid().ToString();
@@ -395,7 +395,7 @@ public class InitTest : BaseControllerTest
         var rootSecureObjectId2 = Guid.NewGuid();
 
         // Call App_Init api
-        var controller = new AppController(HttpClient);
+        var controller = new AppController(AppUserHttpClient);
         await controller.InitAsync(AppId, new AppInitRequest
         {
             RootSecureObjectId = rootSecureObjectId1,
@@ -424,7 +424,6 @@ public class InitTest : BaseControllerTest
                 Assert.Fail();
         }
     }
-
     #region RemarkTests
 
     //[TestMethod]
@@ -477,5 +476,4 @@ public class InitTest : BaseControllerTest
     //}
 
     #endregion
-
 }

@@ -1,77 +1,66 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MultiLevelAuthorization.DTOs;
-using MultiLevelAuthorization.Repositories;
+﻿using GrayMint.Common.AspNetCore.SimpleRoleAuthorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MultiLevelAuthorization.Dtos;
+using MultiLevelAuthorization.Services;
 
 namespace MultiLevelAuthorization.Server.Controllers;
 
+
+[Authorize(SimpleRoleAuth.Policy)]
+[ApiVersion("1")]
 [ApiController]
-[Route("/api/apps")]
+[Route("/api/v{version:apiVersion}/apps/{appId}/secure-objects")]
 
 public class SecureObjectController : Controller
 {
-    private readonly AuthManager _authManager;
+    private readonly SecureObjectService _secureObjectService;
 
-    public SecureObjectController(AuthManager authManager)
+    public SecureObjectController(SecureObjectService secureObjectService)
     {
-        _authManager = authManager;
-    }
-    [HttpGet("{appId}/secureObjectTypes")]
-    public async Task<List<SecureObjectTypeDto>> SecureObjectType_List(string appId)
-    {
-        //todo: check permission
-
-        var result = await _authManager.SecureObjectType_List(appId);
-        List<SecureObjectTypeDto> list = new List<SecureObjectTypeDto>();
-        foreach (var item in result)
-        {
-            list.Add(new SecureObjectTypeDto(item.SecureObjectTypeExternalId, item.SecureObjectTypeName));
-        }
-        return list;
+        _secureObjectService = secureObjectService;
     }
 
-    [HttpGet("{appId}/secureObjects")]
-    public async Task<List<SecureObjectDto>> SecureObject_List(string appId)
+    [HttpGet("secure-object-types")]
+    public async Task<SecureObjectType[]> SecureObjectType_List(int appId)
     {
-        //todo: check permission
+        var secureObjectTypes = await _secureObjectService.GetSecureObjectTypes(appId);
+        return secureObjectTypes;
+    }
 
-        var result = await _authManager.SecureObject_List(appId);
+    [HttpGet("secure-objects")]
+    public async Task<SecureObject[]> GetSecureObjects(int appId)
+    {
+        var secureObjects = await _secureObjectService.GetSecureObjects(appId);
+        return secureObjects;
+    }
+
+    [HttpPost]
+    public async Task<SecureObject> Create(int appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
+    {
+        var result = await _secureObjectService.Create(appId, secureObjectId, secureObjectTypeId, parentSecureObjectId);
         return result;
     }
 
-    [HttpPost("{appId}/secureObject")]
-    public async Task<SecureObjectDto> SecureObject_Create(string appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
-    {
-        //todo: check permission
-
-        var result = await _authManager.SecureObject_Create(appId, secureObjectId, secureObjectTypeId, parentSecureObjectId);
-        return result;
-    }
-
-    [HttpPost("{appId}/secureObject-adduserpermission")]
-    public async Task<IActionResult> SecureObject_AddUserPermission(string appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+    [HttpPost("{secureObjectId}/add-user-permission")]
+    public async Task<IActionResult> SecureObject_AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
         Guid modifiedByUserId)
     {
-        //todo: check permission
-
-        await _authManager.SecureObject_AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
+        await _secureObjectService.AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
         return Ok();
     }
 
-    [HttpPost("{appId}/secureObject-addrolepermission")]
-    public async Task<IActionResult> SecureObject_AddRolePermission(string appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+    [HttpPost("{secureObjectId}/add-role-permission")]
+    public async Task<IActionResult> AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
-        //todo: check permission
-
-        await _authManager.SecureObject_AddRolePermission(appId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
+        await _secureObjectService.AddRolePermission(appId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
         return Ok();
     }
 
-    [HttpGet("{appId}/secureObject-userpermissions")]
-    public async Task<List<PermissionDto>> SecureObject_GetUserPermissions(string appId, Guid secureObjectId, Guid userId)
+    [HttpGet("{secureObjectId}/user-permissions")]
+    public async Task<Permission[]> SecureObject_GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
     {
-        //todo: check permission
-
-        var result = await _authManager.SecureObject_GetUserPermissions(appId, secureObjectId, userId);
-        return result;
+        var userPermissions = await _secureObjectService.GetUserPermissions(appId, secureObjectId, userId);
+        return userPermissions;
     }
 }

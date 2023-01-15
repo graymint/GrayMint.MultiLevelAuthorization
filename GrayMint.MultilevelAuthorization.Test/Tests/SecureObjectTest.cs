@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MultiLevelAuthorization.Test.Apis;
-using MultiLevelAuthorization.Test.Helper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MultiLevelAuthorization.Test.Apis;
+using MultiLevelAuthorization.Test.Helper;
 
 namespace MultiLevelAuthorization.Test.Tests;
 [TestClass]
@@ -14,8 +14,8 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task Init_create_null_parent_for_SecureObject()
     {
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
 
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -62,8 +62,8 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_CRUD_without_ParentSecureObjectId()
     {
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
 
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -117,8 +117,8 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_CRUD_with_ParentSecureObjectId()
     {
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
 
         // Create new types
         var newSecureObjectType1 = new SecureObjectTypeDto() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
@@ -183,9 +183,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_AddRolePermission()
     {
-        var controllerRole = new RoleController(HttpClient);
-        var controllerApp = new AppController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerRole = new RoleController(AppUserHttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
         Guid modifiedByUserId = Guid.NewGuid();
 
         // Create new types
@@ -238,9 +238,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_AddUserPermission()
     {
-        var controllerApp = new AppController(HttpClient);
-        var controllerRole = new RoleController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient); var appDto = new AppDto();
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerRole = new RoleController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient); var appDto = new AppDto();
         Guid modifiedByUserId = Guid.NewGuid();
 
         // Create new types
@@ -293,9 +293,9 @@ public class SecureObjectTest : BaseControllerTest
     [TestMethod]
     public async Task SecureObject_AddPermission()
     {
-        var controllerApp = new AppController(HttpClient);
-        var controllerRole = new RoleController(HttpClient);
-        var controllerSecureObject = new SecureObjectController(HttpClient);
+        var controllerApp = new AppController(AppUserHttpClient);
+        var controllerRole = new RoleController(AppUserHttpClient);
+        var controllerSecureObject = new SecureObjectController(AppUserHttpClient);
         Guid modifiedByUserId = Guid.NewGuid();
 
         // Create new types

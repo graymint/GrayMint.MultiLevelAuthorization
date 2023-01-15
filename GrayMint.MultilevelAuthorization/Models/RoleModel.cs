@@ -1,4 +1,4 @@
-﻿namespace GrayMint.MultiLevelAuthorization.Models;
+﻿namespace MultiLevelAuthorization.Models;
 
 public class RoleModel
 {
@@ -9,6 +9,7 @@ public class RoleModel
     public Guid ModifiedByUserId { get; set; }
     public DateTime CreatedTime { get; set; }
 
+    public virtual AppModel App { get; set; }
     public virtual ICollection<SecureObjectRolePermissionModel>? RolePermissions { get; set; }
     public virtual ICollection<RoleUserModel>? RoleUsers { get; set; }
 

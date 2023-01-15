@@ -1,19 +1,19 @@
-﻿using GrayMint.MultiLevelAuthorization.Models;
-using GrayMint.MultiLevelAuthorization.Persistence;
-using GrayMint.MultiLevelAuthorization.Repositories;
-using System.Security;
-using GrayMint.MultiLevelAuthorization.Dtos;
-using GrayMint.MultiLevelAuthorization.Services.Views;
+﻿using System.Security;
+using MultiLevelAuthorization.DtoConverters;
+using MultiLevelAuthorization.Dtos;
+using MultiLevelAuthorization.Models;
+using MultiLevelAuthorization.Persistence;
+using MultiLevelAuthorization.Repositories;
 
-namespace GrayMint.MultiLevelAuthorization.Services;
+namespace MultiLevelAuthorization.Services;
 
 public class SecureObjectService
 {
-    private readonly AuthRepo _authRepo;
+    private readonly AuthRepo3 _authRepo;
     private readonly PermissionService _permissionService;
 
     public SecureObjectService(
-        AuthRepo authRepo,
+        AuthRepo3 authRepo,
         PermissionService permissionService
         )
     {
@@ -85,13 +85,13 @@ public class SecureObjectService
         return result;
     }
 
-    public async Task<SecureObjectView[]> SecureObject_List(int appId)
+    public async Task<SecureObject[]> GetSecureObjects(int appId)
     {
         var secureObjects = await _authRepo.GetSecureObjects(appId);
-        return secureObjects;
+        return secureObjects.Select(x => x.ToDto()).ToArray();
     }
 
-    public async Task<SecureObjectRolePermissionModel> AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+    public async Task AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         var dbPermissionGroupId = await _permissionService.GetPermissionGroupIdByExternalId(appId, permissionGroupId);
         var dbSecureObjectId = await GetSecureObjectTypeIdByExternalId(appId, secureObjectId);
@@ -108,11 +108,9 @@ public class SecureObjectService
 
         await _authRepo.AddEntity(secureObjectRolePermission);
         await _authRepo.SaveChangesAsync();
-
-        return secureObjectRolePermission;
     }
 
-    public async Task<SecureObjectUserPermissionModel> SecureObject_AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
+    public async Task AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
         Guid modifiedByUserId)
     {
         var dbPermissionGroupId = await _permissionService.GetPermissionGroupIdByExternalId(appId, permissionGroupId);
@@ -129,7 +127,6 @@ public class SecureObjectService
         };
         await _authRepo.AddEntity(secureObjectUserPermission);
         await _authRepo.SaveChangesAsync();
-        return secureObjectUserPermission;
     }
 
     // SqlInjection safe by just id parameter as Guid
@@ -163,10 +160,16 @@ public class SecureObjectService
         return createSql;
     }
 
-    public async Task<bool> SecureObject_HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    public async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
     {
         var permissions = await _authRepo.GetUserPermissions(appId, secureObjectId, userId);
         return permissions.Any(x => x.PermissionId == permissionId);
+    }
+
+    public async Task<Permission[]> GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
+    {
+        var permissions = await _authRepo.GetUserPermissions(appId, secureObjectId, userId);
+        return permissions.Select(x => x.ToDto()).ToArray();
     }
 
     public async Task SecureObject_VerifyUserPermission(int appId, Guid secureObjectId, Guid userId, PermissionModel permissionModel)
@@ -174,7 +177,7 @@ public class SecureObjectService
         if (secureObjectId == Guid.Empty)
             throw new SecurityException($"{nameof(secureObjectId)} can not be empty!");
 
-        if (!await SecureObject_HasUserPermission(appId, secureObjectId, userId, permissionModel.PermissionId))
+        if (!await HasUserPermission(appId, secureObjectId, userId, permissionModel.PermissionId))
             throw new SecurityException($"You need to grant {permissionModel.PermissionName} permission!");
     }
 
@@ -254,9 +257,10 @@ public class SecureObjectService
         }
     }
 
-    public async Task<SecureObjectTypeModel[]> GetSecureObjectTypes(int appId)
+    public async Task<SecureObjectType[]> GetSecureObjectTypes(int appId)
     {
-        return await _authRepo.GetSecureObjectTypes(appId);
+        var secureObjectTypeModels = await _authRepo.GetSecureObjectTypes(appId);
+        return secureObjectTypeModels.Select(x => x.ToDto()).ToArray();
     }
 
     public async Task<int> GetSecureObjectTypeIdByExternalId(int appId, Guid secureObjectTypeId)

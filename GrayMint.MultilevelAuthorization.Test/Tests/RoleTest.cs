@@ -1,11 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiLevelAuthorization.Test.Apis;
 using MultiLevelAuthorization.Test.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiLevelAuthorization.Test.Tests;
 [TestClass]
@@ -16,7 +14,7 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_CRUD()
     {
-        var controller = new RoleController(HttpClient);
+        var controller = new RoleController(AppUserHttpClient);
 
         string roleName = Guid.NewGuid().ToString();
         Guid ownerId = Guid.NewGuid();
@@ -42,7 +40,7 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_AddUser()
     {
-        var controller = new RoleController(HttpClient);
+        var controller = new RoleController(AppUserHttpClient);
 
         //Prepare conditions
         string roleName = Guid.NewGuid().ToString();

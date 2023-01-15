@@ -1,4 +1,4 @@
-﻿namespace GrayMint.MultiLevelAuthorization.Models;
+﻿namespace MultiLevelAuthorization.Models;
 
 public class PermissionGroupPermissionModel
 {

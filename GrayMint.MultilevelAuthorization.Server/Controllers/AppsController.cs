@@ -27,6 +27,7 @@ public class AppsController : Controller
         _botAuthenticationTokenBuilder = botAuthenticationTokenBuilder;
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost("{appId:int}/init")]
     public async Task<App> Init(int appId, AppInitRequest request)
     {
@@ -43,6 +44,7 @@ public class AppsController : Controller
         return CreatedAtAction(nameof(Get), new { app.AppId }, app);
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpGet("{appId:int}")]
     public async Task<App> Get(int appId)
     {

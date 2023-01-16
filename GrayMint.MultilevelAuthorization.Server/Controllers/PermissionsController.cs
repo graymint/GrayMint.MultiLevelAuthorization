@@ -18,6 +18,7 @@ public class PermissionsController : Controller
         _permissionService = permissionService;
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpGet("permission-groups")]
     public async Task<PermissionGroup[]> GetPermissionGroups(int appId)
     {

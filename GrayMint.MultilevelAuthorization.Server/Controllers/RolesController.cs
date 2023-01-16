@@ -19,6 +19,7 @@ public class RolesController : Controller
         _roleService = roleService;
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost]
     public async Task<Role> Create(int appId, string roleName, Guid ownerId, Guid modifiedByUserId)
     {
@@ -26,6 +27,7 @@ public class RolesController : Controller
         return result;
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost("{roleId:guid}/add-user")]
     public async Task<IActionResult> AddUserToRole(int appId, Guid roleId, Guid userId, Guid modifiedByUserId)
     {
@@ -33,6 +35,7 @@ public class RolesController : Controller
         return Ok();
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpGet]
     public async Task<Role[]> GetRoles(int appId)
     {
@@ -40,6 +43,7 @@ public class RolesController : Controller
         return roles;
     }
 
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpGet("users")]
     public async Task<User[]> GetRoleUsers(int appId, Guid roleId)
     {

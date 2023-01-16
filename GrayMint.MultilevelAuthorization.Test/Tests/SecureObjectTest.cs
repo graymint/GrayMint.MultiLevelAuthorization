@@ -31,7 +31,6 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         var appDto = await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -76,7 +75,6 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         var appDto = await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -90,14 +88,14 @@ public class SecureObjectTest : BaseControllerTest
         });
 
         // Prepare parameters
-        Guid secureObjectId = Guid.NewGuid();
+        var secureObjectId = Guid.NewGuid();
 
         //----------------------
         // check : Successfully create new SecureObject without ParentSecureObjectId
         //----------------------
 
         // Call api to create SecureObject
-        await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId, null);
+        await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, secureObjectId, newSecureObjectType1.SecureObjectTypeId);
 
         // Call api to get info based on created SecureObject
         var result = await TestInit1.SecuresObjectClient.GetSecureObjectsAsync(TestInit1.AppId);
@@ -190,7 +188,6 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Create a new Role
         var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, "test", Guid.NewGuid(), Guid.NewGuid());

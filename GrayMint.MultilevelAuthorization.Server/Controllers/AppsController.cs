@@ -27,7 +27,7 @@ public class AppsController : Controller
         _botAuthenticationTokenBuilder = botAuthenticationTokenBuilder;
     }
 
-    [HttpPost("{appId}/init")]
+    [HttpPost("{appId:int}/init")]
     public async Task<App> Init(int appId, AppInitRequest request)
     {
         var result = await _appService.InitApp(appId, request.RootSecureObjectId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
@@ -51,7 +51,7 @@ public class AppsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = $"{Roles.AppCreator},{Roles.AppUser}")]
-    [HttpGet("{appId}/authorization-token")]
+    [HttpGet("{appId:int}/authorization-token")]
     [Produces(MediaTypeNames.Application.Json)]
     public async Task<string> GetAuthorizationToken(int appId)
     {
@@ -64,7 +64,7 @@ public class AppsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = $"{Roles.AppCreator},{Roles.AppUser}")]
-    [HttpPost("{appId}/reset-authorization-token")]
+    [HttpPost("{appId:int}/reset-authorization-token")]
     public async Task<string> ResetAuthorizationToken(int appId)
     {
         // todo warning: it does not work because the GrayMint check by their Cache and need to read directly from database

@@ -9,11 +9,11 @@ namespace MultiLevelAuthorization.Services;
 
 public class SecureObjectService
 {
-    private readonly AuthRepo3 _authRepo;
+    private readonly AuthRepo _authRepo;
     private readonly PermissionService _permissionService;
 
     public SecureObjectService(
-        AuthRepo3 authRepo,
+        AuthRepo authRepo,
         PermissionService permissionService
         )
     {
@@ -30,7 +30,7 @@ public class SecureObjectService
         if (parentSecureObjectId == null)
         {
             // Make sure system secure object has been created
-            var systemSecureObject = await _authRepo.GetRootSecureObject(appId);
+            var systemSecureObject = await _authRepo.FindRootSecureObject(appId);
 
             if (systemSecureObject == null)
                 throw new Exception("SystemSecureObject does not have valid value");
@@ -62,7 +62,7 @@ public class SecureObjectService
             SecureObjectTypeId = secureObjectTypeId,
             ParentSecureObjectId = parentSecureObjectId
         };
-        
+
         return secureObject;
     }
 
@@ -75,12 +75,12 @@ public class SecureObjectService
     public async Task AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         var dbPermissionGroupId = await _permissionService.GetPermissionGroupIdByExternalId(appId, permissionGroupId);
-        var dbSecureObjectId = await GetSecureObjectTypeIdByExternalId(appId, secureObjectId);
+        var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectId);
 
         var secureObjectRolePermission = new SecureObjectRolePermissionModel
         {
             AppId = appId,
-            SecureObjectId = dbSecureObjectId,
+            SecureObjectId = secureObject.SecureObjectId,
             RoleId = roleId,
             PermissionGroupId = dbPermissionGroupId,
             CreatedTime = DateTime.UtcNow,
@@ -91,16 +91,15 @@ public class SecureObjectService
         await _authRepo.SaveChangesAsync();
     }
 
-    public async Task AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
-        Guid modifiedByUserId)
+    public async Task AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         var dbPermissionGroupId = await _permissionService.GetPermissionGroupIdByExternalId(appId, permissionGroupId);
-        var dbSecureObjectId = await GetSecureObjectTypeIdByExternalId(appId, secureObjectId);
+        var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectId);
 
         var secureObjectUserPermission = new SecureObjectUserPermissionModel
         {
             AppId = appId,
-            SecureObjectId = dbSecureObjectId,
+            SecureObjectId = secureObject.SecureObjectId,
             UserId = userId,
             PermissionGroupId = dbPermissionGroupId,
             CreatedTime = DateTime.UtcNow,
@@ -164,7 +163,7 @@ public class SecureObjectService
 
     public async Task<SecureObject> BuildSystemEntity(int appId, Guid rootSecureObjectId)
     {
-        var systemSecureObject = await _authRepo.GetRootSecureObject(appId);
+        var systemSecureObject = await _authRepo.FindRootSecureObject(appId);
         var rootSecureObjectTypeId = Guid.NewGuid();
 
         if (systemSecureObject == null)
@@ -177,16 +176,16 @@ public class SecureObjectService
             };
             await _authRepo.AddEntity(secureObjectType);
             await _authRepo.SaveChangesAsync();
-            var secureObjectTypeId = secureObjectType.SecureObjectTypeId;
 
             var secureObject = new SecureObjectModel
             {
                 AppId = appId,
                 SecureObjectExternalId = rootSecureObjectId,
-                SecureObjectTypeId = secureObjectTypeId,
+                SecureObjectTypeId = secureObjectType.SecureObjectTypeId,
                 ParentSecureObjectId = null
             };
             await _authRepo.AddEntity(secureObject);
+            await _authRepo.SaveChangesAsync();
         }
         else
         {

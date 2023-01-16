@@ -7,9 +7,9 @@ namespace MultiLevelAuthorization.Services;
 
 public class PermissionService
 {
-    private readonly AuthRepo3 _authRepo;
+    private readonly AuthRepo _authRepo;
 
-    public PermissionService(AuthRepo3 authRepo)
+    public PermissionService(AuthRepo authRepo)
     {
         _authRepo = authRepo;
     }
@@ -52,7 +52,9 @@ public class PermissionService
 
         // delete
         var deleteValues = dbValues.Where(x => obValues.All(c => x.AppId == appId && x.PermissionId != c.PermissionId));
-        _authRepo.RemoveEntities(deleteValues);
+        var permissionModels = deleteValues as PermissionModel[] ?? deleteValues.ToArray();
+        if (permissionModels.Any())
+            _authRepo.RemoveEntities(permissionModels);
 
         // update
         foreach (var dbValue in dbValues)
@@ -90,7 +92,6 @@ public class PermissionService
                 PermissionGroupName = obValue.PermissionGroupName
             };
             await _authRepo.AddEntity(permissionGroup);
-            await _authRepo.SaveChangesAsync();
 
             UpdatePermissionGroupPermissions(permissionGroup.PermissionGroupPermissions,
                 obValue.Permissions.Select(x => new PermissionGroupPermissionModel { AppId = appId, PermissionGroupId = permissionGroup.PermissionGroupId, PermissionId = x.PermissionId }).ToArray());
@@ -120,7 +121,5 @@ public class PermissionService
 
             dbValue.PermissionGroupName = obValue.PermissionGroupName;
         }
-
-        await _authRepo.SaveChangesAsync();
     }
 }

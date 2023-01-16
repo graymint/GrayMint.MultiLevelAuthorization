@@ -28,7 +28,7 @@ public class Program
         builder.Services.AddScoped<SecureObjectService>();
         builder.Services.AddScoped<PermissionService>();
         builder.Services.AddScoped<UserService>();
-        builder.Services.AddScoped<AuthRepo3>();
+        builder.Services.AddScoped<AuthRepo>();
         builder.Services.AddScoped<ISimpleRoleProvider, SimpleRoleProvider>();
         builder.Services.AddSimpleRoleAuthorization(builder.Configuration.GetSection("Auth"), true, false);
 

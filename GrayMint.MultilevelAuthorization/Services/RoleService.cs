@@ -7,9 +7,9 @@ namespace MultiLevelAuthorization.Services;
 
 public class RoleService
 {
-    private readonly AuthRepo3 _authRepo;
+    private readonly AuthRepo _authRepo;
 
-    public RoleService(AuthRepo3 authRepo)
+    public RoleService(AuthRepo authRepo)
     {
         _authRepo = authRepo;
     }

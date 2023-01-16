@@ -7,12 +7,12 @@ namespace MultiLevelAuthorization.Services;
 
 public class AppService
 {
-    private readonly AuthRepo3 _authRepo;
+    private readonly AuthRepo _authRepo;
     private readonly SecureObjectService _secureObjectService;
     private readonly PermissionService _permissionService;
 
     public AppService(
-        AuthRepo3 authRepo,
+        AuthRepo authRepo,
         SecureObjectService secureObjectService,
         PermissionService permissionService
         )
@@ -30,9 +30,6 @@ public class AppService
 
     public async Task<App> InitApp(int appId, Guid rootSecureObjectId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
-        if (rootSecureObjectId == Guid.Empty)
-            throw new InvalidOperationException("Can not set default guid for rootSecureObjectId.");
-
         var appInfo = await Get(appId);
 
         // Validate SecureObjectTypes for System value in list
@@ -42,7 +39,6 @@ public class AppService
 
         // Prepare system secure object
         var secureObjectDto = await _secureObjectService.BuildSystemEntity(appId, rootSecureObjectId);
-        //SecureObjectDto secureObjectDto = new SecureObjectDto(secureObject.SecureObjectId, secureObject.SecureObjectTypeId, secureObject.ParentSecureObjectId);
 
         // Prepare SecureObjectTypes to add System to passed list
         var secureObjectType = new SecureObjectType

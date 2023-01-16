@@ -228,7 +228,7 @@ public class SecureObjectTest : BaseControllerTest
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
-        string permissionName1 = Guid.NewGuid().ToString();
+        var permissionName1 = Guid.NewGuid().ToString();
         var newPermission = new Permission { PermissionId = Permissions.All.Max(x => x.PermissionId) + 1, PermissionName = permissionName1 };
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
@@ -241,7 +241,6 @@ public class SecureObjectTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Create a new Role
         var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, "test", Guid.NewGuid(), Guid.NewGuid());
@@ -263,7 +262,6 @@ public class SecureObjectTest : BaseControllerTest
         await TestInit1.SecuresObjectClient.AddUserPermissionAsync(TestInit1.AppId, app.SystemSecureObjectId, userId1, newPermissionGroup1.PermissionGroupId, modifiedByUserId);
 
         // assert permissionName
-        await TestInit1.SecuresObjectClient.AddUserPermissionAsync(TestInit1.AppId, app.SystemSecureObjectId, userId1);
         var result =
             await TestInit1.SecuresObjectClient.GetUserPermissionsAsync(TestInit1.AppId, app.SystemSecureObjectId, userId1);
         Assert.IsNotNull(result.SingleOrDefault(x => x.PermissionName == permissionName1));
@@ -290,17 +288,9 @@ public class SecureObjectTest : BaseControllerTest
             PermissionGroupName = Guid.NewGuid().ToString(),
             Permissions = new List<Permission> { newPermission }
         };
-        // Create second permissionGroup
-        var newPermissionGroup2 = new PermissionGroup()
-        {
-            PermissionGroupId = Guid.NewGuid(),
-            PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
-        };
 
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Create a new Role
         var roleName = Guid.NewGuid().ToString();
@@ -329,6 +319,6 @@ public class SecureObjectTest : BaseControllerTest
         // assert
         var result = await TestInit1.SecuresObjectClient.GetUserPermissionsAsync(TestInit1.AppId, appDto.SystemSecureObjectId, userId1);
         Assert.IsNotNull(result.SingleOrDefault(x => x.PermissionName == permissionName1));
-        Assert.AreEqual(1, 2);
+        Assert.AreEqual(1, result.Count);
     }
 }

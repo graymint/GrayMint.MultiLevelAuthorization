@@ -5,11 +5,11 @@ using MultiLevelAuthorization.Services.Views;
 
 namespace MultiLevelAuthorization.Repositories;
 
-public class AuthRepo3
+public class AuthRepo
 {
     private readonly AuthDbContext _authDbContext;
 
-    public AuthRepo3(AuthDbContext authDbContext)
+    public AuthRepo(AuthDbContext authDbContext)
     {
         _authDbContext = authDbContext;
     }
@@ -23,15 +23,14 @@ public class AuthRepo3
     {
         await _authDbContext.Database.ExecuteSqlRawAsync(query);
     }
-
     public async Task AddEntity<TEntity>(TEntity entity) where TEntity : class
     {
         await _authDbContext.Set<TEntity>().AddAsync(entity);
     }
 
-    public void RemoveEntities<TEntity>(TEntity entity) where TEntity : class
+    public void RemoveEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
     {
-        _authDbContext.Set<TEntity>().RemoveRange(entity);
+        _authDbContext.Set<TEntity>().RemoveRange(entities);
     }
 
     public void RemoveEntity<TEntity>(TEntity entity) where TEntity : class
@@ -88,10 +87,10 @@ public class AuthRepo3
         return secureObject;
     }
 
-    public async Task<SecureObjectModel?> GetRootSecureObject(int appId)
+    public async Task<SecureObjectModel?> FindRootSecureObject(int appId)
     {
         var secureObject = await _authDbContext.SecureObjects
-            .SingleAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
+            .SingleOrDefaultAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
 
         return secureObject;
     }

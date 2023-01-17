@@ -95,11 +95,10 @@ public class AuthRepo
         return secureObject;
     }
 
-    public async Task<PermissionModel[]> GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
+    public async Task<PermissionModel[]> GetUserPermissions(int appId, int secureObjectId, Guid userId)
     {
-        var dbSecureObject = await GetSecureObjectByExternalId(appId, secureObjectId);
         var query1 =
-        from secureObject in _authDbContext.SecureObjectHierarchy(dbSecureObject.SecureObjectId)
+        from secureObject in _authDbContext.SecureObjectHierarchy(secureObjectId)
         join rolePermission in _authDbContext.SecureObjectRolePermissions on secureObject.SecureObjectId equals rolePermission.SecureObjectId
         join permissionGroupPermission in _authDbContext.PermissionGroupPermissions on rolePermission.PermissionGroupId equals permissionGroupPermission.PermissionGroupId
         join role in _authDbContext.Roles on rolePermission.RoleId equals role.RoleId
@@ -108,7 +107,7 @@ public class AuthRepo
         select permissionGroupPermission.Permission;
 
         var query2 =
-        from secureObject in _authDbContext.SecureObjectHierarchy(dbSecureObject.SecureObjectId)
+        from secureObject in _authDbContext.SecureObjectHierarchy(secureObjectId)
         join secureObjectType in _authDbContext.SecureObjectTypes on secureObject.SecureObjectTypeId equals secureObjectType.SecureObjectTypeId
         join userPermission in _authDbContext.SecureObjectUserPermissions on secureObject.SecureObjectId equals userPermission.SecureObjectId
         join permissionGroupPermission in _authDbContext.PermissionGroupPermissions on userPermission.PermissionGroupId equals permissionGroupPermission.PermissionGroupId
@@ -143,6 +142,22 @@ public class AuthRepo
             .SingleAsync(x => x.SecureObjectTypeId == secureObjectTypeId);
     }
 
+    public async Task<SecureObjectView> GetSecureObjectByExternalId(Guid secureObjectId)
+    {
+        return await _authDbContext.SecureObjects
+            .Where(x => x.SecureObjectExternalId == secureObjectId)
+            .Include(x => x.ParentSecureObject)
+            .Include(x => x.SecureObjectType)
+            .Select(x => new SecureObjectView
+            {
+                SecureObjectExternalId = x.SecureObjectExternalId,
+                ParentSecureObjectExternalId = x.ParentSecureObject!.SecureObjectExternalId,
+                SecureObjectTypeId = x.SecureObjectType!.SecureObjectTypeExternalId
+
+            })
+            .SingleAsync();
+    }
+
     public async Task<SecureObjectView[]> GetSecureObjects(int appId)
     {
         var query = (from secureObjects in _authDbContext.SecureObjects
@@ -157,9 +172,9 @@ public class AuthRepo
                      where secureObjects.AppId == appId
                      select new SecureObjectView
                      {
-                         SecureObjectId = secureObjects.SecureObjectExternalId,
+                         SecureObjectExternalId = secureObjects.SecureObjectExternalId,
                          SecureObjectTypeId = sot.SecureObjectTypeExternalId,
-                         ParentSecureObjectId = pso.SecureObjectExternalId
+                         ParentSecureObjectExternalId = pso.SecureObjectExternalId
                      });
 
         var result = await query.ToArrayAsync();

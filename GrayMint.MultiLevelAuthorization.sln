@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthoriz
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrayMint.MultiLevelAuthorization.Server", "GrayMint.MultiLevelAuthorization.Server\GrayMint.MultiLevelAuthorization.Server.csproj", "{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateToken", "GenerateToken\GenerateToken.csproj", "{C8212B7D-A8EA-4FAA-A76A-1D4186598920}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{445AE9C9-C308-4AC8-B8F6-1E97EC60FAAD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8212B7D-A8EA-4FAA-A76A-1D4186598920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8212B7D-A8EA-4FAA-A76A-1D4186598920}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8212B7D-A8EA-4FAA-A76A-1D4186598920}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8212B7D-A8EA-4FAA-A76A-1D4186598920}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,7 @@ public class SecureObjectModel
     public int? ParentSecureObjectId { get; set; }
     public Guid SecureObjectExternalId { get; set; }
 
+    public virtual SecureObjectModel? ParentSecureObject { get; set; }
     public virtual SecureObjectTypeModel? SecureObjectType { get; set; }
     public virtual ICollection<SecureObjectRolePermissionModel>? RolePermissions { get; set; }
     public virtual ICollection<SecureObjectUserPermissionModel>? UserPermissions { get; set; }

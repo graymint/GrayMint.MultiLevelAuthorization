@@ -30,8 +30,6 @@ public class AppService
 
     public async Task<App> InitApp(int appId, Guid rootSecureObjectId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
-        var appInfo = await Get(appId);
-
         // Validate SecureObjectTypes for System value in list
         var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
         if (result != null)
@@ -57,6 +55,7 @@ public class AppService
         await _authRepo.ExecuteSqlRawAsync(_secureObjectService.SecureObject_HierarchySql());
         await _authRepo.SaveChangesAsync();
 
+        var appInfo = await Get(appId);
         var appData = new App
         {
             AppId = appId,

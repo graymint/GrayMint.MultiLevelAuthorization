@@ -1,4 +1,5 @@
-﻿using MultiLevelAuthorization.Dtos;
+﻿using MultiLevelAuthorization.DtoConverters;
+using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Repositories;
 
 namespace MultiLevelAuthorization.Services;
@@ -16,13 +17,7 @@ public class UserService
         var roleViews = await _authRepo.GetUserRoles(appId, userId);
 
         var roles = roleViews
-            .Select(x => new Role
-            {
-                RoleId = x.RoleId,
-                RoleName = x.RoleName,
-                ModifiedByUserId = x.ModifiedByUserId,
-                OwnerId = x.OwnerId
-            })
+            .Select(x => x.ToDto())
             .ToArray();
 
         return roles;

@@ -20,8 +20,8 @@ public class TestInit
     public WebApplicationFactory<Program> WebApp { get; set; }
     public HttpClient HttpClientAppUser { get; set; }
     public HttpClient HttpClientAppCreator { get; set; }
-    protected AuthenticationHeaderValue AppCreatorAuthorization { get; private set; } = default!;
-    public AppsClient AppsClient => new(HttpClientAppCreator);
+    public AppsClient AppsClient => new(HttpClientAppUser);
+    public AppsClient AppsClientCreator => new(HttpClientAppCreator);
     public UsersClient UsersClient => new(HttpClientAppUser);
     public PermissionsClient PermissionsClient => new(HttpClientAppUser);
     public SecureObjectsClient SecuresObjectClient => new(HttpClientAppUser);
@@ -75,7 +75,7 @@ public class TestInit
         AppId = app.AppId;
 
         // attach its token
-        var token = await AppsClient.GetAuthorizationTokenAsync(AppId);
+        var token = await AppsClientCreator.GetAuthorizationTokenAsync(AppId);
         AuthorizationAppUser = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         HttpClientAppUser.DefaultRequestHeaders.Authorization = AuthorizationAppUser;
     }

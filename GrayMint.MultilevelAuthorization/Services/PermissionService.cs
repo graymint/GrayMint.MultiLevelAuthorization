@@ -30,8 +30,7 @@ public class PermissionService
     private async Task RemovePermissionGroupPermission(int appId, int permissionGroupId)
     {
         // Get list PermissionGroupPermissions
-        var permissionGroupPermissions =
-            await _authRepo.GetPermissionGroupPermissionsByPermissionGroup(appId, permissionGroupId);
+        var permissionGroupPermissions = await _authRepo.GetPermissionGroupPermissionsByPermissionGroup(appId, permissionGroupId);
 
         // Remove
         _authRepo.RemoveEntities(permissionGroupPermissions);
@@ -65,7 +64,7 @@ public class PermissionService
         }
     }
 
-    private void UpdatePermissionGroupPermissions(ICollection<PermissionGroupPermissionModel> dbValues, PermissionGroupPermissionModel[] obValues)
+    private static void UpdatePermissionGroupPermissions(ICollection<PermissionGroupPermissionModel> dbValues, PermissionGroupPermissionModel[] obValues)
     {
         // add
         foreach (var obValue in obValues.

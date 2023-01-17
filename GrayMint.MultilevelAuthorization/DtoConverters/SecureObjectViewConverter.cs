@@ -10,8 +10,8 @@ public static class SecureObjectViewConverter
         return new SecureObject
         {
             SecureObjectTypeId = view.SecureObjectTypeId,
-            ParentSecureObjectId = view.ParentSecureObjectId,
-            SecureObjectId = view.SecureObjectId
+            ParentSecureObjectId = view.ParentSecureObjectExternalId,
+            SecureObjectId = view.SecureObjectExternalId
         };
     }
 }

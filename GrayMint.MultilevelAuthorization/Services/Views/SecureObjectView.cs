@@ -2,7 +2,7 @@
 
 public class SecureObjectView
 {
-    public Guid SecureObjectId { get; set; }
+    public Guid SecureObjectExternalId { get; set; }
     public Guid SecureObjectTypeId { get; set; }
-    public Guid? ParentSecureObjectId { get; set; }
+    public Guid? ParentSecureObjectExternalId { get; set; }
 }

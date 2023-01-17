@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using GrayMint.Common.Client;
 using GrayMint.Common.Exceptions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
@@ -34,13 +33,12 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
 
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId =    rootSecureObjectId1,
+            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -52,7 +50,7 @@ public class InitTest : BaseControllerTest
         //-----------
         var actualTypes = await TestInit1.SecuresObjectClient.GetSecureObjectTypesAsync(TestInit1.AppId);
 
-        Assert.AreEqual(4, actualTypes.Count(), "Validate count of output");
+        Assert.AreEqual(4, actualTypes.Count, "Validate count of output");
 
         //Validate created record ( Systematic and manually by api)
         Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeId == newSecureObjectType1.SecureObjectTypeId && x.SecureObjectTypeName == newSecureObjectType1.SecureObjectTypeName));
@@ -85,7 +83,6 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -200,7 +197,6 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -263,8 +259,6 @@ public class InitTest : BaseControllerTest
         Assert.AreEqual(5, actualSecureObjectTypes.Count);
     }
 
-    //todo PermissionGroupPermissions_CRUD()
-
     [TestMethod]
     public async Task SecureObjectType_invalid_operation_exception_is_expected_when_name_is_System_in_list()
     {
@@ -286,13 +280,10 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
-            
+
         //-----------------------
         //check : Invalid operation exception is expected when "System" passed as SecureObjectTypeName
         //-----------------------
-
-            // Call App_Init api
         try
         {
             await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -338,8 +329,6 @@ public class InitTest : BaseControllerTest
         //-----------------------
         //check : Invalid operation exception is expected when passed a duplicate name as SecureObjectTypeName
         //-----------------------
-
-        // Call App_Init api
         try
         {
             await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
@@ -379,7 +368,6 @@ public class InitTest : BaseControllerTest
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
         var rootSecureObjectId1 = Guid.NewGuid();
-        var rootSecureObjectTypeId1 = Guid.NewGuid();
 
         var rootSecureObjectId2 = Guid.NewGuid();
 
@@ -406,10 +394,10 @@ public class InitTest : BaseControllerTest
             });
             Assert.Fail("invalid operation is expected when RootSecureObjectId is different");
         }
-        catch (Exception ex)
+        catch (ApiException ex)
         {
-            if (!ex.Message.Contains("In this app, RootSecureObjectId is incompatible with saved data."))
-                Assert.Fail();
+            Assert.IsTrue(ex.Is<InvalidOperationException>());
+            if (!ex.Message.Contains("Wrong RootSecureObjectId.")) Assert.Fail();
         }
     }
 }

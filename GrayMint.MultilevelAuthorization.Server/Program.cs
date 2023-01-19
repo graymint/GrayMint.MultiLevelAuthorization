@@ -36,6 +36,13 @@ public class Program
         webApp.UseGrayMintCommonServices(new UseServicesOptions());
         await GrayMintApp.CheckDatabaseCommand<AuthDbContext>(webApp, args);
 
+        // Initialize db
+        await using (var scope = webApp.Services.CreateAsyncScope())
+        {
+            var authRepo = scope.ServiceProvider.GetRequiredService<AuthRepo>();
+            await authRepo.Init();
+        }
+
         await GrayMintApp.RunAsync(webApp, args);
     }
 }

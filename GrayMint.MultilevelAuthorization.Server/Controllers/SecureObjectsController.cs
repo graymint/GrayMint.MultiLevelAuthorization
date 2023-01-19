@@ -22,14 +22,6 @@ public class SecureObjectsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("secure-objects")]
-    public async Task<SecureObject[]> GetSecureObjects(int appId)
-    {
-        var secureObjects = await _secureObjectService.GetSecureObjects(appId);
-        return secureObjects;
-    }
-
-    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost]
     public async Task<SecureObject> Create(int appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
     {
@@ -63,9 +55,10 @@ public class SecureObjectsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("{secureObjectId:guid}/verify-user-permission")]
-    public async Task VerifyUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    [HttpGet("{secureObjectId:guid}/has-user-permission")]
+    public async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
     {
-        await _secureObjectService.VerifyUserPermission(appId, secureObjectId, userId, permissionId);
+        var hasPermission = await _secureObjectService.HasUserPermission(appId, secureObjectId, userId, permissionId);
+        return hasPermission;
     }
 }

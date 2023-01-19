@@ -52,7 +52,6 @@ public class AppService
         await _permissionService.UpdatePermissionGroups(appId, permissionGroups, removeOtherPermissionGroups);
 
         // Table function
-        await _authRepo.ExecuteSqlRawAsync(_secureObjectService.SecureObject_HierarchySql());
         await _authRepo.SaveChangesAsync();
 
         var appInfo = await Get(appId);

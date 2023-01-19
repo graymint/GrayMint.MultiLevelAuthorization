@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Persistence;
 using MultiLevelAuthorization.Services.Views;
@@ -19,10 +20,6 @@ public class AuthRepo
         await _authDbContext.SaveChangesAsync();
     }
 
-    public async Task ExecuteSqlRawAsync(string query)
-    {
-        await _authDbContext.Database.ExecuteSqlRawAsync(query);
-    }
     public async Task AddEntity<TEntity>(TEntity entity) where TEntity : class
     {
         await _authDbContext.Set<TEntity>().AddAsync(entity);
@@ -69,7 +66,7 @@ public class AuthRepo
             .ToArrayAsync();
     }
 
-    public async Task<PermissionGroupPermissionModel[]> GetPermissionGroupPermissionsByPermissionGroup(int appId, int permissionGroupId)
+    public async Task<PermissionGroupPermissionModel[]> GetPermissionGroupPermissionsByPermissionGroupId(int appId, int permissionGroupId)
     {
         // Get list PermissionGroupPermissions based on App and PermissionGroup
         var permissionGroupPermissions = await _authDbContext.PermissionGroupPermissions
@@ -216,12 +213,48 @@ public class AuthRepo
         return roleViews;
     }
 
-    public async Task<int> NewAuthorizationCode()
+    public async Task<int> GetNewAuthorizationCode()
     {
         var result = await _authDbContext.Apps
             .MaxAsync(x => (int?)x.AuthorizationCode);
         var maxAuthCode = result ?? 0;
         maxAuthCode++;
         return maxAuthCode;
+    }
+
+    public async Task Init()
+    {
+        await _authDbContext.Database.ExecuteSqlRawAsync(SecureObject_HierarchySql());
+    }
+
+    // SqlInjection safe by just id parameter as Guid
+    private static string SecureObject_HierarchySql()
+    {
+        const string secureObjects = $"{AuthDbContext.Schema}.{nameof(AuthDbContext.SecureObjects)}";
+        const string secureObjectId = $"{nameof(SecureObjectModel.SecureObjectId)}";
+        const string parentSecureObjectId = $"{nameof(SecureObjectModel.ParentSecureObjectId)}";
+
+        var sql = @$"
+					WITH SecureObjectParents
+					AS (SELECT SO.*
+						FROM {secureObjects} AS SO
+						WHERE SO.{secureObjectId} = @id
+						UNION ALL
+						SELECT SO.*
+						FROM {secureObjects} AS SO
+							INNER JOIN SecureObjectParents AS PSO
+								ON SO.{secureObjectId} = PSO.{parentSecureObjectId}
+					   )
+					SELECT SOP.*
+					FROM SecureObjectParents AS SOP
+					UNION
+					SELECT * FROM {secureObjects} AS SO
+					WHERE SO.{secureObjectId} = @id
+					".Replace("                    ", "    ");
+
+        var createSql =
+            $"CREATE OR ALTER FUNCTION [{AuthDbContext.Schema}].[{nameof(AuthDbContext.SecureObjectHierarchy)}](@id int)\r\nRETURNS TABLE\r\nAS\r\nRETURN\r\n({sql})";
+
+        return createSql;
     }
 }

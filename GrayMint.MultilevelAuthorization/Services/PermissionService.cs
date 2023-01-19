@@ -21,7 +21,7 @@ public class PermissionService
     private async Task RemovePermissionGroupPermission(int appId, int permissionGroupId)
     {
         // Get list PermissionGroupPermissions
-        var permissionGroupPermissions = await _authRepo.GetPermissionGroupPermissionsByPermissionGroup(appId, permissionGroupId);
+        var permissionGroupPermissions = await _authRepo.GetPermissionGroupPermissionsByPermissionGroupId(appId, permissionGroupId);
 
         // Remove
         _authRepo.RemoveEntities(permissionGroupPermissions);

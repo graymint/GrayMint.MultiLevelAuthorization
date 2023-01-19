@@ -2,7 +2,6 @@
 using MultiLevelAuthorization.DtoConverters;
 using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Models;
-using MultiLevelAuthorization.Persistence;
 using MultiLevelAuthorization.Repositories;
 
 namespace MultiLevelAuthorization.Services;
@@ -25,23 +24,8 @@ public class SecureObjectService
     {
         var dbSecureObjectTypeId = await _authRepo.GetSecureObjectTypeIdByExternalId(appId, secureObjectTypeId);
 
-        // Try to get parentSecureObjectId
-        int dbParentSecureObjectId;
-        if (parentSecureObjectId == null)
-        {
-            // Make sure system secure object has been created
-            var systemSecureObject = await _authRepo.FindRootSecureObject(appId);
-            ArgumentNullException.ThrowIfNull(systemSecureObject);
-
-            // Set parentSecureObjectId
-            dbParentSecureObjectId = systemSecureObject.SecureObjectId;
-            parentSecureObjectId = systemSecureObject.SecureObjectExternalId;
-        }
-        else
-        {
-            var retSecureObject = await _authRepo.GetSecureObjectByExternalId(appId, (Guid)parentSecureObjectId);
-            dbParentSecureObjectId = retSecureObject.SecureObjectId;
-        }
+        // Try to get parentSecureObject
+        var parentSecureObject = await GetSecureObjectByExternalId(appId, parentSecureObjectId);
 
         // Prepare SecureObject
         var secureObjectModel = new SecureObjectModel
@@ -49,7 +33,7 @@ public class SecureObjectService
             AppId = appId,
             SecureObjectExternalId = secureObjectId,
             SecureObjectTypeId = dbSecureObjectTypeId,
-            ParentSecureObjectId = dbParentSecureObjectId
+            ParentSecureObjectId = parentSecureObject.SecureObjectId
         };
         await _authRepo.AddEntity(secureObjectModel);
         await _authRepo.SaveChangesAsync();
@@ -64,10 +48,13 @@ public class SecureObjectService
         return secureObject;
     }
 
-    public async Task<SecureObject[]> GetSecureObjects(int appId)
+    private async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, Guid? parentSecureObjectId)
     {
-        var secureObjects = await _authRepo.GetSecureObjects(appId);
-        return secureObjects.Select(x => x.ToDto()).ToArray();
+        var secureObject = parentSecureObjectId != null
+            ? await _authRepo.GetSecureObjectByExternalId(appId, (Guid)parentSecureObjectId)
+            : await GetRootSecureObject(appId);
+
+        return secureObject;
     }
 
     public async Task AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
@@ -109,38 +96,7 @@ public class SecureObjectService
         await _authRepo.SaveChangesAsync();
     }
 
-    // SqlInjection safe by just id parameter as Guid
-    public string SecureObject_HierarchySql()
-    {
-        const string secureObjects = $"{AuthDbContext.Schema}.{nameof(AuthDbContext.SecureObjects)}";
-        const string secureObjectId = $"{nameof(SecureObjectModel.SecureObjectId)}";
-        const string parentSecureObjectId = $"{nameof(SecureObjectModel.ParentSecureObjectId)}";
-
-        var sql = @$"
-					WITH SecureObjectParents
-					AS (SELECT SO.*
-						FROM {secureObjects} AS SO
-						WHERE SO.{secureObjectId} = @id
-						UNION ALL
-						SELECT SO.*
-						FROM {secureObjects} AS SO
-							INNER JOIN SecureObjectParents AS PSO
-								ON SO.{secureObjectId} = PSO.{parentSecureObjectId}
-					   )
-					SELECT SOP.*
-					FROM SecureObjectParents AS SOP
-					UNION
-					SELECT * FROM {secureObjects} AS SO
-					WHERE SO.{secureObjectId} = @id
-					".Replace("                    ", "    ");
-
-        var createSql =
-            $"CREATE OR ALTER FUNCTION [{AuthDbContext.Schema}].[{nameof(AuthDbContext.SecureObjectHierarchy)}](@id int)\r\nRETURNS TABLE\r\nAS\r\nRETURN\r\n({sql})";
-
-        return createSql;
-    }
-
-    private async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    public async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
     {
         // retrieve db model for secureObject
         var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectId);
@@ -182,6 +138,12 @@ public class SecureObjectService
         var secureObject = await _authRepo.GetSecureObjectByExternalId(rootSecureObjectId);
         var secureObjectResult = secureObject.ToDto();
         return secureObjectResult;
+    }
+
+    private async Task<SecureObjectModel> GetRootSecureObject(int appId)
+    {
+        var rootSecureObject = await _authRepo.FindRootSecureObject(appId);
+        return rootSecureObject ?? throw new Exception("Can not find the root secure object.");
     }
 
     private async Task CreateSystemSecureObject(int appId, Guid rootSecureObjectId)

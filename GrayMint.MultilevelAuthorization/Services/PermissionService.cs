@@ -1,5 +1,4 @@
-﻿using MultiLevelAuthorization.DtoConverters;
-using MultiLevelAuthorization.Dtos;
+﻿using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Repositories;
 
@@ -17,14 +16,6 @@ public class PermissionService
     {
         var permissionGroupIdResult = await _authRepo.GetPermissionGroupIdByExternalId(appId, permissionGroupId);
         return permissionGroupIdResult;
-    }
-
-    public async Task<PermissionGroup[]> GetPermissionGroups(int appId)
-    {
-        var permissionGroupModels = await _authRepo.GetPermissionGroups(appId);
-
-        var permissionGroups = permissionGroupModels.Select(x => x.ToDto()).ToArray();
-        return permissionGroups;
     }
 
     private async Task RemovePermissionGroupPermission(int appId, int permissionGroupId)

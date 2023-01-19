@@ -1,4 +1,5 @@
-﻿namespace MultiLevelAuthorization.Models;
+﻿// ReSharper disable UnusedMember.Global
+namespace MultiLevelAuthorization.Models;
 
 public class SecureObjectTypeModel
 {

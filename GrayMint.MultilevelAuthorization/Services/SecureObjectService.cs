@@ -140,7 +140,7 @@ public class SecureObjectService
         return createSql;
     }
 
-    public async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    private async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
     {
         // retrieve db model for secureObject
         var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectId);
@@ -158,10 +158,10 @@ public class SecureObjectService
         return permissions.Select(x => x.ToDto()).ToArray();
     }
 
-    public async Task SecureObject_VerifyUserPermission(int appId, Guid secureObjectId, Guid userId, PermissionModel permissionModel)
+    public async Task VerifyUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
     {
-        if (!await HasUserPermission(appId, secureObjectId, userId, permissionModel.PermissionId))
-            throw new SecurityException($"You need to grant {permissionModel.PermissionName} permission!");
+        if (!await HasUserPermission(appId, secureObjectId, userId, permissionId))
+            throw new SecurityException("You need to grant permission!");
     }
 
     public async Task<SecureObject> BuildSystemEntity(int appId, Guid rootSecureObjectId)
@@ -189,7 +189,7 @@ public class SecureObjectService
         var secureObjectType = new SecureObjectTypeModel
         {
             AppId = appId,
-            SecureObjectTypeExternalId = new Guid(),
+            SecureObjectTypeExternalId = Guid.NewGuid(),
             SecureObjectTypeName = "System"
         };
         await _authRepo.AddEntity(secureObjectType);
@@ -232,11 +232,5 @@ public class SecureObjectService
             if (obValue == null) continue;
             dbValue.SecureObjectTypeName = obValue.SecureObjectTypeName;
         }
-    }
-
-    public async Task<SecureObjectType[]> GetSecureObjectTypes(int appId)
-    {
-        var secureObjectTypeModels = await _authRepo.GetSecureObjectTypes(appId);
-        return secureObjectTypeModels.Select(x => x.ToDto()).ToArray();
     }
 }

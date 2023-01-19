@@ -20,12 +20,12 @@ public class RoleService
         return roleModels.Select(x => x.ToDto()).ToArray();
     }
 
-    public async Task<Role> Create(int appId, string roleName, Guid ownerId, Guid modifiedByUserId)
+    public async Task<Role> Create(int appId, string roleName, Guid ownerSecureObjectId, Guid modifiedByUserId)
     {
         var role = new RoleModel
         {
             AppId = appId,
-            OwnerId = ownerId,
+            OwnerSecureObjectId = ownerSecureObjectId,
             CreatedTime = DateTime.UtcNow,
             ModifiedByUserId = modifiedByUserId,
             RoleId = Guid.NewGuid(),

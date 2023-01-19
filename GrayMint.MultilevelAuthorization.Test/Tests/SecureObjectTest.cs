@@ -50,10 +50,7 @@ public class SecureObjectTest : BaseControllerTest
         var result = await TestInit1.SecuresObjectClient.GetSecureObjectsAsync(TestInit1.AppId);
 
         // Assert consequence
-        Assert.IsNotNull(result.First(x => x.SecureObjectId == appDto.SystemSecureObjectId
-                                    && x.ParentSecureObjectId == null
-                                    ));
-
+        Assert.IsNotNull(result.First(x => x.SecureObjectId == appDto.SystemSecureObjectId && x.ParentSecureObjectId == null));
     }
     [TestMethod]
     public async Task SecureObject_CRUD_without_ParentSecureObjectId()

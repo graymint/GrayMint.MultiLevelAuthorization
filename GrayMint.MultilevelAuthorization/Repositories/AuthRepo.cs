@@ -115,10 +115,11 @@ public class AuthRepo
         select permissionGroupPermission.Permission;
 
         // Select from db
-        var ret = await query1
+        var dbQuery = query1
             .Union(query2)
-            .Distinct()
-            .ToArrayAsync();
+            .Distinct();
+
+        var ret = await dbQuery.ToArrayAsync();
 
         //  Change output to dtos
         var permissionModels = ret.Select(x => new PermissionModel
@@ -134,12 +135,6 @@ public class AuthRepo
         return await _authDbContext.SecureObjectTypes
             .Where(x => x.AppId == appId)
             .ToArrayAsync();
-    }
-
-    public async Task<SecureObjectTypeModel> GetSecureObjectType(int secureObjectTypeId)
-    {
-        return await _authDbContext.SecureObjectTypes
-            .SingleAsync(x => x.SecureObjectTypeId == secureObjectTypeId);
     }
 
     public async Task<SecureObjectView> GetSecureObjectByExternalId(Guid secureObjectId)
@@ -214,7 +209,7 @@ public class AuthRepo
                         RoleId = roles.RoleId,
                         RoleName = roles.RoleName,
                         ModifiedByUserId = roleUser.ModifiedByUserId,
-                        OwnerId = roles.OwnerId
+                        OwnerId = roles.OwnerSecureObjectId
                     };
 
         var roleViews = await query.ToArrayAsync();

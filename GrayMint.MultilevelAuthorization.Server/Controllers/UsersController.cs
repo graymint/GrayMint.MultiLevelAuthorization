@@ -9,7 +9,7 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [Authorize(SimpleRoleAuth.Policy)]
 [ApiVersion("1")]
 [ApiController]
-[Route("/api/v{version:apiVersion}/apps/{appId}/users")]
+[Route("/api/v{version:apiVersion}/apps/{appId:int}/users")]
 public class UsersController : Controller
 {
     private readonly UserService _userService;

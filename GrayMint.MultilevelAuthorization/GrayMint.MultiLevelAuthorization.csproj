@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GrayMint.Common.AspNetCore" Version="1.0.80" />
+    <PackageReference Include="GrayMint.Common.EntityFrameworkCore" Version="1.0.79" />
   </ItemGroup>
 
 </Project>

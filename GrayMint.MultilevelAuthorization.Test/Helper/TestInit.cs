@@ -6,7 +6,7 @@ using GrayMint.Common.AspNetCore.Auth.BotAuthentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using MultiLevelAuthorization.Persistence;
 using MultiLevelAuthorization.Server;
 using MultiLevelAuthorization.Test.Api;
 
@@ -15,21 +15,20 @@ namespace MultiLevelAuthorization.Test.Helper;
 public class TestInit
 {
     public IServiceScope Scope { get; }
+    public AuthDbContext AuthDbContext => Scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     public int AppId { get; private set; }
-    public AppSettings AppSettings => WebApp.Services.GetRequiredService<IOptions<AppSettings>>().Value;
     public WebApplicationFactory<Program> WebApp { get; set; }
     public HttpClient HttpClientAppUser { get; set; }
     public HttpClient HttpClientAppCreator { get; set; }
     public AppsClient AppsClient => new(HttpClientAppUser);
     public AppsClient AppsClientCreator => new(HttpClientAppCreator);
     public UsersClient UsersClient => new(HttpClientAppUser);
-    public PermissionsClient PermissionsClient => new(HttpClientAppUser);
     public SecureObjectsClient SecuresObjectClient => new(HttpClientAppUser);
-    public  RolesClient RolesClient => new(HttpClientAppUser);
+    public RolesClient RolesClient => new(HttpClientAppUser);
     public AuthenticationHeaderValue AuthorizationAppCreator { get; private set; } = default!;
     public AuthenticationHeaderValue AuthorizationAppUser { get; private set; } = default!;
 
-    private TestInit ()
+    private TestInit()
     {
         // Application
         WebApp = new WebApplicationFactory<Program>()

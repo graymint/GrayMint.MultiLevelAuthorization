@@ -1,5 +1,5 @@
-﻿namespace MultiLevelAuthorization.Models;
-
+﻿// ReSharper disable UnusedMember.Global
+namespace MultiLevelAuthorization.Models;
 public class PermissionModel
 {
     public int AppId { get; set; }

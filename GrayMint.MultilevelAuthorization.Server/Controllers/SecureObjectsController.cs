@@ -10,7 +10,7 @@ namespace MultiLevelAuthorization.Server.Controllers;
 [Authorize(SimpleRoleAuth.Policy)]
 [ApiVersion("1")]
 [ApiController]
-[Route("/api/v{version:apiVersion}/apps/{appId}/secure-objects")]
+[Route("/api/v{version:apiVersion}/apps/{appId:int}/secure-objects")]
 
 public class SecureObjectsController : Controller
 {
@@ -19,14 +19,6 @@ public class SecureObjectsController : Controller
     public SecureObjectsController(SecureObjectService secureObjectService)
     {
         _secureObjectService = secureObjectService;
-    }
-
-    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("secure-object-types")]
-    public async Task<SecureObjectType[]> GetSecureObjectTypes(int appId)
-    {
-        var secureObjectTypes = await _secureObjectService.GetSecureObjectTypes(appId);
-        return secureObjectTypes;
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
@@ -68,5 +60,12 @@ public class SecureObjectsController : Controller
     {
         var userPermissions = await _secureObjectService.GetUserPermissions(appId, secureObjectId, userId);
         return userPermissions;
+    }
+
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
+    [HttpGet("{secureObjectId:guid}/verify-user-permission")]
+    public async Task VerifyUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    {
+        await _secureObjectService.VerifyUserPermission(appId, secureObjectId, userId, permissionId);
     }
 }

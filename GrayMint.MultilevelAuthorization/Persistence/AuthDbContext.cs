@@ -39,8 +39,10 @@ public partial class AuthDbContext : DbContext
         modelBuilder.Entity<AppModel>(entity =>
         {
             entity.HasKey(x => x.AppId);
+
             entity.Property(e => e.AppId)
                 .ValueGeneratedOnAdd();
+
             entity.HasIndex(e => new { e.AppName })
             .IsUnique();
         });
@@ -48,11 +50,14 @@ public partial class AuthDbContext : DbContext
         modelBuilder.Entity<SecureObjectTypeModel>(entity =>
         {
             entity.HasKey(e => e.SecureObjectTypeId);
+
             entity.Property(e => e.SecureObjectTypeId)
                 .ValueGeneratedOnAdd();
 
-            entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeName })
+            entity.HasIndex(e => new { e.SecureObjectTypeExternalId, e.AppId })
                 .IsUnique();
+
+            entity.Property(x => x.SecureObjectTypeExternalId).HasMaxLength(40);
         });
 
         modelBuilder.Entity<PermissionModel>(entity =>
@@ -107,6 +112,10 @@ public partial class AuthDbContext : DbContext
             entity.HasIndex(e => new { e.AppId, e.RoleName })
                 .IsUnique();
 
+            entity.HasOne(e => e.OwnerSecureObject)
+                .WithMany()
+                .HasForeignKey(e => new { e.OwnerSecureObjectId })
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<RoleUserModel>(entity =>
@@ -121,12 +130,21 @@ public partial class AuthDbContext : DbContext
 
         modelBuilder.Entity<SecureObjectModel>(entity =>
         {
+            entity.HasKey(x => x.SecureObjectId);
+
             entity.HasOne(e => e.SecureObjectType)
                 .WithMany(d => d.SecureObjects)
-                .HasForeignKey(f => new { f.SecureObjectTypeId });
-            entity.HasKey(x => x.SecureObjectId);
-            entity.Property(x => x.SecureObjectId).
-                ValueGeneratedOnAdd();
+                .HasForeignKey(f => f.SecureObjectTypeId);
+
+            entity.Property(x => x.SecureObjectId)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.SecureObjectExternalId)
+                .HasMaxLength(40);
+
+            entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeId })
+                .HasFilter($"{nameof(SecureObjectModel.ParentSecureObjectId)} IS NULL")
+                .IsUnique();
         });
 
         modelBuilder.Entity<SecureObjectRolePermissionModel>(entity =>
@@ -181,4 +199,15 @@ public partial class AuthDbContext : DbContext
 
     // ReSharper disable once PartialMethodWithSinglePart
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder.Properties<string>()
+            .HaveMaxLength(4000);
+
+        configurationBuilder.Properties<decimal>()
+            .HavePrecision(19, 4);
+    }
 }

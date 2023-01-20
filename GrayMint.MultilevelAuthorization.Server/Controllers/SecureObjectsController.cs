@@ -23,42 +23,41 @@ public class SecureObjectsController : Controller
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost]
-    public async Task<SecureObject> Create(int appId, Guid secureObjectId, Guid secureObjectTypeId, Guid? parentSecureObjectId)
+    public async Task<SecureObject> Create(int appId, string secureObjectTypeId, string secureObjectId, string parentSecureObjectId)
     {
-        var result = await _secureObjectService.Create(appId, secureObjectId, secureObjectTypeId, parentSecureObjectId);
+        var result = await _secureObjectService.Create(appId, secureObjectTypeId, secureObjectId, parentSecureObjectId);
         return result;
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("{secureObjectId:guid}/add-user-permission")]
-    public async Task<IActionResult> AddUserPermission(int appId, Guid secureObjectId, Guid userId, Guid permissionGroupId,
-        Guid modifiedByUserId)
+    [HttpPost("{secureObjectTypeId}/{secureObjectId}/add-user-permission")]
+    public async Task<IActionResult> AddUserPermission(int appId, string secureObjectTypeId, string secureObjectId, Guid userId, Guid permissionGroupId, Guid modifiedByUserId)
     {
-        await _secureObjectService.AddUserPermission(appId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
+        await _secureObjectService.AddUserPermission(appId, secureObjectTypeId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
         return Ok();
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("{secureObjectId:guid}/add-role-permission")]
-    public async Task<IActionResult> AddRolePermission(int appId, Guid secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
+    [HttpPost("{secureObjectTypeId}/{secureObjectId}/add-role-permission")]
+    public async Task<IActionResult> AddRolePermission(int appId, string secureObjectTypeId, string secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
-        await _secureObjectService.AddRolePermission(appId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
+        await _secureObjectService.AddRolePermission(appId, secureObjectTypeId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
         return Ok();
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("{secureObjectId:guid}/user-permissions")]
-    public async Task<Permission[]> GetUserPermissions(int appId, Guid secureObjectId, Guid userId)
+    [HttpGet("{secureObjectTypeId}/{secureObjectId}/user-permissions")]
+    public async Task<Permission[]> GetUserPermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid userId)
     {
-        var userPermissions = await _secureObjectService.GetUserPermissions(appId, secureObjectId, userId);
+        var userPermissions = await _secureObjectService.GetUserPermissions(appId, secureObjectTypeId, secureObjectId, userId);
         return userPermissions;
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("{secureObjectId:guid}/has-user-permission")]
-    public async Task<bool> HasUserPermission(int appId, Guid secureObjectId, Guid userId, int permissionId)
+    [HttpGet("{secureObjectTypeId}/{secureObjectId}/has-user-permission")]
+    public async Task<bool> HasUserPermission(int appId, string secureObjectTypeId, string secureObjectId, Guid userId, int permissionId)
     {
-        var hasPermission = await _secureObjectService.HasUserPermission(appId, secureObjectId, userId, permissionId);
+        var hasPermission = await _secureObjectService.HasUserPermission(appId, secureObjectTypeId, secureObjectId, userId, permissionId);
         return hasPermission;
     }
 }

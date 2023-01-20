@@ -28,38 +28,43 @@ public class AppService
         return app.ToDto();
     }
 
-    public async Task<App> InitApp(int appId, Guid rootSecureObjectId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
+    public async Task<App> InitApp(int appId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
         // Validate SecureObjectTypes for System value in list
-        var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeName == "System");
+        var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == SecureObjectService.SystemSecureObjectTypeId);
         if (result != null)
-            throw new Exception("The SecureObjectTypeName could not allow System as an input parameter.");
-
-        // Prepare system secure object
-        var secureObjectDto = await _secureObjectService.BuildSystemEntity(appId, rootSecureObjectId);
+            throw new Exception("The SecureObjectTypeId could not allow System as an input parameter.");
 
         // Prepare SecureObjectTypes to add System to passed list
         var secureObjectType = new SecureObjectType
         {
-            SecureObjectTypeId = secureObjectDto.SecureObjectTypeId,
-            SecureObjectTypeName = "System"
+            SecureObjectTypeId = SecureObjectService.SystemSecureObjectTypeId
         };
         secureObjectTypes = secureObjectTypes.Concat(new[] { secureObjectType }).ToArray();
 
         // update types
-        await _secureObjectService.UpdateSecureObjectTypes(appId, secureObjectTypes);
+        await _authRepo.BeginTransaction();
+
+        var secureObjectTypeModels = await _secureObjectService.UpdateSecureObjectTypes(appId, secureObjectTypes);
         await _permissionService.Update(appId, permissions);
         await _permissionService.UpdatePermissionGroups(appId, permissionGroups, removeOtherPermissionGroups);
 
-        // Table function
         await _authRepo.SaveChangesAsync();
+
+        // build system secure object types
+        foreach (var secureObjectTypeModel in secureObjectTypeModels)
+        {
+            await _secureObjectService.BuildSystemSecureObject(secureObjectTypeModel.AppId,
+                secureObjectTypeModel.SecureObjectTypeId);
+        }
+
+        await _authRepo.CommitTransaction();
 
         var appInfo = await Get(appId);
         var appData = new App
         {
             AppId = appId,
-            AppName = appInfo.AppName,
-            SystemSecureObjectId = secureObjectDto.SecureObjectId
+            AppName = appInfo.AppName
         };
         return appData;
     }
@@ -70,7 +75,7 @@ public class AppService
         var app = new AppModel
         {
             AppName = request.AppName,
-            AuthorizationCode = await _authRepo.NewAuthorizationCode()
+            AuthorizationCode = await _authRepo.GetNewAuthorizationCode()
         };
 
         await _authRepo.AddEntity(app);
@@ -82,7 +87,7 @@ public class AppService
     public async Task ResetAuthorizationCode(int appId)
     {
         // get max token id
-        var maxAuthCode = await _authRepo.NewAuthorizationCode();
+        var maxAuthCode = await _authRepo.GetNewAuthorizationCode();
 
         // update AuthorizationCode
         var app = await _authRepo.GetApp(appId);

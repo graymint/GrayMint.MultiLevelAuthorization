@@ -7,7 +7,7 @@ public class SecureObjectModel
     public int AppId { get; set; }
     public int SecureObjectTypeId { get; set; }
     public int? ParentSecureObjectId { get; set; }
-    public Guid SecureObjectExternalId { get; set; }
+    public string SecureObjectExternalId { get; set; } = default!;
 
     public virtual SecureObjectModel? ParentSecureObject { get; set; }
     public virtual SecureObjectTypeModel? SecureObjectType { get; set; }

@@ -31,7 +31,7 @@ public class AppsController : Controller
     [HttpPost("{appId:int}/init")]
     public async Task<App> Init(int appId, AppInitRequest request)
     {
-        var result = await _appService.InitApp(appId, request.RootSecureObjectId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
+        var result = await _appService.InitApp(appId, request.SecureObjectTypes, request.Permissions, request.PermissionGroups, request.RemoveOtherPermissionGroups);
         return result;
     }
 

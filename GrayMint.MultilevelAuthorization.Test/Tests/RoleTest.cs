@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MultiLevelAuthorization.Services;
+using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
 
 namespace MultiLevelAuthorization.Test.Tests;
@@ -12,19 +14,26 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_CRUD()
     {
+        // Initialize system
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
+        {
+            SecureObjectTypes = SecureObjectTypes.All,
+            RemoveOtherPermissionGroups = true
+        });
+
+        // Create SecureObject
+        var secureObjectId = Guid.NewGuid().ToString();
+        await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId,
+            SecureObjectService.SystemSecureObjectId);
+
         var roleName = Guid.NewGuid().ToString();
-        var ownerId = Guid.NewGuid();
         var modifiedByUserId = Guid.NewGuid();
 
-        //-----------------
-        // check : Successfully create new role
-        //-----------------
-
         // Create a new Role
-        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, ownerId, modifiedByUserId);
+        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
 
         // assert output dto
-        Assert.AreEqual(ownerId, role.OwnerId);
+        Assert.AreEqual(secureObjectId, role.OwnerSecureObjectId);
         Assert.AreEqual(roleName, role.RoleName);
         Assert.AreEqual(modifiedByUserId, role.ModifiedByUserId);
 
@@ -33,7 +42,7 @@ public class RoleTest : BaseControllerTest
 
         // Assert 
         Assert.IsNotNull(result.SingleOrDefault(x => x.RoleName == roleName
-                                        && x.OwnerId == ownerId
+                                        && x.OwnerSecureObjectId == secureObjectId
                                         && x.ModifiedByUserId == modifiedByUserId
                                         && x.RoleId == role.RoleId
                                         ));
@@ -42,24 +51,35 @@ public class RoleTest : BaseControllerTest
     [TestMethod]
     public async Task Role_AddUser()
     {
+        // Initialize system
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
+        {
+            SecureObjectTypes = SecureObjectTypes.All,
+            RemoveOtherPermissionGroups = true
+        });
+
+        // Create SecureObject
+        var secureObjectId = Guid.NewGuid().ToString();
+        await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId,
+            SecureObjectService.SystemSecureObjectId);
+
         //Prepare conditions
         var roleName = Guid.NewGuid().ToString();
-        var ownerId = Guid.NewGuid();
         var modifiedByUserId = Guid.NewGuid();
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var userId3 = Guid.NewGuid();
 
         // Create role1        
-        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, ownerId, modifiedByUserId);
+        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
 
         // Create role2
         roleName = Guid.NewGuid().ToString();
-        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, ownerId, modifiedByUserId);
+        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
 
         // Create role3
         roleName = Guid.NewGuid().ToString();
-        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, ownerId, modifiedByUserId);
+        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
 
         // Add user1 to role1
         await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role1.RoleId, userId1, modifiedByUserId);

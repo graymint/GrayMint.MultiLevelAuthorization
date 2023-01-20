@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiLevelAuthorization.Persistence;
+using MultiLevelAuthorization.Services;
 using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
 
@@ -20,7 +21,7 @@ public class InitTest : BaseControllerTest
     public async Task Init_Successfully()
     {
         // Create new types
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
@@ -35,13 +36,11 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
 
         // Call App_Init api
 
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -58,8 +57,8 @@ public class InitTest : BaseControllerTest
         Assert.AreEqual(4, actualTypes.Length, "Validate count of output");
 
         //Validate created record ( Systematic and manually by api)
-        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeExternalId == newSecureObjectType1.SecureObjectTypeId && x.SecureObjectTypeName == newSecureObjectType1.SecureObjectTypeName));
-        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeName == "System"));
+        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeExternalId == newSecureObjectType1.SecureObjectTypeId));
+        Assert.IsNotNull(actualTypes.Single(x => x.SecureObjectTypeExternalId == SecureObjectService.SystemSecureObjectId));
 
         //-----------
         // check: Validate successful created PermissionGroup
@@ -74,7 +73,7 @@ public class InitTest : BaseControllerTest
     public async Task PermissionGroups_CRUD()
     {
         // Create first types
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create first permission
@@ -89,12 +88,10 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
 
         // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -125,7 +122,6 @@ public class InitTest : BaseControllerTest
         // Call App_Init api for second time and add PermissionGroup2
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups2,
             Permissions = permissions,
@@ -161,7 +157,6 @@ public class InitTest : BaseControllerTest
         // App_Init for third
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups3,
             Permissions = permissions,
@@ -191,8 +186,8 @@ public class InitTest : BaseControllerTest
     public async Task SecureObjectType_CRUD()
     {
         // Create new SecureObjectType
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
-        var newSecureObjectType2 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid().ToString() };
+        var newSecureObjectType2 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
@@ -207,12 +202,10 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
 
         // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -221,16 +214,16 @@ public class InitTest : BaseControllerTest
 
         // Retrieve all systematic SecureObjectTypes
         var actualSecureObjectTypes = await TestInit1.AuthDbContext.SecureObjectTypes.Where(x => x.AppId == TestInit1.AppId).ToArrayAsync();
-        var secureObjectTypesUser = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "User").SecureObjectTypeId;
-        var secureObjectTypesSystem = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "System").SecureObjectTypeId;
-        var secureObjectTypesProject = actualSecureObjectTypes.Single(x => x.SecureObjectTypeName == "Project").SecureObjectTypeId;
+        var secureObjectTypesUser = actualSecureObjectTypes.Single(x => x.SecureObjectTypeExternalId == "User").SecureObjectTypeId;
+        var secureObjectTypesSystem = actualSecureObjectTypes.Single(x => x.SecureObjectTypeExternalId == "System").SecureObjectTypeId;
+        var secureObjectTypesProject = actualSecureObjectTypes.Single(x => x.SecureObjectTypeExternalId == "Project").SecureObjectTypeId;
 
         // Update name of newSecureObjectType2
         var secureObjectTypeName = Guid.NewGuid().ToString();
-        newSecureObjectType2.SecureObjectTypeName = secureObjectTypeName;
+        newSecureObjectType2.SecureObjectTypeId = secureObjectTypeName;
 
         // Prepare SecureObjectType3
-        var newSecureObjectType3 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType3 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid().ToString() };
         var secureObjectTypes3 = SecureObjectTypes.All.Concat(new[] { newSecureObjectType2, newSecureObjectType3 }).ToArray();
 
         //-------------------------
@@ -240,7 +233,6 @@ public class InitTest : BaseControllerTest
         // Call App_Init for second time
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes3,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -257,16 +249,16 @@ public class InitTest : BaseControllerTest
 
         // SecureObjectType2 must be updated
         Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeExternalId == newSecureObjectType2.SecureObjectTypeId &&
-                                                             x.SecureObjectTypeName == secureObjectTypeName));
+                                                             x.SecureObjectTypeExternalId == secureObjectTypeName));
 
         // SecureObjectType3 must be created
         Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeExternalId == newSecureObjectType3.SecureObjectTypeId &&
-                                       x.SecureObjectTypeName == newSecureObjectType3.SecureObjectTypeName));
+                                       x.SecureObjectTypeExternalId == newSecureObjectType3.SecureObjectTypeId));
 
         // Make sure that systematic SecureObjectType never be updated
-        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesUser && x.SecureObjectTypeName == "User"));
-        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesSystem && x.SecureObjectTypeName == "System"));
-        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesProject && x.SecureObjectTypeName == "Project"));
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesUser && x.SecureObjectTypeExternalId == "User"));
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesSystem && x.SecureObjectTypeExternalId == "System"));
+        Assert.IsNotNull(actualSecureObjectTypes.Single(x => x.SecureObjectTypeId == secureObjectTypesProject && x.SecureObjectTypeExternalId == "Project"));
 
         // Validate count of output
         Assert.AreEqual(5, actualSecureObjectTypes.Length);
@@ -277,7 +269,7 @@ public class InitTest : BaseControllerTest
     {
         // Create new SecureObjectType
         var secureObjectTypeName = "System";
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
+        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = secureObjectTypeName };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
@@ -292,7 +284,6 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
 
         //-----------------------
         //check : Invalid operation exception is expected when "System" passed as SecureObjectTypeName
@@ -301,7 +292,6 @@ public class InitTest : BaseControllerTest
         {
             await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
-                RootSecureObjectId = rootSecureObjectId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -321,8 +311,8 @@ public class InitTest : BaseControllerTest
     {
         // Create new SecureObjectType
         var secureObjectTypeName = Guid.NewGuid().ToString();
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
-        var newSecureObjectType2 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = secureObjectTypeName };
+        var newSecureObjectType1 = new SecureObjectType() {SecureObjectTypeId = secureObjectTypeName };
+        var newSecureObjectType2 = new SecureObjectType() {SecureObjectTypeId = secureObjectTypeName };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1, newSecureObjectType2 }).ToArray();
 
         // Create new permission
@@ -337,7 +327,6 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
 
         //-----------------------
         //check : Invalid operation exception is expected when passed a duplicate name as SecureObjectTypeName
@@ -346,7 +335,6 @@ public class InitTest : BaseControllerTest
         {
             await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
-                RootSecureObjectId = rootSecureObjectId1,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,
@@ -365,7 +353,7 @@ public class InitTest : BaseControllerTest
     public async Task RootSecureObject_and_RootSecureObjectType_must_be_unique()
     {
         // Create new types
-        var newSecureObjectType1 = new SecureObjectType() { SecureObjectTypeId = Guid.NewGuid(), SecureObjectTypeName = Guid.NewGuid().ToString() };
+        var newSecureObjectType1 = new SecureObjectType() {SecureObjectTypeId = Guid.NewGuid().ToString() };
         var secureObjectTypes = SecureObjectTypes.All.Concat(new[] { newSecureObjectType1 }).ToArray();
 
         // Create new permission
@@ -380,14 +368,10 @@ public class InitTest : BaseControllerTest
             Permissions = new List<Permission> { newPermission }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
-        var rootSecureObjectId1 = Guid.NewGuid();
-
-        var rootSecureObjectId2 = Guid.NewGuid();
 
         // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
-            RootSecureObjectId = rootSecureObjectId1,
             SecureObjectTypes = secureObjectTypes,
             PermissionGroups = permissionGroups,
             Permissions = permissions,
@@ -399,7 +383,6 @@ public class InitTest : BaseControllerTest
         {
             await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
             {
-                RootSecureObjectId = rootSecureObjectId2,
                 SecureObjectTypes = secureObjectTypes,
                 PermissionGroups = permissionGroups,
                 Permissions = permissions,

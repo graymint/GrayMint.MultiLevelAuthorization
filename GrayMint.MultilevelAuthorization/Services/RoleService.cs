@@ -8,10 +8,12 @@ namespace MultiLevelAuthorization.Services;
 public class RoleService
 {
     private readonly AuthRepo _authRepo;
+    private readonly SecureObjectService _secureObjectService;
 
-    public RoleService(AuthRepo authRepo)
+    public RoleService(AuthRepo authRepo, SecureObjectService secureObjectService)
     {
         _authRepo = authRepo;
+        _secureObjectService = secureObjectService;
     }
 
     public async Task<Role[]> GetRoles(int appId)
@@ -20,20 +22,23 @@ public class RoleService
         return roleModels.Select(x => x.ToDto()).ToArray();
     }
 
-    public async Task<Role> Create(int appId, string roleName, Guid ownerSecureObjectId, Guid modifiedByUserId)
+    public async Task<Role> Create(int appId, string roleName, string ownerSecureObjectTypeId, string ownerSecureObjectId, Guid modifiedByUserId)
     {
-        var role = new RoleModel
+        var secureObject = await _secureObjectService.GetSecureObjectByExternalId(appId, ownerSecureObjectTypeId, ownerSecureObjectId);
+
+        var roleModel = new RoleModel
         {
             AppId = appId,
-            OwnerSecureObjectId = ownerSecureObjectId,
+            OwnerSecureObjectId = secureObject.SecureObjectId,
             CreatedTime = DateTime.UtcNow,
             ModifiedByUserId = modifiedByUserId,
             RoleId = Guid.NewGuid(),
             RoleName = roleName
         };
-        await _authRepo.AddEntity(role);
+        await _authRepo.AddEntity(roleModel);
         await _authRepo.SaveChangesAsync();
 
+        var role = await _authRepo.GetRole(appId, roleModel.RoleId);
         return role.ToDto();
     }
 

@@ -5,7 +5,7 @@ public class RoleModel
 {
     public Guid RoleId { get; set; }
     public int AppId { get; init; }
-    public Guid OwnerSecureObjectId { get; set; }
+    public int OwnerSecureObjectId { get; set; }
     public string RoleName { get; set; } = null!;
     public Guid ModifiedByUserId { get; set; }
     public DateTime CreatedTime { get; set; }

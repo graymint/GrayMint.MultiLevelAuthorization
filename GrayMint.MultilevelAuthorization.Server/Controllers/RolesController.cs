@@ -21,9 +21,9 @@ public class RolesController : Controller
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost]
-    public async Task<Role> Create(int appId, string roleName, Guid ownerSecureObjectId, Guid modifiedByUserId)
+    public async Task<Role> Create(int appId, string roleName, string ownerSecureObjectId, string ownerSecureObjectTypeId, Guid modifiedByUserId)
     {
-        var result = await _roleService.Create(appId, roleName, ownerSecureObjectId, modifiedByUserId);
+        var result = await _roleService.Create(appId, roleName, ownerSecureObjectTypeId, ownerSecureObjectId, modifiedByUserId);
         return result;
     }
 

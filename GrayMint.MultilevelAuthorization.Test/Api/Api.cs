@@ -531,7 +531,7 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Role> CreateAsync(int appId, string? roleName = null, System.Guid? ownerSecureObjectId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<Role> CreateAsync(int appId, string? roleName = null, string? ownerSecureObjectId = null, string? ownerSecureObjectTypeId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -546,6 +546,10 @@ namespace MultiLevelAuthorization.Test.Api
             if (ownerSecureObjectId != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("ownerSecureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerSecureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (ownerSecureObjectTypeId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("ownerSecureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerSecureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             if (modifiedByUserId != null)
             {
@@ -968,77 +972,7 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<SecureObject>> GetSecureObjectsAsync(int appId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
-        {
-            if (appId == null)
-                throw new System.ArgumentNullException("appId");
-
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/secure-objects");
-            urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    await PrepareRequestAsync(client_, request_, url_, cancellationToken).ConfigureAwait(false);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        await ProcessResponseAsync(client_, response_, cancellationToken).ConfigureAwait(false);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<SecureObject>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new GrayMint.Common.Client.ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new GrayMint.Common.Client.ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SecureObject> CreateAsync(int appId, System.Guid? secureObjectId = null, System.Guid? secureObjectTypeId = null, System.Guid? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<SecureObject> CreateAsync(int appId, string? secureObjectTypeId = null, string? secureObjectId = null, string? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -1046,13 +980,13 @@ namespace MultiLevelAuthorization.Test.Api
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append("api/v1/apps/{appId}/secure-objects?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
-            if (secureObjectId != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
             if (secureObjectTypeId != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (secureObjectId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             if (parentSecureObjectId != null)
             {
@@ -1122,17 +1056,15 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> AddUserPermissionAsync(int appId, System.Guid secureObjectId, System.Guid? userId = null, System.Guid? permissionGroupId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<FileResponse> AddUserPermissionAsync(int appId, string? secureObjectTypeId, string? secureObjectId, System.Guid? userId = null, System.Guid? permissionGroupId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
 
-            if (secureObjectId == null)
-                throw new System.ArgumentNullException("secureObjectId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectId}/add-user-permission?");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectTypeId}/{secureObjectId}/add-user-permission?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));
             if (userId != null)
             {
@@ -1208,17 +1140,15 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> AddRolePermissionAsync(int appId, System.Guid secureObjectId, System.Guid? roleId = null, System.Guid? permissionGroupId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<FileResponse> AddRolePermissionAsync(int appId, string? secureObjectTypeId, string? secureObjectId, System.Guid? roleId = null, System.Guid? permissionGroupId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
 
-            if (secureObjectId == null)
-                throw new System.ArgumentNullException("secureObjectId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectId}/add-role-permission?");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectTypeId}/{secureObjectId}/add-role-permission?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));
             if (roleId != null)
             {
@@ -1294,17 +1224,15 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Permission>> GetUserPermissionsAsync(int appId, System.Guid secureObjectId, System.Guid? userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Permission>> GetUserPermissionsAsync(int appId, string? secureObjectTypeId, string? secureObjectId, System.Guid? userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
 
-            if (secureObjectId == null)
-                throw new System.ArgumentNullException("secureObjectId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectId}/user-permissions?");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectTypeId}/{secureObjectId}/user-permissions?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));
             if (userId != null)
             {
@@ -1373,17 +1301,15 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task VerifyUserPermissionAsync(int appId, System.Guid secureObjectId, System.Guid? userId = null, int? permissionId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<bool> HasUserPermissionAsync(int appId, string? secureObjectTypeId, string? secureObjectId, System.Guid? userId = null, int? permissionId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
 
-            if (secureObjectId == null)
-                throw new System.ArgumentNullException("secureObjectId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectId}/verify-user-permission?");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-objects/{secureObjectTypeId}/{secureObjectId}/has-user-permission?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));
             if (userId != null)
             {
@@ -1402,6 +1328,7 @@ namespace MultiLevelAuthorization.Test.Api
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
 
@@ -1426,7 +1353,12 @@ namespace MultiLevelAuthorization.Test.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return;
+                            var objectResponse_ = await ReadObjectResponseAsync<bool>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new GrayMint.Common.Client.ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
                         }
                         else
                         {
@@ -1761,19 +1693,11 @@ namespace MultiLevelAuthorization.Test.Api
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string AppName { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("systemSecureObjectId", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid SystemSecureObjectId { get; set; } = default!;
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AppInitRequest
     {
-        [Newtonsoft.Json.JsonProperty("rootSecureObjectId", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid RootSecureObjectId { get; set; } = default!;
-
         [Newtonsoft.Json.JsonProperty("secureObjectTypes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<SecureObjectType> SecureObjectTypes { get; set; } = new System.Collections.ObjectModel.Collection<SecureObjectType>();
@@ -1794,13 +1718,9 @@ namespace MultiLevelAuthorization.Test.Api
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SecureObjectType
     {
-        [Newtonsoft.Json.JsonProperty("secureObjectTypeName", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string SecureObjectTypeName { get; set; } = default!;
-
         [Newtonsoft.Json.JsonProperty("secureObjectTypeId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid SecureObjectTypeId { get; set; } = default!;
+        public string SecureObjectTypeId { get; set; } = default!;
 
     }
 
@@ -1849,9 +1769,9 @@ namespace MultiLevelAuthorization.Test.Api
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public System.Guid RoleId { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("ownerId", Required = Newtonsoft.Json.Required.Always)]
+        [Newtonsoft.Json.JsonProperty("ownerSecureObjectId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid OwnerId { get; set; } = default!;
+        public string OwnerSecureObjectId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("modifiedByUserId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -1877,14 +1797,14 @@ namespace MultiLevelAuthorization.Test.Api
     {
         [Newtonsoft.Json.JsonProperty("secureObjectId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid SecureObjectId { get; set; } = default!;
+        public string SecureObjectId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("secureObjectTypeId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid SecureObjectTypeId { get; set; } = default!;
+        public string SecureObjectTypeId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("parentSecureObjectId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? ParentSecureObjectId { get; set; } = default!;
+        public string? ParentSecureObjectId { get; set; } = default!;
 
     }
 

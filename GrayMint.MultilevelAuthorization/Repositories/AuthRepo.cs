@@ -1,8 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Persistence;
-using MultiLevelAuthorization.Services.Views;
 
 namespace MultiLevelAuthorization.Repositories;
 
@@ -13,6 +11,16 @@ public class AuthRepo
     public AuthRepo(AuthDbContext authDbContext)
     {
         _authDbContext = authDbContext;
+    }
+
+    public async Task BeginTransaction()
+    {
+        await _authDbContext.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitTransaction()
+    {
+        await _authDbContext.Database.CommitTransactionAsync();
     }
 
     public async Task SaveChangesAsync()
@@ -76,18 +84,13 @@ public class AuthRepo
         return permissionGroupPermissions;
     }
 
-    public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, Guid secureObjectId)
+    public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, string secureObjectTypeId, string secureObjectId)
     {
         var secureObject = await _authDbContext.SecureObjects
-            .SingleAsync(x => x.AppId == appId && x.SecureObjectExternalId == secureObjectId);
-
-        return secureObject;
-    }
-
-    public async Task<SecureObjectModel?> FindRootSecureObject(int appId)
-    {
-        var secureObject = await _authDbContext.SecureObjects
-            .SingleOrDefaultAsync(x => x.AppId == appId && x.ParentSecureObjectId == null);
+            .SingleAsync(x =>
+                x.AppId == appId &&
+                x.SecureObjectExternalId == secureObjectId &&
+                x.SecureObjectType!.SecureObjectTypeExternalId == secureObjectTypeId);
 
         return secureObject;
     }
@@ -134,46 +137,7 @@ public class AuthRepo
             .ToArrayAsync();
     }
 
-    public async Task<SecureObjectView> GetSecureObjectByExternalId(Guid secureObjectId)
-    {
-        return await _authDbContext.SecureObjects
-            .Where(x => x.SecureObjectExternalId == secureObjectId)
-            .Include(x => x.ParentSecureObject)
-            .Include(x => x.SecureObjectType)
-            .Select(x => new SecureObjectView
-            {
-                SecureObjectExternalId = x.SecureObjectExternalId,
-                ParentSecureObjectExternalId = x.ParentSecureObject!.SecureObjectExternalId,
-                SecureObjectTypeId = x.SecureObjectType!.SecureObjectTypeExternalId
-
-            })
-            .SingleAsync();
-    }
-
-    public async Task<SecureObjectView[]> GetSecureObjects(int appId)
-    {
-        var query = (from secureObjects in _authDbContext.SecureObjects
-                     join parentSecureObjects in _authDbContext.SecureObjects
-                         on secureObjects.ParentSecureObjectId equals parentSecureObjects.SecureObjectId
-                         into grouping1
-                     from pso in grouping1.DefaultIfEmpty()
-                     join secureObjectTypes in _authDbContext.SecureObjectTypes
-                         on secureObjects.SecureObjectTypeId equals secureObjectTypes.SecureObjectTypeId
-                         into grouping2
-                     from sot in grouping2.DefaultIfEmpty()
-                     where secureObjects.AppId == appId
-                     select new SecureObjectView
-                     {
-                         SecureObjectExternalId = secureObjects.SecureObjectExternalId,
-                         SecureObjectTypeId = sot.SecureObjectTypeExternalId,
-                         ParentSecureObjectExternalId = pso.SecureObjectExternalId
-                     });
-
-        var result = await query.ToArrayAsync();
-        return result;
-    }
-
-    public async Task<int> GetSecureObjectTypeIdByExternalId(int appId, Guid secureObjectTypeId)
+    public async Task<int> GetSecureObjectTypeIdByExternalId(int appId, string secureObjectTypeId)
     {
         var secureObjectType = await _authDbContext.SecureObjectTypes
             .SingleAsync(x => x.AppId == appId && x.SecureObjectTypeExternalId == secureObjectTypeId);
@@ -183,9 +147,19 @@ public class AuthRepo
     public async Task<RoleModel[]> GetRoles(int appId)
     {
         return await _authDbContext.Roles
+            .Include(x => x.OwnerSecureObject)
             .Where(x => x.AppId == appId)
             .ToArrayAsync();
     }
+
+    public async Task<RoleModel> GetRole(int appId, Guid roleId)
+    {
+        return await _authDbContext.Roles
+            .Include(x => x.OwnerSecureObject)
+            .Where(x => x.AppId == appId && x.RoleId == roleId)
+            .SingleAsync();
+    }
+
     public async Task<RoleUserModel[]> GetRoleUsers(int appId, Guid roleId)
     {
         var roleUserModels = await _authDbContext.RoleUsers
@@ -195,22 +169,15 @@ public class AuthRepo
         return roleUserModels;
     }
 
-    public async Task<RoleView[]> GetUserRoles(int appId, Guid userId)
+    public async Task<RoleUserModel[]> GetUserRoles(int appId, Guid userId)
     {
-        var query = from roleUser in _authDbContext.RoleUsers
-                    join roles in _authDbContext.Roles
-                        on roleUser.RoleId equals roles.RoleId
-                    where roleUser.AppId == appId && roleUser.UserId == userId
-                    select new RoleView
-                    {
-                        RoleId = roles.RoleId,
-                        RoleName = roles.RoleName,
-                        ModifiedByUserId = roleUser.ModifiedByUserId,
-                        OwnerId = roles.OwnerSecureObjectId
-                    };
+        var userRoles = await _authDbContext.RoleUsers
+            .Include(x => x.Role)
+            .ThenInclude(x => x.OwnerSecureObject)
+            .Where(x => x.AppId == appId && x.UserId == userId)
+            .ToArrayAsync();
 
-        var roleViews = await query.ToArrayAsync();
-        return roleViews;
+        return userRoles;
     }
 
     public async Task<int> GetNewAuthorizationCode()
@@ -256,5 +223,15 @@ public class AuthRepo
             $"CREATE OR ALTER FUNCTION [{AuthDbContext.Schema}].[{nameof(AuthDbContext.SecureObjectHierarchy)}](@id int)\r\nRETURNS TABLE\r\nAS\r\nRETURN\r\n({sql})";
 
         return createSql;
+    }
+
+    public async Task<string> GetSystemSecureObjectExternalId(int appId, int secureObjectTypeId)
+    {
+        var systemSecureObject = await _authDbContext.SecureObjects
+            .SingleAsync(x =>
+                x.AppId == appId &&
+                x.SecureObjectTypeId == secureObjectTypeId &&
+                x.ParentSecureObjectId == null);
+        return systemSecureObject.SecureObjectExternalId;
     }
 }

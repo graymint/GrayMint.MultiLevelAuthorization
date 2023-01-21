@@ -33,7 +33,7 @@ public class AppService
         // Validate SecureObjectTypes for System value in list
         var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == SecureObjectService.SystemSecureObjectTypeId);
         if (result != null)
-            throw new Exception("The SecureObjectTypeId could not allow System as an input parameter.");
+            throw new Exception("The system SecureObjectTypeId is not accepted.");
 
         // Prepare SecureObjectTypes to add System to passed list
         var secureObjectType = new SecureObjectType
@@ -45,19 +45,12 @@ public class AppService
         // update types
         await _authRepo.BeginTransaction();
 
-        var secureObjectTypeModels = await _secureObjectService.UpdateSecureObjectTypes(appId, secureObjectTypes);
+        await _secureObjectService.UpdateSecureObjectTypes(appId, secureObjectTypes);
         await _permissionService.Update(appId, permissions);
         await _permissionService.UpdatePermissionGroups(appId, permissionGroups, removeOtherPermissionGroups);
-
+        
+        // commit transaction
         await _authRepo.SaveChangesAsync();
-
-        // build system secure object types
-        foreach (var secureObjectTypeModel in secureObjectTypeModels)
-        {
-            await _secureObjectService.BuildSystemSecureObject(secureObjectTypeModel.AppId,
-                secureObjectTypeModel.SecureObjectTypeId);
-        }
-
         await _authRepo.CommitTransaction();
 
         var appInfo = await Get(appId);
@@ -80,6 +73,9 @@ public class AppService
 
         await _authRepo.AddEntity(app);
         await _authRepo.SaveChangesAsync();
+
+        // build system entities
+        await _secureObjectService.BuildSystemSecureObject(app.AppId);
 
         return app.ToDto();
     }

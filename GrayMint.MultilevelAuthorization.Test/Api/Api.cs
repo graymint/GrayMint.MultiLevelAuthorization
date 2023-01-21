@@ -531,7 +531,7 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Role> CreateAsync(int appId, string? roleName = null, string? ownerSecureObjectId = null, string? ownerSecureObjectTypeId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<Role> CreateAsync(int appId, string? roleName = null, string? ownerSecureObjectTypeId = null, string? ownerSecureObjectId = null, System.Guid? modifiedByUserId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -543,13 +543,13 @@ namespace MultiLevelAuthorization.Test.Api
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("roleName") + "=").Append(System.Uri.EscapeDataString(ConvertToString(roleName, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
-            if (ownerSecureObjectId != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("ownerSecureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerSecureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
             if (ownerSecureObjectTypeId != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("ownerSecureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerSecureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (ownerSecureObjectId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("ownerSecureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ownerSecureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             if (modifiedByUserId != null)
             {
@@ -972,7 +972,7 @@ namespace MultiLevelAuthorization.Test.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="GrayMint.Common.Client.ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SecureObject> CreateAsync(int appId, string? secureObjectTypeId = null, string? secureObjectId = null, string? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<SecureObject> CreateAsync(int appId, string? secureObjectTypeId = null, string? secureObjectId = null, string? parentSecureObjectTypeId = null, string? parentSecureObjectId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (appId == null)
                 throw new System.ArgumentNullException("appId");
@@ -987,6 +987,10 @@ namespace MultiLevelAuthorization.Test.Api
             if (secureObjectId != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("secureObjectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (parentSecureObjectTypeId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("parentSecureObjectTypeId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(parentSecureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             if (parentSecureObjectId != null)
             {

@@ -22,15 +22,18 @@ public class SecureObjectService
         _permissionService = permissionService;
     }
 
-    public async Task<SecureObject> Create(int appId, string secureObjectTypeId, string secureObjectId, string? parentSecureObjectId)
+    public async Task<SecureObject> Create(int appId, string secureObjectTypeId, string secureObjectId, string? parentSecureObjectTypeId, string? parentSecureObjectId)
     {
         var dbSecureObjectTypeId = await _authRepo.GetSecureObjectTypeIdByExternalId(appId, secureObjectTypeId);
 
         // Try to get parentSecureObject
-        if (string.IsNullOrEmpty(parentSecureObjectId))
-            parentSecureObjectId = await _authRepo.GetSystemSecureObjectExternalId(appId, dbSecureObjectTypeId);
+        if (string.IsNullOrWhiteSpace(parentSecureObjectTypeId))
+            parentSecureObjectTypeId = SystemSecureObjectTypeId;
 
-        var parentSecureObject = await GetSecureObjectByExternalId(appId, secureObjectTypeId, parentSecureObjectId);
+        if (string.IsNullOrWhiteSpace(parentSecureObjectId))
+            parentSecureObjectId = SystemSecureObjectId;
+
+        var parentSecureObject = await GetSecureObjectByExternalId(appId, parentSecureObjectTypeId, parentSecureObjectId);
 
         // Prepare SecureObject
         var secureObjectModel = new SecureObjectModel
@@ -126,15 +129,25 @@ public class SecureObjectService
             throw new SecurityException("You need to grant permission!");
     }
 
-    public async Task BuildSystemSecureObject(int appId, int systemSecureObjectTypeId)
+    public async Task BuildSystemSecureObject(int appId)
     {
         await _authRepo.SaveChangesAsync();
+
+        var secureObjectType = new SecureObjectTypeModel
+        {
+            AppId = appId,
+            SecureObjectTypeExternalId = SystemSecureObjectTypeId
+        };
+
+        await _authRepo.AddEntity(secureObjectType);
+        await _authRepo.SaveChangesAsync();
+
 
         var secureObject = new SecureObjectModel
         {
             AppId = appId,
             SecureObjectExternalId = SystemSecureObjectId,
-            SecureObjectTypeId = systemSecureObjectTypeId,
+            SecureObjectTypeId = secureObjectType.SecureObjectTypeId,
             ParentSecureObjectId = null
         };
 
@@ -142,31 +155,22 @@ public class SecureObjectService
         await _authRepo.SaveChangesAsync();
     }
 
-    public async Task<List<SecureObjectTypeModel>> UpdateSecureObjectTypes(int appId, SecureObjectType[] obValues)
+    public async Task UpdateSecureObjectTypes(int appId, SecureObjectType[] obValues)
     {
-        var list = new List<SecureObjectTypeModel>();
         // Get SecureObjectTypes from db
         var dbValues = await _authRepo.GetSecureObjectTypes(appId);
 
         // add
         foreach (var obValue in obValues.Where(x =>
                      dbValues.All(c => c.AppId == appId && x.SecureObjectTypeId != c.SecureObjectTypeExternalId)))
-        {
-            var secureObjectModel = new SecureObjectTypeModel
+            await _authRepo.AddEntity(new SecureObjectTypeModel
             {
                 AppId = appId,
                 SecureObjectTypeExternalId = obValue.SecureObjectTypeId
-            };
-
-            // create new SecureObjectType
-            await _authRepo.AddEntity(secureObjectModel);
-            list.Add(secureObjectModel);
-        }
+            });
 
         // delete
         foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeExternalId != c.SecureObjectTypeId)))
             _authRepo.RemoveEntity(dbValue);
-
-        return list;
     }
 }

@@ -23,9 +23,9 @@ public class SecureObjectsController : Controller
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpPost]
-    public async Task<SecureObject> Create(int appId, string secureObjectTypeId, string secureObjectId, string parentSecureObjectId)
+    public async Task<SecureObject> Create(int appId, string secureObjectTypeId, string secureObjectId, string parentSecureObjectTypeId, string parentSecureObjectId)
     {
-        var result = await _secureObjectService.Create(appId, secureObjectTypeId, secureObjectId, parentSecureObjectId);
+        var result = await _secureObjectService.Create(appId, secureObjectTypeId, secureObjectId, parentSecureObjectTypeId, parentSecureObjectId);
         return result;
     }
 

@@ -24,13 +24,13 @@ public class RoleTest : BaseControllerTest
         // Create SecureObject
         var secureObjectId = Guid.NewGuid().ToString();
         await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId,
-            SecureObjectService.SystemSecureObjectId);
+            SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
 
         var roleName = Guid.NewGuid().ToString();
         var modifiedByUserId = Guid.NewGuid();
 
         // Create a new Role
-        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
+        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
 
         // assert output dto
         Assert.AreEqual(secureObjectId, role.OwnerSecureObjectId);
@@ -61,7 +61,7 @@ public class RoleTest : BaseControllerTest
         // Create SecureObject
         var secureObjectId = Guid.NewGuid().ToString();
         await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId,
-            SecureObjectService.SystemSecureObjectId);
+            SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
 
         //Prepare conditions
         var roleName = Guid.NewGuid().ToString();
@@ -71,15 +71,15 @@ public class RoleTest : BaseControllerTest
         var userId3 = Guid.NewGuid();
 
         // Create role1        
-        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
+        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
 
         // Create role2
         roleName = Guid.NewGuid().ToString();
-        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
+        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
 
         // Create role3
         roleName = Guid.NewGuid().ToString();
-        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, secureObjectId, SecureObjectTypes.User.SecureObjectTypeId, modifiedByUserId);
+        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
 
         // Add user1 to role1
         await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role1.RoleId, userId1, modifiedByUserId);

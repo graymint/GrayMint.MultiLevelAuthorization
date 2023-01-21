@@ -173,7 +173,7 @@ public class AuthRepo
     {
         var userRoles = await _authDbContext.RoleUsers
             .Include(x => x.Role)
-            .ThenInclude(x => x.OwnerSecureObject)
+            .ThenInclude(x => x!.OwnerSecureObject)
             .Where(x => x.AppId == appId && x.UserId == userId)
             .ToArrayAsync();
 
@@ -223,15 +223,5 @@ public class AuthRepo
             $"CREATE OR ALTER FUNCTION [{AuthDbContext.Schema}].[{nameof(AuthDbContext.SecureObjectHierarchy)}](@id int)\r\nRETURNS TABLE\r\nAS\r\nRETURN\r\n({sql})";
 
         return createSql;
-    }
-
-    public async Task<string> GetSystemSecureObjectExternalId(int appId, int secureObjectTypeId)
-    {
-        var systemSecureObject = await _authDbContext.SecureObjects
-            .SingleAsync(x =>
-                x.AppId == appId &&
-                x.SecureObjectTypeId == secureObjectTypeId &&
-                x.ParentSecureObjectId == null);
-        return systemSecureObject.SecureObjectExternalId;
     }
 }

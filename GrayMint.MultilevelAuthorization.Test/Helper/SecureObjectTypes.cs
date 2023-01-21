@@ -1,5 +1,4 @@
 ﻿using MultiLevelAuthorization.Test.Api;
-using System;
 
 namespace MultiLevelAuthorization.Test.Helper;
 public class SecureObjectTypes

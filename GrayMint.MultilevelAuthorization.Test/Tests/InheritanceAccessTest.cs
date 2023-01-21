@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MultiLevelAuthorization.Services;
 using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
 
@@ -21,20 +22,20 @@ public class InheritanceAccessTest : BaseControllerTest
             RemoveOtherPermissionGroups = true
         });
 
-        var secureObjectL1 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), SecureObjectTypes.Project.SecureObjectTypeId);
-        var secureObjectL2 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), SecureObjectTypes.Project.SecureObjectTypeId, secureObjectL1.SecureObjectId);
-        var secureObjectL3 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), SecureObjectTypes.Project.SecureObjectTypeId, secureObjectL2.SecureObjectId);
-        var secureObjectL4 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), SecureObjectTypes.Project.SecureObjectTypeId, secureObjectL3.SecureObjectId);
+        var secureObjectL1 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.Project.SecureObjectTypeId, Guid.NewGuid().ToString(), SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
+        var secureObjectL2 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.Project.SecureObjectTypeId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId);
+        var secureObjectL3 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.Project.SecureObjectTypeId, Guid.NewGuid().ToString(), secureObjectL2.SecureObjectTypeId, secureObjectL2.SecureObjectId);
+        var secureObjectL4 = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.Project.SecureObjectTypeId, Guid.NewGuid().ToString(), secureObjectL3.SecureObjectTypeId, secureObjectL3.SecureObjectId);
 
         // add guest1 to Role1
         var guest1 = Guid.NewGuid();
-        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectId);
+        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId);
         await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role1.RoleId, guest1);
 
 
         // add guest2 to Role2
         var guest2 = Guid.NewGuid();
-        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectId);
+        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId);
         await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role2.RoleId, guest2);
 
         // check : by default user does not have access

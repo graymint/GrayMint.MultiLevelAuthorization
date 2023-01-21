@@ -4,7 +4,6 @@ namespace MultiLevelAuthorization.Models;
 public class AppModel
 {
     public int AppId { get; set; }
-    public string AppName { get; set; } = default!;
     public int AuthorizationCode { get; set; }
 
     public virtual ICollection<SecureObjectTypeModel>? SecureObjectTypes { get; set; }

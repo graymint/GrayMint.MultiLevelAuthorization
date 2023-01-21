@@ -42,9 +42,6 @@ public partial class AuthDbContext : DbContext
 
             entity.Property(e => e.AppId)
                 .ValueGeneratedOnAdd();
-
-            entity.HasIndex(e => new { e.AppName })
-            .IsUnique();
         });
 
         modelBuilder.Entity<SecureObjectTypeModel>(entity =>
@@ -66,6 +63,9 @@ public partial class AuthDbContext : DbContext
 
             entity.Property(e => e.PermissionId)
                 .ValueGeneratedNever();
+
+            entity.Property(e => e.PermissionName)
+                .HasMaxLength(50);
 
             entity.HasIndex(e => new { e.AppId, e.PermissionName })
                 .IsUnique();
@@ -92,7 +92,12 @@ public partial class AuthDbContext : DbContext
         {
             entity.Property(e => e.PermissionGroupId)
                 .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.PermissionGroupName)
+                .HasMaxLength(50);
+
             entity.HasKey(x => new { x.PermissionGroupId });
+
             entity.HasIndex(e => new { e.AppId, e.PermissionGroupName })
                 .IsUnique();
         });
@@ -109,6 +114,10 @@ public partial class AuthDbContext : DbContext
         modelBuilder.Entity<RoleModel>(entity =>
         {
             entity.HasKey(x => x.RoleId);
+
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(50);
+
             entity.HasIndex(e => new { e.AppId, e.RoleName })
                 .IsUnique();
 

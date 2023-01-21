@@ -1693,10 +1693,6 @@ namespace MultiLevelAuthorization.Test.Api
         [Newtonsoft.Json.JsonProperty("appId", Required = Newtonsoft.Json.Required.Always)]
         public int AppId { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("appName", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string AppName { get; set; } = default!;
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]

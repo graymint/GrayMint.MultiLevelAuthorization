@@ -56,8 +56,7 @@ public class AppService
         var appInfo = await Get(appId);
         var appData = new App
         {
-            AppId = appId,
-            AppName = appInfo.AppName
+            AppId = appId
         };
         return appData;
     }
@@ -67,7 +66,6 @@ public class AppService
         // Create auth.App
         var app = new AppModel
         {
-            AppName = request.AppName,
             AuthorizationCode = await _authRepo.GetNewAuthorizationCode()
         };
 

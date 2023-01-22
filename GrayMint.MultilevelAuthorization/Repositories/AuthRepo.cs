@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Persistence;
 
@@ -88,6 +87,7 @@ public class AuthRepo
     public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, string secureObjectTypeId, string secureObjectId)
     {
         var secureObject = await _authDbContext.SecureObjects
+            .Include(x => x.SecureObjectType)
             .SingleAsync(x =>
                 x.AppId == appId &&
                 x.SecureObjectExternalId == secureObjectId &&
@@ -189,7 +189,7 @@ public class AuthRepo
         maxAuthCode++;
         return maxAuthCode;
     }
-    
+
     public async Task ExecuteSqlRaw(string sqlCommand)
     {
         await _authDbContext.Database.ExecuteSqlRawAsync(sqlCommand);

@@ -46,6 +46,16 @@ public class SecureObjectsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
+    [HttpPost("{secureObjectTypeId}/{secureObjectId}/move")]
+    public async Task<SecureObject> Move(int appId, string secureObjectTypeId, string secureObjectId,
+        string prentSecureObjectTypeId, string parentSecureObjectId)
+    {
+        var secureObject = await _secureObjectService.Move(appId, secureObjectTypeId, secureObjectId,
+            prentSecureObjectTypeId, parentSecureObjectId);
+        return secureObject;
+    }
+
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
     [HttpGet("{secureObjectTypeId}/{secureObjectId}/user-permissions")]
     public async Task<Permission[]> GetUserPermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid userId)
     {

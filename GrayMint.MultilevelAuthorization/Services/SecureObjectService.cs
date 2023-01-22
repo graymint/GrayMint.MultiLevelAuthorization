@@ -46,14 +46,7 @@ public class SecureObjectService
         await _authRepo.AddEntity(secureObjectModel);
         await _authRepo.SaveChangesAsync();
 
-        var secureObject = new SecureObject
-        {
-            SecureObjectId = secureObjectId,
-            SecureObjectTypeId = secureObjectTypeId,
-            ParentSecureObjectId = parentSecureObjectId
-        };
-
-        return secureObject;
+        return secureObjectModel.ToDto();
     }
 
     public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, string secureObjectTypeId, string secureObjectId)
@@ -84,6 +77,23 @@ public class SecureObjectService
 
         await _authRepo.AddEntity(secureObjectRolePermission);
         await _authRepo.SaveChangesAsync();
+    }
+
+    public async Task<SecureObject> Move(int appId, string secureObjectTypeId, string secureObjectId,
+        string parentSecureObjectTypeId, string parentSecureObjectId)
+    {
+        // get secure objects info
+        var secureObject = await GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
+        var parentSecureObject = await GetSecureObjectByExternalId(appId, parentSecureObjectTypeId, parentSecureObjectId);
+
+        if (secureObject.SecureObjectId == parentSecureObject.SecureObjectId)
+            throw new InvalidOperationException("SecureObject and ParentSecureObject can not be same.");
+
+        secureObject.ParentSecureObjectId = parentSecureObject.SecureObjectId;
+        await _authRepo.SaveChangesAsync();
+
+        var secureObjectModel = await GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
+        return secureObjectModel.ToDto();
     }
 
     public async Task AddUserPermission(int appId, string secureObjectTypeId, string secureObjectId, Guid userId, Guid permissionGroupId, Guid modifiedByUserId)

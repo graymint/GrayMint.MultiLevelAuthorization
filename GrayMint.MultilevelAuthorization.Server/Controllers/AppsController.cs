@@ -3,6 +3,7 @@ using GrayMint.Common.AspNetCore.Auth.BotAuthentication;
 using GrayMint.Common.AspNetCore.SimpleRoleAuthorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Services;
 
@@ -17,14 +18,15 @@ public class AppsController : Controller
 {
     private readonly AppService _appService;
     private readonly BotAuthenticationTokenBuilder _botAuthenticationTokenBuilder;
+    private readonly IHostEnvironment _hostEnvironment;
 
     public AppsController(
         AppService appService,
-        BotAuthenticationTokenBuilder botAuthenticationTokenBuilder
-        )
+        BotAuthenticationTokenBuilder botAuthenticationTokenBuilder, IHostEnvironment hostEnvironment)
     {
         _appService = appService;
         _botAuthenticationTokenBuilder = botAuthenticationTokenBuilder;
+        _hostEnvironment = hostEnvironment;
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
@@ -72,5 +74,16 @@ public class AppsController : Controller
         // todo warning: it does not work because the GrayMint check by their Cache and need to read directly from database
         await _appService.ResetAuthorizationCode(appId);
         return await GetAuthorizationToken(appId);
+    }
+
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
+    [HttpPost("{appId}/clear-all")]
+    public async Task ClearAll(int appId)
+    {
+        // check access
+        if (_hostEnvironment.IsProduction())
+            throw new UnauthorizedAccessException("This operation is not support in production.");
+
+        await _appService.ClearAll(appId);
     }
 }

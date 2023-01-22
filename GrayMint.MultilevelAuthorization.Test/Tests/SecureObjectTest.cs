@@ -253,8 +253,7 @@ public class SecureObjectTest : BaseControllerTest
         // Add user to created role
         var userId1 = Guid.NewGuid();
         await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role.RoleId, userId1, modifiedByUserId);
-
-
+        
         await TestInit1.SecuresObjectClient.AddUserPermissionAsync(TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId,
             userId1, newPermissionGroup1.PermissionGroupId, modifiedByUserId);
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Models;
 using MultiLevelAuthorization.Persistence;
 
@@ -188,14 +189,14 @@ public class AuthRepo
         maxAuthCode++;
         return maxAuthCode;
     }
-
-    public async Task Init()
+    
+    public async Task ExecuteSqlRaw(string sqlCommand)
     {
-        await _authDbContext.Database.ExecuteSqlRawAsync(SecureObject_HierarchySql());
+        await _authDbContext.Database.ExecuteSqlRawAsync(sqlCommand);
     }
 
     // SqlInjection safe by just id parameter as Guid
-    private static string SecureObject_HierarchySql()
+    public string SecureObject_HierarchySql()
     {
         const string secureObjects = $"{AuthDbContext.Schema}.{nameof(AuthDbContext.SecureObjects)}";
         const string secureObjectId = $"{nameof(SecureObjectModel.SecureObjectId)}";
@@ -223,5 +224,21 @@ public class AuthRepo
             $"CREATE OR ALTER FUNCTION [{AuthDbContext.Schema}].[{nameof(AuthDbContext.SecureObjectHierarchy)}](@id int)\r\nRETURNS TABLE\r\nAS\r\nRETURN\r\n({sql})";
 
         return createSql;
+    }
+
+    public string AppClearCommand(int appId)
+    {
+        // delete command
+        var sql =
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.RoleUsers)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.SecureObjectRolePermissions)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.Roles)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.SecureObjectUserPermissions)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.SecureObjects)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.SecureObjectTypes)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.Permissions)} WHERE {nameof(AppModel.AppId)} = {appId}" +
+            $"DELETE {AuthDbContext.Schema}.{nameof(_authDbContext.PermissionGroups)} WHERE {nameof(AppModel.AppId)} = {appId}";
+
+        return sql;
     }
 }

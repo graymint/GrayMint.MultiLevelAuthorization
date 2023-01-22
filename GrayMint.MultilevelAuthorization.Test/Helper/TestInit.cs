@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GrayMint.Common.AspNetCore.Auth.BotAuthentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using MultiLevelAuthorization.Persistence;
@@ -28,12 +30,17 @@ public class TestInit
     public AuthenticationHeaderValue AuthorizationAppCreator { get; private set; } = default!;
     public AuthenticationHeaderValue AuthorizationAppUser { get; private set; } = default!;
 
-    private TestInit()
+    private TestInit(Dictionary<string, string?> appSettings, string environment)
     {
         // Application
         WebApp = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
+                foreach (var appSetting in appSettings)
+                    builder.UseSetting(appSetting.Key, appSetting.Value);
+                
+                builder.UseEnvironment(environment);
+
                 builder.ConfigureServices(_ =>
                 {
                 });
@@ -54,9 +61,10 @@ public class TestInit
         Scope = WebApp.Services.CreateScope();
     }
 
-    public static async Task<TestInit> Create()
+    public static async Task<TestInit> Create(Dictionary<string, string?>? appSettings = null, string environment = "Development")
     {
-        var testInit = new TestInit();
+        appSettings ??= new Dictionary<string, string?>();
+        var testInit = new TestInit(appSettings, environment);
         await testInit.Init();
         return testInit;
     }

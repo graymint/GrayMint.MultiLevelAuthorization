@@ -48,7 +48,7 @@ public class AppService
         await _secureObjectService.UpdateSecureObjectTypes(appId, secureObjectTypes);
         await _permissionService.Update(appId, permissions);
         await _permissionService.UpdatePermissionGroups(appId, permissionGroups, removeOtherPermissionGroups);
-        
+
         // commit transaction
         await _authRepo.SaveChangesAsync();
         await _authRepo.CommitTransaction();
@@ -87,5 +87,15 @@ public class AppService
         var app = await _authRepo.GetApp(appId);
         app.AuthorizationCode = maxAuthCode;
         await _authRepo.SaveChangesAsync();
+    }
+
+    public async Task ClearAll(int appId)
+    {
+        await _authRepo.BeginTransaction();
+
+        var sqlDeleteCommand = _authRepo.AppClearCommand(appId);
+
+        await _authRepo.ExecuteSqlRaw(sqlDeleteCommand);
+        await _authRepo.CommitTransaction();
     }
 }

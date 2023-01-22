@@ -40,7 +40,7 @@ public class Program
         await using (var scope = webApp.Services.CreateAsyncScope())
         {
             var authRepo = scope.ServiceProvider.GetRequiredService<AuthRepo>();
-            await authRepo.Init();
+            await authRepo.ExecuteSqlRaw(authRepo.SecureObject_HierarchySql());
         }
 
         await GrayMintApp.RunAsync(webApp, args);

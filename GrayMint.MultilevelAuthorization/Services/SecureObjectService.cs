@@ -79,7 +79,13 @@ public class SecureObjectService
         await _authRepo.SaveChangesAsync();
     }
 
-    public async Task<SecureObject> Move(int appId, string secureObjectTypeId, string secureObjectId,
+    public async Task<SecureObject> Update(int appId, string secureObjectTypeId, string secureObjectId, SecureObjectUpdateRequest request)
+    {
+        // Get AppModel
+        var secureObject = await Move(appId, secureObjectTypeId, secureObjectId, request.ParentSecureObjectTypeId, request.ParentSecureObjectId);
+        return secureObject;
+    }
+    private async Task<SecureObject> Move(int appId, string secureObjectTypeId, string secureObjectId,
         string parentSecureObjectTypeId, string parentSecureObjectId)
     {
         // get secure objects info

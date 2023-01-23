@@ -10,12 +10,16 @@ public static class RoleConverter
         if (roleModel.OwnerSecureObject == null)
             throw new ArgumentException("OwnerSecureObject has not been included.");
 
+        if(roleModel.OwnerSecureObject.SecureObjectType == null)
+            throw new ArgumentException("OwnerSecureObjectType has not been included.");
+
         return new Role
         {
             RoleId = roleModel.RoleId,
             RoleName = roleModel.RoleName,
             ModifiedByUserId = roleModel.ModifiedByUserId,
-            OwnerSecureObjectId = roleModel.OwnerSecureObject.SecureObjectExternalId
+            OwnerSecureObjectId = roleModel.OwnerSecureObject.SecureObjectExternalId,
+            OwnerSecureObjectTypeId = roleModel.OwnerSecureObject.SecureObjectType.SecureObjectTypeExternalId
         };
     }
 }

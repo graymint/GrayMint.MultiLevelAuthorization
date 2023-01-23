@@ -28,7 +28,7 @@ public class RolesController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("{roleId:guid}/add-user")]
+    [HttpPost("{roleId:guid}/users/{userId:guid}")]
     public async Task<IActionResult> AddUserToRole(int appId, Guid roleId, Guid userId, Guid modifiedByUserId)
     {
         await _roleService.AddUserToRole(appId, roleId, userId, modifiedByUserId);

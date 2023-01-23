@@ -149,6 +149,7 @@ public class AuthRepo
     {
         return await _authDbContext.Roles
             .Include(x => x.OwnerSecureObject)
+            .ThenInclude(x => x!.SecureObjectType)
             .Where(x => x.AppId == appId)
             .ToArrayAsync();
     }
@@ -157,6 +158,7 @@ public class AuthRepo
     {
         return await _authDbContext.Roles
             .Include(x => x.OwnerSecureObject)
+            .ThenInclude(x => x!.SecureObjectType)
             .Where(x => x.AppId == appId && x.RoleId == roleId)
             .SingleAsync();
     }
@@ -175,6 +177,7 @@ public class AuthRepo
         var userRoles = await _authDbContext.RoleUsers
             .Include(x => x.Role)
             .ThenInclude(x => x!.OwnerSecureObject)
+            .ThenInclude(x=>x!.SecureObjectType)
             .Where(x => x.AppId == appId && x.UserId == userId)
             .ToArrayAsync();
 

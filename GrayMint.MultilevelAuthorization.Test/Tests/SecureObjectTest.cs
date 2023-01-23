@@ -11,6 +11,7 @@ using MultiLevelAuthorization.Services;
 using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
 using AppInitRequest = MultiLevelAuthorization.Test.Api.AppInitRequest;
+using SecureObjectUpdateRequest = MultiLevelAuthorization.Test.Api.SecureObjectUpdateRequest;
 
 namespace MultiLevelAuthorization.Test.Tests;
 [TestClass]
@@ -345,11 +346,15 @@ public class SecureObjectTest : BaseControllerTest
             Guid.NewGuid().ToString(), SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
 
         // try to move secureObject2 to secureObject1
+        var request = new SecureObjectUpdateRequest
+        {
+            ParentSecureObjectTypeId = new PatchOfString { Value = secureObject2.SecureObjectTypeId },
+            ParentSecureObjectId = new PatchOfString { Value = secureObject2.SecureObjectId }
+        };
+
         try
         {
-            await TestInit1.SecuresObjectClient.MoveAsync(TestInit1.AppId, secureObject1.SecureObjectTypeId,
-                secureObject1.SecureObjectId,
-                secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId);
+            await TestInit1.SecuresObjectClient.UpdateAsync(TestInit1.AppId, secureObject1.SecureObjectTypeId, secureObject1.SecureObjectId, request);
             Assert.Fail("Wrong app exception is expected.");
         }
         catch (ApiException ex)
@@ -379,11 +384,15 @@ public class SecureObjectTest : BaseControllerTest
         var testInit2 = await TestInit.Create();
 
         // try to move secureObject2 to secureObject1
+        var request = new SecureObjectUpdateRequest
+        {
+            ParentSecureObjectTypeId = new PatchOfString { Value = secureObject2.SecureObjectTypeId },
+            ParentSecureObjectId = new PatchOfString { Value = secureObject2.SecureObjectId }
+        };
+
         try
         {
-            await TestInit1.SecuresObjectClient.MoveAsync(testInit2.AppId, secureObject1.SecureObjectTypeId,
-                secureObject1.SecureObjectId,
-                secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId);
+            await TestInit1.SecuresObjectClient.UpdateAsync(testInit2.AppId, secureObject1.SecureObjectTypeId, secureObject1.SecureObjectId, request);
             Assert.Fail("Forbidden exception is expected.");
         }
         catch (ApiException ex)
@@ -406,11 +415,15 @@ public class SecureObjectTest : BaseControllerTest
             Guid.NewGuid().ToString(), SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
 
         // try to move secureObject2 to secureObject1
+        var request = new SecureObjectUpdateRequest
+        {
+            ParentSecureObjectTypeId = new PatchOfString { Value = secureObject.SecureObjectTypeId },
+            ParentSecureObjectId = new PatchOfString { Value = secureObject.SecureObjectId }
+        };
+
         try
         {
-            await TestInit1.SecuresObjectClient.MoveAsync(TestInit1.AppId, secureObject.SecureObjectTypeId,
-                secureObject.SecureObjectId,
-                secureObject.SecureObjectTypeId, secureObject.SecureObjectId);
+            await TestInit1.SecuresObjectClient.UpdateAsync(TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId, request);
             Assert.Fail("SecureObject and ParentSecureObject can not be same.");
         }
         catch (ApiException ex)
@@ -459,11 +472,21 @@ public class SecureObjectTest : BaseControllerTest
             secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId, userId, Permissions.ProjectRead.PermissionId));
 
         // move secureObject3
-        await TestInit1.SecuresObjectClient.MoveAsync(TestInit1.AppId, secureObject3.SecureObjectTypeId, secureObject3.SecureObjectId,
-            secureObject1.SecureObjectTypeId, secureObject1.SecureObjectId);
+        var request = new SecureObjectUpdateRequest
+        {
+            ParentSecureObjectTypeId = new PatchOfString { Value = secureObject1.SecureObjectTypeId },
+            ParentSecureObjectId = new PatchOfString { Value = secureObject1.SecureObjectId }
+        };
 
-        await TestInit1.SecuresObjectClient.MoveAsync(TestInit1.AppId, secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId,
-            secureObject3.SecureObjectTypeId, secureObject3.SecureObjectId);
+        await TestInit1.SecuresObjectClient.UpdateAsync(TestInit1.AppId, secureObject3.SecureObjectTypeId, secureObject3.SecureObjectId, request);
+
+        request = new SecureObjectUpdateRequest
+        {
+            ParentSecureObjectTypeId = new PatchOfString { Value = secureObject3.SecureObjectTypeId },
+            ParentSecureObjectId = new PatchOfString { Value = secureObject3.SecureObjectId }
+        };
+
+        await TestInit1.SecuresObjectClient.UpdateAsync(TestInit1.AppId, secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId, request);
 
         // validate user must have permission after move
         Assert.IsTrue(await TestInit1.SecuresObjectClient.HasUserPermissionAsync(TestInit1.AppId,

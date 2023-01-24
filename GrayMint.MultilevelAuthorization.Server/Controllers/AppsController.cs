@@ -3,7 +3,6 @@ using GrayMint.Common.AspNetCore.Auth.BotAuthentication;
 using GrayMint.Common.AspNetCore.SimpleRoleAuthorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using MultiLevelAuthorization.Dtos;
 using MultiLevelAuthorization.Services;
 
@@ -40,9 +39,9 @@ public class AppsController : Controller
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppCreator)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [HttpPost]
-    public async Task<ActionResult<App>> Create(AppCreateRequest appCreateRequest)
+    public async Task<ActionResult<App>> Create()
     {
-        var app = await _appService.Create(appCreateRequest);
+        var app = await _appService.Create();
         return CreatedAtAction(nameof(Get), new { app.AppId }, app);
     }
 

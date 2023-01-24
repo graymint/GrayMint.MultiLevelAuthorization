@@ -30,7 +30,7 @@ public class SecureObjectsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("{secureObjectTypeId}/secure-objects/{secureObjectId}/add-user-permission")]
+    [HttpPost("{secureObjectTypeId}/secure-objects/{secureObjectId}/user-permission-groups")]
     public async Task<IActionResult> AddUserPermission(int appId, string secureObjectTypeId, string secureObjectId, Guid userId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         await _secureObjectService.AddUserPermission(appId, secureObjectTypeId, secureObjectId, userId, permissionGroupId, modifiedByUserId);
@@ -38,11 +38,27 @@ public class SecureObjectsController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("{secureObjectTypeId}/secure-objects/{secureObjectId}/add-role-permission")]
+    [HttpGet("{secureObjectTypeId}/secure-objects/{secureObjectId}/user-permission-groups")]
+    public async Task<PermissionGroup[]> GetSecureObjectUserPermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid userId)
+    {
+        var permissionGroups = await _secureObjectService.GetSecureObjectUserPermissions(appId, secureObjectTypeId, secureObjectId, userId);
+        return permissionGroups;
+    }
+
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
+    [HttpPost("{secureObjectTypeId}/secure-objects/{secureObjectId}/role-permission-groups")]
     public async Task<IActionResult> AddRolePermission(int appId, string secureObjectTypeId, string secureObjectId, Guid roleId, Guid permissionGroupId, Guid modifiedByUserId)
     {
         await _secureObjectService.AddRolePermission(appId, secureObjectTypeId, secureObjectId, roleId, permissionGroupId, modifiedByUserId);
         return Ok();
+    }
+
+    [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
+    [HttpGet("{secureObjectTypeId}/secure-objects/{secureObjectId}/role-permission-groups")]
+    public async Task<PermissionGroup[]> GetSecureObjectRolePermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid roleId)
+    {
+        var permissionGroups = await _secureObjectService.GetSecureObjectRolePermissions(appId, secureObjectTypeId, secureObjectId, roleId);
+        return permissionGroups;
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]

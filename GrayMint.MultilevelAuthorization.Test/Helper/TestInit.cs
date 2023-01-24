@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -38,7 +37,7 @@ public class TestInit
             {
                 foreach (var appSetting in appSettings)
                     builder.UseSetting(appSetting.Key, appSetting.Value);
-                
+
                 builder.UseEnvironment(environment);
 
                 builder.ConfigureServices(_ =>
@@ -78,7 +77,7 @@ public class TestInit
 
         // create app
         var appsClient = new AppsClient(HttpClientAppCreator);
-        var app = await appsClient.CreateAsync(new AppCreateRequest { AppName = Guid.NewGuid().ToString() });
+        var app = await appsClient.CreateAsync();
         AppId = app.AppId;
 
         // attach its token

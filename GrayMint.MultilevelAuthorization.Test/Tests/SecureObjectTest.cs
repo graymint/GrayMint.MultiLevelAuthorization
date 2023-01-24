@@ -436,7 +436,6 @@ public class SecureObjectTest : BaseControllerTest
     public async Task Success_Move()
     {
         // Init app1
-        // Call App_Init api
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             SecureObjectTypes = SecureObjectTypes.All,
@@ -491,5 +490,57 @@ public class SecureObjectTest : BaseControllerTest
         // validate user must have permission after move
         Assert.IsTrue(await TestInit1.SecuresObjectClient.HasUserPermissionAsync(TestInit1.AppId,
             secureObject2.SecureObjectTypeId, secureObject2.SecureObjectId, userId, Permissions.ProjectRead.PermissionId));
+    }
+
+    [TestMethod]
+    public async Task Get_permission_groups_by_secureObject()
+    {
+
+        // Init app1
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
+        {
+            SecureObjectTypes = SecureObjectTypes.All,
+            PermissionGroups = PermissionGroups.All,
+            Permissions = Permissions.All,
+            RemoveOtherPermissionGroups = true
+        });
+
+        // create a secureObject
+        var secureObject = await TestInit1.SecuresObjectClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId,
+            Guid.NewGuid().ToString(), SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
+
+        //create role
+        var userId = Guid.NewGuid();
+        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(),
+            secureObject.SecureObjectTypeId, secureObject.SecureObjectId);
+
+        // add user to role
+        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role.RoleId, userId);
+
+        // add role to permissionGroup
+        await TestInit1.SecuresObjectClient.AddRolePermissionAsync(TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId,
+            role.RoleId, PermissionGroups.ProjectViewer.PermissionGroupId, Guid.NewGuid());
+
+        // add user to permissionGroup
+        await TestInit1.SecuresObjectClient.AddUserPermissionAsync(TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId,
+            userId, PermissionGroups.UserBasic.PermissionGroupId, Guid.NewGuid());
+
+        // get rolePermissionGroups and assert
+        var rolePermissionGroups = await TestInit1.SecuresObjectClient.GetSecureObjectRolePermissionsAsync(
+            TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId,
+            role.RoleId);
+
+        Assert.AreEqual(1, rolePermissionGroups.Count);
+        Assert.IsNotNull(rolePermissionGroups.SingleOrDefault(x => x.PermissionGroupId == PermissionGroups.ProjectViewer.PermissionGroupId));
+
+        // get userPermissionGroups and assert
+        var userPermissionGroups = await TestInit1.SecuresObjectClient.GetSecureObjectUserPermissionsAsync(
+            TestInit1.AppId, secureObject.SecureObjectTypeId, secureObject.SecureObjectId,
+            userId);
+
+        Assert.AreEqual(1, userPermissionGroups.Count);
+        Assert.IsNotNull(userPermissionGroups.SingleOrDefault(x => x.PermissionGroupId == PermissionGroups.UserBasic.PermissionGroupId));
+
+
     }
 }

@@ -53,7 +53,6 @@ public class AppService
         await _authRepo.SaveChangesAsync();
         await _authRepo.CommitTransaction();
 
-        var appInfo = await Get(appId);
         var appData = new App
         {
             AppId = appId
@@ -61,7 +60,7 @@ public class AppService
         return appData;
     }
 
-    public async Task<App> Create(AppCreateRequest request)
+    public async Task<App> Create()
     {
         // Create auth.App
         var app = new AppModel

@@ -84,6 +84,36 @@ public class AuthRepo
         return permissionGroupPermissions;
     }
 
+    public async Task<SecureObjectUserPermissionModel[]> GetSecureObjectUserPermissions(int appId, int secureObjectId, Guid userId)
+    {
+        var secureObjectUserPermission = await _authDbContext.SecureObjectUserPermissions
+            .Include(x => x.PermissionGroup)
+            .ThenInclude(x => x!.Permissions)
+            .Where(x =>
+                x.AppId == appId &&
+                x.SecureObjectId == secureObjectId &&
+                x.UserId == userId
+            )
+            .ToArrayAsync();
+
+        return secureObjectUserPermission;
+    }
+
+    public async Task<SecureObjectRolePermissionModel[]> GetSecureObjectRolePermissions(int appId, int secureObjectId, Guid roleId)
+    {
+        var secureObjectRolePermission = await _authDbContext.SecureObjectRolePermissions
+            .Include(x => x.PermissionGroup)
+            .ThenInclude(x => x!.Permissions)
+            .Where(x =>
+                x.AppId == appId &&
+                x.SecureObjectId == secureObjectId &&
+                x.RoleId == roleId
+            )
+            .ToArrayAsync();
+
+        return secureObjectRolePermission;
+    }
+
     public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, string secureObjectTypeId, string secureObjectId)
     {
         var secureObject = await _authDbContext.SecureObjects
@@ -177,7 +207,7 @@ public class AuthRepo
         var userRoles = await _authDbContext.RoleUsers
             .Include(x => x.Role)
             .ThenInclude(x => x!.OwnerSecureObject)
-            .ThenInclude(x=>x!.SecureObjectType)
+            .ThenInclude(x => x!.SecureObjectType)
             .Where(x => x.AppId == appId && x.UserId == userId)
             .ToArrayAsync();
 

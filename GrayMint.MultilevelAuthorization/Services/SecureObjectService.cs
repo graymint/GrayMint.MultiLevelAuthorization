@@ -121,6 +121,20 @@ public class SecureObjectService
         await _authRepo.SaveChangesAsync();
     }
 
+    public async Task<PermissionGroup[]> GetSecureObjectUserPermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid userId)
+    {
+        var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
+        var userPermissionGroupModels = await _authRepo.GetSecureObjectUserPermissions(appId, secureObject.SecureObjectId, userId);
+        return userPermissionGroupModels.Select(x => x.ToDto()).ToArray();
+    }
+
+    public async Task<PermissionGroup[]> GetSecureObjectRolePermissions(int appId, string secureObjectTypeId, string secureObjectId, Guid roleId)
+    {
+        var secureObject = await _authRepo.GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
+        var rolePermissionGroupModels = await _authRepo.GetSecureObjectRolePermissions(appId, secureObject.SecureObjectId, roleId);
+        return rolePermissionGroupModels.Select(x => x.ToDto()).ToArray();
+    }
+
     public async Task<bool> HasUserPermission(int appId, string secureObjectTypeId, string secureObjectId, Guid userId, int permissionId)
     {
         // retrieve db model for secureObject

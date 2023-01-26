@@ -28,7 +28,7 @@ public class AppService
         return app.ToDto();
     }
 
-    public async Task<App> InitApp(int appId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroup[] permissionGroups, bool removeOtherPermissionGroups = true)
+    public async Task<App> InitApp(int appId, SecureObjectType[] secureObjectTypes, Permission[] permissions, PermissionGroupsInitRequest[] permissionGroups, bool removeOtherPermissionGroups = true)
     {
         // Validate SecureObjectTypes for System value in list
         var result = secureObjectTypes.FirstOrDefault(x => x.SecureObjectTypeId == SecureObjectService.SystemSecureObjectTypeId);
@@ -49,8 +49,10 @@ public class AppService
         await _permissionService.Update(appId, permissions);
         await _permissionService.UpdatePermissionGroups(appId, permissionGroups, removeOtherPermissionGroups);
 
+        // Update system secure object
+        await _secureObjectService.UpdateSystemSecureObject(appId);
+
         // commit transaction
-        await _authRepo.SaveChangesAsync();
         await _authRepo.CommitTransaction();
 
         var appData = new App

@@ -23,7 +23,6 @@ public class TestInit
     public HttpClient HttpClientAppCreator { get; set; }
     public AppsClient AppsClient => new(HttpClientAppUser);
     public AppsClient AppsClientCreator => new(HttpClientAppCreator);
-    public UsersClient UsersClient => new(HttpClientAppUser);
     public SecureObjectsClient SecuresObjectClient => new(HttpClientAppUser);
     public RolesClient RolesClient => new(HttpClientAppUser);
     public AuthenticationHeaderValue AuthorizationAppCreator { get; private set; } = default!;

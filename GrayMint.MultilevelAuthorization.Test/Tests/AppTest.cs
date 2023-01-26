@@ -32,11 +32,11 @@ public class AppTest : BaseControllerTest
             SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId);
 
         // create role
-        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), SecureObjectTypes.User.SecureObjectTypeId,
-            secureObjectId, Guid.NewGuid());
+        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId,
+            secureObjectId, Guid.NewGuid().ToString(), Guid.NewGuid());
 
         // add user to role
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role.RoleId, Guid.NewGuid(), Guid.NewGuid());
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role.RoleId, Guid.NewGuid(), Guid.NewGuid());
 
         // add role permission
         await TestInit1.SecuresObjectClient.AddRolePermissionAsync(TestInit1.AppId, SecureObjectService.SystemSecureObjectTypeId, SecureObjectService.SystemSecureObjectId,

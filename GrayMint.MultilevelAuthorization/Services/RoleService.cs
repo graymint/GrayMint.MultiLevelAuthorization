@@ -16,20 +16,26 @@ public class RoleService
         _secureObjectService = secureObjectService;
     }
 
-    public async Task<Role[]> GetRoles(int appId)
+    public async Task<Role[]> GetRoles(int appId, int secureObjectId)
     {
-        var roleModels = await _authRepo.GetRoles(appId);
+        var roleModels = await _authRepo.GetRoles(appId, secureObjectId);
         return roleModels.Select(x => x.ToDto()).ToArray();
     }
 
-    public async Task<Role> Create(int appId, string roleName, string ownerSecureObjectTypeId, string ownerSecureObjectId, Guid modifiedByUserId)
+    public async Task<Role[]> GetUserRoles(int appId, Guid userId)
     {
-        var secureObject = await _secureObjectService.GetSecureObjectByExternalId(appId, ownerSecureObjectTypeId, ownerSecureObjectId);
+        var roleModels = await _authRepo.GetUserRoles(appId, userId);
+        return roleModels.Select(x => x.ToDto()).ToArray();
+    }
+
+    public async Task<Role> Create(int appId, string roleName, string secureObjectTypeId, string secureObjectId, Guid modifiedByUserId)
+    {
+        var secureObject = await _secureObjectService.GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
 
         var roleModel = new RoleModel
         {
             AppId = appId,
-            OwnerSecureObjectId = secureObject.SecureObjectId,
+            SecureObjectId = secureObject.SecureObjectId,
             CreatedTime = DateTime.UtcNow,
             ModifiedByUserId = modifiedByUserId,
             RoleId = Guid.NewGuid(),
@@ -56,13 +62,9 @@ public class RoleService
         await _authRepo.SaveChangesAsync();
     }
 
-    public async Task<User[]> GetRoleUsers(int appId, Guid roleId)
+    public async Task<Role> GetRole(int appId, Guid roleId)
     {
-        var roleUserModels = await _authRepo.GetRoleUsers(appId, roleId);
-
-        var users = roleUserModels
-            .Select(x => new User { UserId = x.UserId })
-            .ToArray();
-        return users;
+        var role = await _authRepo.GetRole(appId, roleId);
+        return role.ToDto();
     }
 }

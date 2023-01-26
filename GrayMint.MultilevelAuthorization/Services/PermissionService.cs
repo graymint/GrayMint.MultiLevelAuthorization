@@ -53,6 +53,8 @@ public class PermissionService
             if (obValue == null) continue;
             dbValue.PermissionName = obValue.PermissionName;
         }
+
+        await _authRepo.SaveChangesAsync();
     }
 
     private static void UpdatePermissionGroupPermissions(ICollection<PermissionGroupPermissionModel> dbValues, PermissionGroupPermissionModel[] obValues)
@@ -68,7 +70,7 @@ public class PermissionService
             dbValues.Remove(dbValue);
     }
 
-    public async Task UpdatePermissionGroups(int appId, PermissionGroup[] obValues, bool removeOthers)
+    public async Task UpdatePermissionGroups(int appId, PermissionGroupsInitRequest[] obValues, bool removeOthers)
     {
         var permissionGroups = await _authRepo.GetPermissionGroups(appId);
 
@@ -84,7 +86,7 @@ public class PermissionService
             await _authRepo.AddEntity(permissionGroup);
 
             UpdatePermissionGroupPermissions(permissionGroup.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermissionModel { AppId = appId, PermissionGroupId = permissionGroup.PermissionGroupId, PermissionId = x.PermissionId }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermissionModel { AppId = appId, PermissionGroupId = permissionGroup.PermissionGroupId, PermissionId = x }).ToArray());
         }
 
         // delete
@@ -107,9 +109,10 @@ public class PermissionService
             if (obValue == null) continue;
 
             UpdatePermissionGroupPermissions(dbValue.PermissionGroupPermissions,
-                obValue.Permissions.Select(x => new PermissionGroupPermissionModel { AppId = appId, PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x.PermissionId }).ToArray());
+                obValue.Permissions.Select(x => new PermissionGroupPermissionModel { AppId = appId, PermissionGroupId = dbValue.PermissionGroupId, PermissionId = x }).ToArray());
 
             dbValue.PermissionGroupName = obValue.PermissionGroupName;
         }
+        await _authRepo.SaveChangesAsync();
     }
 }

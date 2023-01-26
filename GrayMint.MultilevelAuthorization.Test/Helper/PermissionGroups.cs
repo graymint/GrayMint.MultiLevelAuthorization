@@ -5,41 +5,41 @@ using MultiLevelAuthorization.Test.Api;
 namespace MultiLevelAuthorization.Test.Helper;
 public static class PermissionGroups
 {
-    public static PermissionGroup UserBasic { get; } = new()
+    public static PermissionGroupsInitRequest UserBasic { get; } = new()
     {
         PermissionGroupId = Guid.NewGuid(),
         PermissionGroupName = nameof(UserBasic),
-        Permissions = new List<Permission>
+        Permissions = new List<int>
         {
-            Permissions.ProjectCreate,
-            Permissions.ProjectList,
-            Permissions.UserRead
+            Permissions.ProjectCreate.PermissionId,
+            Permissions.ProjectList.PermissionId,
+            Permissions.UserRead.PermissionId
         }
     };
 
-    public static PermissionGroup ProjectViewer { get; } = new()
+    public static PermissionGroupsInitRequest ProjectViewer { get; } = new()
     {
         PermissionGroupId = Guid.NewGuid(), 
         PermissionGroupName = nameof(ProjectViewer),
-        Permissions = new List<Permission>
+        Permissions = new List<int>
         {
-            Permissions.UserRead,
-            Permissions.ProjectRead,
+            Permissions.UserRead.PermissionId,
+            Permissions.ProjectRead.PermissionId,
         }
     };
 
-    public static PermissionGroup ProjectOwner { get; } = new()
+    public static PermissionGroupsInitRequest ProjectOwner { get; } = new()
     {
         PermissionGroupId = Guid.NewGuid(),
         PermissionGroupName = nameof(ProjectOwner),
-        Permissions = new List<Permission>
+        Permissions = new List<int>
         {
-            Permissions.ProjectRead,
-            Permissions.ProjectWrite,
+            Permissions.ProjectRead.PermissionId,
+            Permissions.ProjectWrite.PermissionId,
         }
     };
 
-    public static PermissionGroup[] All { get; } =
+    public static PermissionGroupsInitRequest[] All { get; } =
     {
         ProjectOwner,
         ProjectViewer,

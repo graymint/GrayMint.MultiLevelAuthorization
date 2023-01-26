@@ -46,7 +46,8 @@ public class SecureObjectService
         await _authRepo.AddEntity(secureObjectModel);
         await _authRepo.SaveChangesAsync();
 
-        return secureObjectModel.ToDto();
+        var secureObject = await GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
+        return secureObject.ToDto();
     }
 
     public async Task<SecureObjectModel> GetSecureObjectByExternalId(int appId, string secureObjectTypeId, string secureObjectId)
@@ -161,8 +162,6 @@ public class SecureObjectService
 
     public async Task BuildSystemSecureObject(int appId)
     {
-        await _authRepo.SaveChangesAsync();
-
         var secureObjectType = new SecureObjectTypeModel
         {
             AppId = appId,
@@ -171,7 +170,6 @@ public class SecureObjectService
 
         await _authRepo.AddEntity(secureObjectType);
         await _authRepo.SaveChangesAsync();
-
 
         var secureObject = new SecureObjectModel
         {
@@ -182,6 +180,27 @@ public class SecureObjectService
         };
 
         await _authRepo.AddEntity(secureObject);
+        await _authRepo.SaveChangesAsync();
+    }
+
+    public async Task UpdateSystemSecureObject(int appId)
+    {
+        // try ro find out is system secure object already exists
+        var secureObject = await _authRepo.FindSecureObjectByExternalId(appId, SystemSecureObjectTypeId, SystemSecureObjectId);
+
+        if (secureObject != null) return;
+
+        // create system secure object
+        var secureObjectType = await _authRepo.GetSecureObjectTypeIdByExternalId(appId, SystemSecureObjectTypeId);
+        var secureObjectModel = new SecureObjectModel
+        {
+            AppId = appId,
+            SecureObjectExternalId = SystemSecureObjectId,
+            SecureObjectTypeId = secureObjectType,
+            ParentSecureObjectId = null
+        };
+
+        await _authRepo.AddEntity(secureObjectModel);
         await _authRepo.SaveChangesAsync();
     }
 
@@ -202,5 +221,7 @@ public class SecureObjectService
         // delete
         foreach (var dbValue in dbValues.Where(x => obValues.All(c => x.AppId == appId && x.SecureObjectTypeExternalId != c.SecureObjectTypeId)))
             _authRepo.RemoveEntity(dbValue);
+
+        await _authRepo.SaveChangesAsync();
     }
 }

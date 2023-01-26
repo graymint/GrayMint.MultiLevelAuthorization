@@ -11,6 +11,8 @@ using MultiLevelAuthorization.Persistence;
 using MultiLevelAuthorization.Services;
 using MultiLevelAuthorization.Test.Api;
 using MultiLevelAuthorization.Test.Helper;
+using AppInitRequest = MultiLevelAuthorization.Test.Api.AppInitRequest;
+using PermissionGroupsInitRequest = MultiLevelAuthorization.Test.Api.PermissionGroupsInitRequest;
 
 namespace MultiLevelAuthorization.Test.Tests;
 
@@ -29,16 +31,15 @@ public class InitTest : BaseControllerTest
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroup()
+        var newPermissionGroup1 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
         // Call App_Init api
-
         await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest
         {
             SecureObjectTypes = secureObjectTypes,
@@ -81,11 +82,11 @@ public class InitTest : BaseControllerTest
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create first permissionGroup
-        var newPermissionGroup1 = new PermissionGroup()
+        var newPermissionGroup1 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
@@ -107,11 +108,11 @@ public class InitTest : BaseControllerTest
         var userBasicId = actualPermissionGroups.Single(x => x.PermissionGroupName == "UserBasic").PermissionGroupId;
 
         // Prepare PermissionGroup2
-        var newPermissionGroup2 = new PermissionGroup()
+        var newPermissionGroup2 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups2 = PermissionGroups.All.Concat(new[] { newPermissionGroup2 }).ToArray();
 
@@ -142,11 +143,11 @@ public class InitTest : BaseControllerTest
         var newPermissionGroupName = Guid.NewGuid().ToString();
         newPermissionGroup2.PermissionGroupName = newPermissionGroupName;
 
-        var newPermissionGroup3 = new PermissionGroup()
+        var newPermissionGroup3 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups3 = PermissionGroups.All.Concat(new[] { newPermissionGroup2, newPermissionGroup3 }).ToArray();
 
@@ -195,11 +196,11 @@ public class InitTest : BaseControllerTest
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroup()
+        var newPermissionGroup1 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
@@ -277,11 +278,11 @@ public class InitTest : BaseControllerTest
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroup()
+        var newPermissionGroup1 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
@@ -320,11 +321,11 @@ public class InitTest : BaseControllerTest
         var permissions = Permissions.All.Concat(new[] { newPermission }).ToArray();
 
         // Create new permissionGroup
-        var newPermissionGroup1 = new PermissionGroup()
+        var newPermissionGroup1 = new PermissionGroupsInitRequest()
         {
             PermissionGroupId = Guid.NewGuid(),
             PermissionGroupName = Guid.NewGuid().ToString(),
-            Permissions = new List<Permission> { newPermission }
+            Permissions = new List<int> { newPermission.PermissionId }
         };
         var permissionGroups = PermissionGroups.All.Concat(new[] { newPermissionGroup1 }).ToArray();
 
@@ -346,6 +347,36 @@ public class InitTest : BaseControllerTest
         {
             Assert.IsTrue(ex.Is<AlreadyExistsException>());
         }
+    }
 
+    [TestMethod]
+    public async Task Init_must_be_create_systemSecureObject_and_systemSecureObjectType()
+    {
+        // clear app data
+        await TestInit1.AppsClient.ClearAllAsync(TestInit1.AppId);
+
+        // Call App_Init api
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest());
+
+        var systemSecureObject = await TestInit1.AuthDbContext.SecureObjects
+            .Include(x => x.SecureObjectType)
+            .SingleOrDefaultAsync(x =>
+                x.SecureObjectType!.SecureObjectTypeExternalId == SecureObjectService.SystemSecureObjectTypeId &&
+                x.SecureObjectExternalId == SecureObjectService.SystemSecureObjectId &&
+                x.AppId == TestInit1.AppId);
+        Assert.IsNotNull(systemSecureObject);
+
+        // call Init again to make sure SystemSecureObjectId must not changed
+        await TestInit1.AppsClient.InitAsync(TestInit1.AppId, new AppInitRequest());
+
+        // assert
+        await TestInit1.AuthDbContext.SecureObjects
+            .Include(x => x.SecureObjectType)
+            .SingleOrDefaultAsync(x =>
+                x.SecureObjectType!.SecureObjectTypeExternalId == SecureObjectService.SystemSecureObjectTypeId &&
+                x.SecureObjectExternalId == SecureObjectService.SystemSecureObjectId &&
+                x.SecureObjectId == systemSecureObject.SecureObjectId &&
+                x.AppId == TestInit1.AppId);
+        Assert.IsNotNull(systemSecureObject);
     }
 }

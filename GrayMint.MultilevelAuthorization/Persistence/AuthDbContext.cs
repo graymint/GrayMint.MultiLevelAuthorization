@@ -123,7 +123,7 @@ public partial class AuthDbContext : DbContext
 
             entity.HasOne(e => e.OwnerSecureObject)
                 .WithMany()
-                .HasForeignKey(e => new { e.OwnerSecureObjectId })
+                .HasForeignKey(e => new { OwnerSecureObjectId = e.SecureObjectId })
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
@@ -150,6 +150,9 @@ public partial class AuthDbContext : DbContext
 
             entity.Property(x => x.SecureObjectExternalId)
                 .HasMaxLength(40);
+
+            entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeId, e.SecureObjectExternalId })
+                .IsUnique();
 
             entity.HasIndex(e => new { e.AppId, e.SecureObjectTypeId })
                 .HasFilter($"{nameof(SecureObjectModel.ParentSecureObjectId)} IS NULL")

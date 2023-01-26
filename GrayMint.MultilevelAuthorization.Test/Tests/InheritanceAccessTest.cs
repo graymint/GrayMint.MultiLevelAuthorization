@@ -29,14 +29,14 @@ public class InheritanceAccessTest : BaseControllerTest
 
         // add guest1 to Role1
         var guest1 = Guid.NewGuid();
-        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId);
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role1.RoleId, guest1);
+        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId, Guid.NewGuid().ToString());
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role1.RoleId, guest1);
 
 
         // add guest2 to Role2
         var guest2 = Guid.NewGuid();
-        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, Guid.NewGuid().ToString(), secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId);
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role2.RoleId, guest2);
+        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId,  secureObjectL1.SecureObjectTypeId, secureObjectL1.SecureObjectId, Guid.NewGuid().ToString());
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role2.RoleId, guest2);
 
         // check : by default user does not have access
         Assert.IsFalse(await TestInit1.SecuresObjectClient.HasUserPermissionAsync(TestInit1.AppId, SecureObjectTypes.Project.SecureObjectTypeId, secureObjectL1.SecureObjectId, guest1, Permissions.ProjectRead.PermissionId));

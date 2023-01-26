@@ -30,7 +30,7 @@ public class RoleTest : BaseControllerTest
         var modifiedByUserId = Guid.NewGuid();
 
         // Create a new Role
-        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
+        var role = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, roleName, modifiedByUserId);
 
         // assert output dto
         Assert.AreEqual(secureObjectId, role.OwnerSecureObjectId);
@@ -38,7 +38,7 @@ public class RoleTest : BaseControllerTest
         Assert.AreEqual(modifiedByUserId, role.ModifiedByUserId);
 
         // Retrieve data based on created role
-        var result = await TestInit1.RolesClient.GetRolesAsync(TestInit1.AppId);
+        var result = await TestInit1.RolesClient.GetRolesAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId);
 
         // Assert 
         Assert.IsNotNull(result.SingleOrDefault(x => x.RoleName == roleName
@@ -71,40 +71,41 @@ public class RoleTest : BaseControllerTest
         var userId3 = Guid.NewGuid();
 
         // Create role1        
-        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
+        var role1 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, roleName, modifiedByUserId);
 
         // Create role2
         roleName = Guid.NewGuid().ToString();
-        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
+        var role2 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, roleName, modifiedByUserId);
 
         // Create role3
         roleName = Guid.NewGuid().ToString();
-        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, roleName, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, modifiedByUserId);
+        var role3 = await TestInit1.RolesClient.CreateAsync(TestInit1.AppId, SecureObjectTypes.User.SecureObjectTypeId, secureObjectId, roleName, modifiedByUserId);
 
         // Add user1 to role1
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role1.RoleId, userId1, modifiedByUserId);
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role1.RoleId, userId1, modifiedByUserId);
 
         // Add user2 to role2
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role2.RoleId, userId2, modifiedByUserId);
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role2.RoleId, userId2, modifiedByUserId);
 
         // Add user3 to role2
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role2.RoleId, userId3, modifiedByUserId);
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role2.RoleId, userId3, modifiedByUserId);
 
         // add user1 to role3
-        await TestInit1.RolesClient.AddUserToRoleAsync(TestInit1.AppId, role3.RoleId, userId1, modifiedByUserId);
+        await TestInit1.RolesClient.AddUserAsync(TestInit1.AppId, role3.RoleId, userId1, modifiedByUserId);
 
         //-----------------------------
         // check : Successfully retrieve user2 and user3 for role2
         //-----------------------------
-        var users = await TestInit1.RolesClient.GetRoleUsersAsync(TestInit1.AppId, role2.RoleId);
-        Assert.AreEqual(2, users.Count);
-        Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId2));
-        Assert.IsNotNull(users.SingleOrDefault(x => x.UserId == userId3));
+        var role = await TestInit1.RolesClient.GetRoleAsync(TestInit1.AppId, role2.RoleId);
+        if (role.Users == null) throw new Exception("Users can not be null.");
+        Assert.AreEqual(2, role.Users.Count);
+        Assert.IsNotNull(role.Users.SingleOrDefault(x => x.UserId == userId2));
+        Assert.IsNotNull(role.Users.SingleOrDefault(x => x.UserId == userId3));
 
         //-----------------------------
         // check : Successfully retrieve role1 and role3 for user1
         //-----------------------------
-        var roles = await TestInit1.UsersClient.GetUserRolesAsync(TestInit1.AppId, userId1);
+        var roles = await TestInit1.RolesClient.GetUserRolesAsync(TestInit1.AppId, userId1);
         Assert.AreEqual(2, roles.Count);
         Assert.IsNotNull(roles.SingleOrDefault(x => x.RoleId == role1.RoleId));
         Assert.IsNotNull(roles.SingleOrDefault(x => x.RoleId == role3.RoleId));

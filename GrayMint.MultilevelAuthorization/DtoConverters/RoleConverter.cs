@@ -5,21 +5,22 @@ namespace MultiLevelAuthorization.DtoConverters;
 
 public static class RoleConverter
 {
-    public static Role ToDto(this RoleModel roleModel)
+    public static Role ToDto(this RoleModel model)
     {
-        if (roleModel.OwnerSecureObject == null)
+        if (model.OwnerSecureObject == null)
             throw new ArgumentException("OwnerSecureObject has not been included.");
 
-        if(roleModel.OwnerSecureObject.SecureObjectType == null)
+        if (model.OwnerSecureObject.SecureObjectType == null)
             throw new ArgumentException("OwnerSecureObjectType has not been included.");
 
         return new Role
         {
-            RoleId = roleModel.RoleId,
-            RoleName = roleModel.RoleName,
-            ModifiedByUserId = roleModel.ModifiedByUserId,
-            OwnerSecureObjectId = roleModel.OwnerSecureObject.SecureObjectExternalId,
-            OwnerSecureObjectTypeId = roleModel.OwnerSecureObject.SecureObjectType.SecureObjectTypeExternalId
+            RoleId = model.RoleId,
+            RoleName = model.RoleName,
+            ModifiedByUserId = model.ModifiedByUserId,
+            OwnerSecureObjectId = model.OwnerSecureObject.SecureObjectExternalId,
+            OwnerSecureObjectTypeId = model.OwnerSecureObject.SecureObjectType.SecureObjectTypeExternalId,
+            Users = model.RoleUsers?.Select(roleUser => new User { UserId = roleUser.UserId }).ToArray()
         };
     }
 }

@@ -596,7 +596,7 @@ namespace MultiLevelAuthorization.Test.Api
                 throw new System.ArgumentNullException("appId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secureObjectTypeId/{secureObjectTypeId}/secureObjectId/{secureObjectId}/roles?");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-object-types/{secureObjectTypeId}/secure-objects/{secureObjectId}/roles?");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -678,7 +678,7 @@ namespace MultiLevelAuthorization.Test.Api
                 throw new System.ArgumentNullException("appId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/v1/apps/{appId}/secureObjectTypeId/{secureObjectTypeId}/secureObjectId/{secureObjectId}/roles");
+            urlBuilder_.Append("api/v1/apps/{appId}/secure-object-types/{secureObjectTypeId}/secure-objects/{secureObjectId}/roles");
             urlBuilder_.Replace("{appId}", System.Uri.EscapeDataString(ConvertToString(appId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectTypeId}", System.Uri.EscapeDataString(ConvertToString(secureObjectTypeId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{secureObjectId}", System.Uri.EscapeDataString(ConvertToString(secureObjectId, System.Globalization.CultureInfo.InvariantCulture)));

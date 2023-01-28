@@ -118,7 +118,7 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50);
 
-            entity.HasIndex(e => new { e.AppId, e.RoleName })
+            entity.HasIndex(e => new { e.AppId, e.RoleName, e.SecureObjectId })
                 .IsUnique();
 
             entity.HasOne(e => e.OwnerSecureObject)

@@ -22,7 +22,7 @@ public class RolesController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpPost("secureObjectTypeId/{secureObjectTypeId}/secureObjectId/{secureObjectId}/roles")]
+    [HttpPost("secure-object-types/{secureObjectTypeId}/secure-objects/{secureObjectId}/roles")]
     public async Task<Role> Create(int appId, string roleName, string secureObjectTypeId, string secureObjectId, Guid modifiedByUserId)
     {
         var result = await _roleService.Create(appId, roleName, secureObjectTypeId, secureObjectId, modifiedByUserId);
@@ -30,7 +30,7 @@ public class RolesController : Controller
     }
 
     [Authorize(SimpleRoleAuth.Policy, Roles = Roles.AppUser)]
-    [HttpGet("secureObjectTypeId/{secureObjectTypeId}/secureObjectId/{secureObjectId}/roles")]
+    [HttpGet("secure-object-types/{secureObjectTypeId}/secure-objects/{secureObjectId}/roles")]
     public async Task<Role[]> GetRoles(int appId, string secureObjectTypeId, string secureObjectId)
     {
         var dbSecureObject = await _secureObjectService.GetSecureObjectByExternalId(appId, secureObjectTypeId, secureObjectId);
